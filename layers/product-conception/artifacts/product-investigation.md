@@ -30,7 +30,7 @@ A useful product must therefore preserve:
 
 - the meaning of domain concepts;
 - the rules and constraints that make a model valid;
-- explicit correspondence between conceptual, logical, and physical representations;
+- explicit correspondence between conceptual, logical, and physical data models;
 - the derivation of generated artifacts; and
 - the ownership and history needed to govern change.
 
@@ -38,9 +38,40 @@ A useful product must therefore preserve:
 
 A governed catalog can reduce model drift by making domain elements, constraints, mappings, and transformation provenance first-class data.
 
-The catalog would be authoritative for design intent. Generated artifacts would be reproducible outputs of that intent, not independent sources of truth. Any future support for importing or reconciling externally changed artifacts is a separate capability.
+The catalog would be authoritative for design intent. Generated artifacts would be reproducible outputs of that intent, not independent sources of truth. The first use case includes reading and comparing the selected target's implemented schema; accepting external changes as design authority or providing general bidirectional reconciliation remains a separate capability.
 
 The initial proof should cover one end-to-end modeling flow and one implementation target. Supporting many targets, arbitrary subsystem behavior, or complete enterprise governance is not required to test the hypothesis.
+
+### 3.1 First use case: DAMA-aligned data modeling
+
+The first use case serves a data architect or data modeler progressing from business understanding through conceptual, logical, and physical data modeling. Its nomenclature and general approach must follow the DAMA Data Management Body of Knowledge (DAMA-DMBOK) and the DAMA Dictionary of Data Management carefully.
+
+The current published reference is DAMA-DMBOK2R, second edition revised in 2024. DAMA provides a common body of knowledge and vocabulary rather than prescribing one modeling notation, tool, or implementation method. Any notation, normalization rules, or target-specific modeling technique adopted by this product must therefore be identified separately rather than attributed to DAMA without evidence.
+
+For this investigation, the working model levels are:
+
+- Conceptual data model: a business-oriented view of the subject area, its principal entities, relationships, meanings, and material business rules.
+- Logical data model: a detailed, technology-independent expression of data requirements, including entities, attributes, identifiers, relationships, cardinality, domains, and applicable constraints.
+- Physical data model: a technology-specific design for storing or exchanging the data, including structures and constraints appropriate to the selected target platform.
+
+Progression between these models is an iterative design activity requiring data-architect judgment. The product may assist or generate candidates, but it must record the decisions and mappings involved rather than imply that conceptual meaning can be converted automatically and losslessly into implementation.
+
+A physical data model describes intended target-specific design. It is not identical to a generated deployment artifact or to the schema observed in a running system. The first use case must preserve those distinctions so the intended physical model can be compared with what was actually implemented.
+
+These working definitions correct evident conflicts in the initial product hypothesis, but they do not establish complete DAMA conformance. The detailed DMBOK2R and DAMA Dictionary texts are not present in this workspace and must be consulted before the data-modeling requirements or metamodel are approved.
+
+### 3.2 DAMA alignment assessment
+
+The investigation was already directionally aligned in its conceptual-to-logical-to-physical progression, technology-independent logical model, explicit rules, traceability, and target-specific physical design.
+
+This revision corrects four conflicts or material ambiguities:
+
+1. Conceptual, logical, and physical are now treated as related data models rather than per-element representation labels.
+2. The physical data model is separated from generated deployment artifacts and the schema observed in an implemented system.
+3. DAMA-aligned data-modeling constructs govern the first use case; the broader `Concept` abstraction is no longer assumed to be part of its core vocabulary.
+4. Progression between models is treated as iterative, decision-bearing design rather than an automatic lossless transformation.
+
+No incompatible implementation architecture has been selected because architecture and transformation technology remain deferred.
 
 ## 4. Governing Principles
 
@@ -62,7 +93,7 @@ The catalog is authoritative for design intent. The product must identify derive
 
 ### 4.5 Separation of concerns
 
-The product must distinguish domain semantics, representation decisions, target-specific mappings, generated artifacts, and operational governance.
+The product must distinguish domain semantics, data-modeling decisions, target-specific mappings, generated artifacts, observed implementations, and operational governance.
 
 ### 4.6 Least necessary complexity
 
@@ -93,41 +124,49 @@ A catalog item is any independently identified object managed by the catalog. Al
 
 ### 5.2 Domain
 
-A bounded subject area whose meaning and structure are being modeled.
+A bounded business subject area whose meaning and data requirements are being modeled. This use of `Domain` must remain distinct from an attribute's value domain.
 
 ### 5.3 Model element
 
-A meaningful part of a domain model. Initial model-element types are:
+A meaningful part of a data model. Initial model-element types are:
 
-- Concept: a business idea whose meaning is independent of a particular implementation.
-- Entity: an identifiable subject represented in a structured model.
-- Attribute: a characteristic of a concept or entity.
-- Relationship: a typed association between model elements.
+- Concept: an optional broader catalog idea whose meaning is independent of a particular implementation.
+- Entity: a person, place, thing, event, or other subject about which data is represented.
+- Attribute: a characteristic of an entity.
+- Relationship: a meaningful association between entities.
 - Constraint: a rule that determines model or data validity.
-- Identifier: a rule for distinguishing instances of an entity.
+- Identifier: one or more attributes used to distinguish instances of an entity.
 - Value domain: the permitted values and associated meaning for an attribute.
 
-The distinction between a Concept and an Entity must be demonstrated by the initial use case before both become mandatory core types.
+For the DAMA-aligned data-modeling use case, `Entity`, `Attribute`, `Relationship`, `Constraint`, `Identifier`, and `Value domain` form the initial vocabulary. `Concept` remains a possible broader catalog extension and must not replace established data-modeling terms inside this use case.
 
-### 5.4 Representation
+### 5.4 Data model levels
 
-An expression of a model element at one of three levels:
+The product must distinguish three related data models:
 
-- Conceptual: business meaning and domain language.
-- Logical: structured entities, attributes, relationships, and constraints without target-specific storage choices.
-- Physical: a target-specific realization.
+- Conceptual data model: business meaning and subject-area structure.
+- Logical data model: detailed data requirements without target-specific storage choices.
+- Physical data model: a target-specific technical design.
 
-A representation is not merely a label. Its correspondence to other representations must be explicit.
+These are models at different levels of abstraction, not merely layer labels attached independently to catalog items. Correspondence between their elements must be explicit.
 
 ### 5.5 Mapping and derivation
 
-A mapping records correspondence between representations. A derivation records how a source representation and transformation rule produced a target representation or artifact.
+A mapping records correspondence between elements in different data-model levels. A derivation records how source models, transformation rules, and explicit design decisions produced a target model or generated artifact.
 
 Mappings may be one-to-one, one-to-many, or many-to-many. Lossy or intentionally absent mappings must be identifiable rather than hidden.
 
+Mappings and derivations support traceability; they do not remove the need for iterative modeling and human judgment.
+
 ### 5.6 Generated artifact
 
-A reproducible output, such as a schema definition or implementation script, produced for a selected target from a validated model revision.
+A reproducible output, such as a schema definition or implementation script, produced for a selected target from a validated physical data-model revision.
+
+### 5.7 Implemented schema observation
+
+An implemented schema observation records structures read from a selected target system at a stated time. It is evidence of realized implementation, not a replacement for the intended physical data model.
+
+The first use case should relate observed structures to the physical and logical model elements they realize. The exact realization and conformance relationship semantics remain to be specified and tested against the concrete target.
 
 ## 6. Operational Vocabulary
 
@@ -161,31 +200,33 @@ A role groups permitted actions. An access policy applies those permissions with
 
 ## 7. Users and Outcomes
 
-The investigation identifies several users but has not selected the primary initial user.
+The first use case selects data architects and data modelers as the primary users.
 
-- Domain designers need to describe domain meaning without prematurely choosing storage mechanics.
-- Data modelers need to refine domain meaning into a precise logical model.
+- Data architects and data modelers need to capture a conceptual data model, refine it into a logical data model, and design a physical data model without losing business meaning.
+- Domain stakeholders need to recognize and validate the meaning expressed in the conceptual data model.
 - Platform engineers need reproducible implementation artifacts with clear provenance.
 - Governance stakeholders need ownership, auditability, and controlled publication.
 - Workspace administrators need enforceable access boundaries.
 
-The initial product should optimize one end-to-end workflow shared by domain designers, data modelers, and implementers. Broader governance workflows should follow demonstrated use.
+The initial product should optimize this end-to-end data-modeling workflow. Broader governance workflows should follow demonstrated use.
 
 ## 8. Initial Product Scope
 
 The smallest coherent product investigation includes:
 
-1. Creating and editing a domain and its model elements.
-2. Recording conceptual and logical representations.
-3. Recording explicit mappings between representations.
+1. Creating and editing a subject area and its conceptual data model.
+2. Refining the conceptual data model into a logical data model.
+3. Recording explicit mappings and design decisions between data-model levels.
 4. Defining and validating a minimum set of constraints.
-5. Transforming a validated logical model into one selected physical target.
-6. Generating a reproducible artifact for that target.
-7. Tracing generated elements back to their source elements and rules.
-8. Recording revisions, provenance, ownership, and lifecycle state.
-9. Exporting and importing the core catalog model without losing its semantics.
-10. Isolating workspaces and enforcing basic read and edit permissions.
-11. Presenting filtered perspectives without copying the underlying model.
+5. Refining a validated logical data model into a physical data model for one selected target.
+6. Generating a reproducible implementation artifact from that physical data model.
+7. Reading the implemented schema from the selected target and recording it as an observation.
+8. Relating observed structures to the physical and logical model elements they realize.
+9. Tracing generated and observed elements back to their source elements, decisions, and rules.
+10. Recording revisions, provenance, ownership, and lifecycle state.
+11. Exporting and importing the core catalog model without losing its semantics.
+12. Isolating workspaces and enforcing basic read and edit permissions.
+13. Presenting filtered perspectives without copying the underlying model.
 
 Approval workflows, deployment environments, and arbitrary extensibility are not required for the initial proof.
 
@@ -200,45 +241,49 @@ Approval workflows, deployment environments, and arbitrary extensibility are not
 
 ### 9.2 Modeling and correspondence
 
-- PR-05: Users must be able to define model elements and their conceptual or logical representations.
+- PR-05: Users must be able to create and distinguish conceptual, logical, and physical data models using DAMA-aligned nomenclature.
 - PR-06: Relationships must record their participants, meaning, and participation or cardinality rules where applicable.
 - PR-07: Users must be able to define requiredness, uniqueness, referential, cardinality, and value-domain constraints.
-- PR-08: Correspondence between conceptual, logical, and physical representations must be recorded explicitly.
-- PR-09: A representation without a source mapping must be marked as intentionally independent or reported as incomplete.
+- PR-08: Correspondence between elements in conceptual, logical, and physical data models must be recorded explicitly.
+- PR-09: A downstream model element without a source mapping must be marked as intentionally independent or reported as incomplete.
 
 ### 9.3 Transformation and artifacts
 
-- PR-10: The product must validate a logical model before generating an artifact.
+- PR-10: The product must validate a logical data model before deriving a physical data model or generating an artifact.
 - PR-11: Given the same model revision, transformation rules, configuration, and target version, generation must produce semantically equivalent output.
-- PR-12: Generated artifacts must identify the catalog revision, transformation version, and configuration that produced them.
+- PR-12: Physical data models and generated artifacts must identify the source model revisions, transformation version, explicit design decisions, and configuration that produced them.
 - PR-13: Each generated element must be traceable to its source model elements and applicable rules.
 - PR-14: Generation must not silently change the authoritative catalog model.
+- PR-15: The product must distinguish intended physical data models, generated artifacts, and observed implemented schemas, and must record explicit relationships among them.
 
 ### 9.4 Governance
 
-- PR-15: Users must not read or modify content outside workspaces they are authorized to access.
-- PR-16: The catalog must record material changes to catalog items and their responsible actor.
-- PR-17: Roles must support, at minimum, separate read and edit permissions.
-- PR-18: Perspectives must reference existing catalog items rather than create competing authoritative copies.
+- PR-16: Users must not read or modify content outside workspaces they are authorized to access.
+- PR-17: The catalog must record material changes to catalog items and their responsible actor.
+- PR-18: Roles must support, at minimum, separate read and edit permissions.
+- PR-19: Perspectives must reference existing catalog items rather than create competing authoritative copies.
 
 ### 9.5 Portability
 
-- PR-19: Export followed by import must preserve the core model, mappings, constraints, and provenance required for interpretation.
-- PR-20: Unsupported extension data must be reported rather than silently discarded.
+- PR-20: Export followed by import must preserve the core model, mappings, constraints, and provenance required for interpretation.
+- PR-21: Unsupported extension data must be reported rather than silently discarded.
 
 ## 10. Initial Validation Scenario
 
 The first product proof should demonstrate the complete path with a small domain such as Customer, Order, and Product:
 
-1. Define the concepts and their business meanings.
-2. Define a logical model with entities, attributes, relationships, and constraints.
-3. Record correspondence between conceptual and logical elements.
-4. Validate the logical model and expose a deliberate error with an actionable diagnostic.
-5. Generate an artifact for one selected physical target.
-6. Trace each generated element to its logical and conceptual sources.
-7. Regenerate from the same inputs and obtain semantically equivalent output.
-8. Export and re-import the catalog without losing the modeled meaning or traceability.
-9. Verify that a user from another workspace cannot access the model.
+1. Define a conceptual data model whose entities, relationships, meanings, and business rules are recognizable to domain stakeholders.
+2. Refine it into a technology-independent logical data model with attributes, identifiers, domains, cardinality, and constraints.
+3. Record correspondence and explicit design decisions between conceptual and logical elements.
+4. Validate the logical data model and expose a deliberate error with an actionable diagnostic.
+5. Refine the logical data model into a physical data model for one selected target.
+6. Generate and, if within the agreed proof boundary, instantiate an artifact for that target.
+7. Read the implemented schema back from the target as an observation.
+8. Relate observed structures to the physical, logical, and conceptual model elements they realize.
+9. Detect at least one deliberate divergence between intended and observed structures.
+10. Regenerate from the same inputs and obtain semantically equivalent output.
+11. Export and re-import the catalog without losing modeled meaning or traceability.
+12. Verify that a user from another workspace cannot access the model.
 
 This scenario tests the product hypothesis without requiring a general-purpose modeling platform.
 
@@ -246,7 +291,7 @@ This scenario tests the product hypothesis without requiring a general-purpose m
 
 - Support for every database, API, or serialization target.
 - Executable plugins or arbitrary subsystem-defined behavior and policy.
-- Bidirectional reconciliation with externally modified artifacts.
+- General bidirectional reconciliation beyond reading and comparing the selected initial target.
 - Deployment, migration execution, or runtime control of generated artifacts.
 - Rich approval workflow, branching, merging, and collaborative conflict resolution.
 - Complete enterprise architecture governance.
@@ -259,6 +304,9 @@ Deferral means that the core model should avoid unnecessarily preventing these c
 ## 12. Decisions Made in This Investigation
 
 - The catalog is authoritative for design intent; generated artifacts are derived outputs.
+- The first use case follows DAMA nomenclature and general data-modeling practice, using DAMA-DMBOK2R and the DAMA Dictionary as governing references.
+- Conceptual, logical, and physical are distinct data-model levels linked by explicit mappings, not per-element labels.
+- A physical data model, a generated artifact, and an observed implemented schema are distinct objects.
 - Mappings and derivations are first-class catalog data.
 - Lifecycle state and deployment environment are separate concepts.
 - Workspace is the initial access boundary; tenant deployment semantics are deferred.
@@ -280,17 +328,25 @@ These decisions remain hypotheses until approved by the product owner.
 
 ## 14. Questions for Product Owner
 
-1. Who is the primary user for the first release, and what current artifact or manual process would this product replace?
+1. Which concrete data-modeling workflow and current artifacts should the first use case replace or improve?
 2. Which physical target provides the most useful first proof?
 3. Must changes made outside the catalog ever become authoritative, or is generation intentionally one-way?
 4. Is workspace isolation a security boundary between customers or an organizational boundary within one enterprise?
 5. Which constraints are necessary to make the first transformation useful?
 6. Is publication merely a lifecycle label, or must it require an approval workflow?
 7. Do users need editable branches, or are revisions and non-authoritative perspectives sufficient initially?
+8. Which modeling notation and target-appropriate normalization rules should the first proof adopt without incorrectly attributing them to DAMA?
 
 ## 15. Recommended Next Step
 
-Resolve the product-owner questions, then convert the approved answers and requirements into a bounded componentization exercise. Architecture should follow only after product authority, initial users, system boundary, and first transformation target are explicit.
+Consult the complete DAMA-DMBOK2R Data Modeling and Design material and the DAMA Dictionary, then resolve the product-owner questions and select the example subject area and physical target. Only then should this layer be refined into approved requirements and a concrete data-modeling use case.
+
+## 16. References
+
+- [DAMA-DMBOK official overview](https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/)
+- [DAMA-DMBOK2R context diagrams and approved citation](https://dama.org/dmbok2r-infographics/)
+- [DAMA Dictionary of Data Management official overview](https://dama.org/learning-resources/dama-dictionary-of-data-management/)
+- DAMA International. *The DAMA Guide to the Data Management Body of Knowledge (DAMA-DMBOK2R).* 2nd ed., revised. Technics Publications, 2024.
 
 ## Sign-Off
 
