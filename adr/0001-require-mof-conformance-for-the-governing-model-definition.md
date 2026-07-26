@@ -83,19 +83,71 @@ Negative consequences:
 - How the product stores, evaluates, or reports conformance.
 - How MOF version changes would be adopted.
 
-## Required Follow-Up Decision: Is CMOF the Governing Model Definition?
+## Required Follow-Up Judgment Round: Is CMOF the Governing Model Definition?
 
-The next ADR must compare using CMOF directly with using EMOF or a separate MOF-conforming governing model. At minimum, it must test whether CMOF can describe without semantic distortion:
+The next ADR must compare using CMOF directly with using EMOF or a separate MOF-conforming governing model. The decision must be based on the following three judgments.
 
-- model identity and boundaries;
+### 1. Coverage of the DAMA-aligned definition
+
+Determine whether CMOF can describe every construct and rule required by the DAMA-aligned data-modeling definition without semantic distortion.
+
+CMOF is not expected to contain DAMA concepts such as `Domain`, `Conceptual entity`, `Table`, or `Column`. The relevant test is whether those concepts and their rules can be defined using CMOF and can then govern particular domain data models.
+
+For every required construct, classify the result as:
+
+- provided natively by CMOF;
+- directly expressible as a CMOF-conforming type, relationship, property, or constraint;
+- expressible only through an encoding that changes or obscures its intended semantics; or
+- not expressible.
+
+At minimum, test:
+
+- model identity, purpose, and boundaries;
 - specialized model-element types;
 - binary and n-ary domain relationships;
-- separately scoped metamodel, definition-model, and subject-model constraints;
+- separately scoped governing-model, definition-model, and subject-model constraints;
 - composition and extension of definition models;
 - correspondence and realization relationships across models; and
 - stable identity and provenance across refinement.
 
-If CMOF cannot express one of these directly, the decision must distinguish a genuine expressiveness gap from a concept that properly belongs in a MOF-conforming project definition rather than in CMOF itself.
+If CMOF cannot express one of these directly, distinguish a genuine expressiveness gap from a concept that properly belongs in a CMOF-conforming project definition rather than in CMOF itself.
+
+### 2. Unneeded CMOF surface
+
+Identify the CMOF capabilities that the DAMA-aligned definition does not require and assess their actual cost.
+
+Distinguish unused modeling vocabulary from obligations that would materially affect the product, such as implementation semantics, validation complexity, interchange requirements, tooling constraints, or concepts exposed to users. A capability merely being available in CMOF is not by itself a cost if conforming definitions and models do not use it.
+
+The judgment must compare the cost of retaining this unused surface with the cost of specifying, maintaining, and proving a smaller MOF-conforming alternative.
+
+### 3. Relationship to UML
+
+Compare the concrete UML relationship produced by:
+
+1. using CMOF directly to govern the DAMA-aligned definition; and
+2. inserting a project-specific MOF-conforming governing model between MOF and the DAMA-aligned definition.
+
+Assess whether direct CMOF use materially improves:
+
+- shared semantics with the UML metamodel;
+- reuse of UML structural concepts or notation;
+- use of standard UML or MOF tooling;
+- model interchange;
+- transformations between UML and the DAMA-aligned models; or
+- the ability to relate UML model elements to data-model elements.
+
+Shared ancestry alone is not sufficient. The decision must identify an interoperability or comprehension benefit that the project is likely to use and weigh it against any UML or CMOF complexity thereby inherited.
+
+### Evidence required
+
+The judgment round requires:
+
+- the normative CMOF 2.5.1 specification, machine-readable model, and production constraints;
+- a reviewable inventory of the DAMA-aligned concepts, relationships, constraints, and model levels required by the first use case;
+- the complete relevant DAMA-DMBOK2R and DAMA Dictionary material, not only public summaries; and
+- a worked example that exercises conceptual, logical, and physical modeling plus cross-model correspondence.
+
+The CMOF decision must remain open until this evidence is available. The judgment round may conclude that CMOF should be used directly, that EMOF is sufficient, or that a distinct MOF-conforming governing model is justified.
 
 ## References
 
