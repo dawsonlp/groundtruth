@@ -2,12 +2,12 @@
 
 ## Document Status
 
-- Status: product-owner decisions approved; engineering review pending
+- Status: architecture approved; implementation review has one blocking artifact-boundary finding
 - Effective: no
 - Source logical model: `CAT-LOG/domain-data-dictionary@1` at revision `f71a279`
 - Owning transform: `domain-data-dictionary-logical-model/transforms/domain-data-dictionary-postgresql-design`
 - Design date: 2026-07-26
-- Runtime creation: not authorized by this document
+- Runtime creation: blocked pending resolution of implementation review finding `IR-001`
 
 ## 1. Purpose
 
@@ -308,19 +308,46 @@ On 2026-07-26, the product owner accepted:
 
 ## 10. Recommended Next Step
 
-Review this design as architecture and implementation engineering. After those reviews resolve any blocking findings, execute the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
+Resolve `IR-001` by naming the runnable sibling layer and deciding whether the root uv project is authoritative or a governed projection. Then create the source-colocated outbound transform and execute the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
 
 ## 11. Approval Status
 
-Product-owner decisions approved; implementation remains blocked on architecture and implementation-engineering review.
+Architecture approved; implementation remains blocked on `IR-001`.
 
 ## 12. Architect Review
 
-Pending.
+Approved by the human architect on 2026-07-26. The approval applies to the technical design as written, including the accepted product-owner decisions in section 9. It does not make the draft upstream product layers effective.
 
 ## 13. Senior Implementation Engineer Review
 
-Pending.
+### Review basis
+
+Reviewed on 2026-07-26 against the approved technical design, the Model C component boundary, the conceptual build constraints, the logical PostgreSQL contract, project `AGENTS.md`, and the flat-layer-graph ADR.
+
+### Findings
+
+- The database, migration, API, configuration, persistence, startup, failure, and verification behavior is concrete enough to implement without guessing at critical runtime semantics.
+- The design keeps product DDL and capability behavior outside the scaffold and therefore preserves the owning physical-model and API-design boundaries.
+- The design leaves appropriate engineering discretion for pool sizing, internal module decomposition, test implementation, and later service separation.
+- `IR-001` — blocking: the design places `pyproject.toml`, `src/`, `Dockerfile`, and `compose.yaml` at repository root, but the governing flat-layer layout says each product refinement is represented by a sibling layer and requires a source-colocated outbound transform before a child layer is created. The design layer currently has neither an outbound transform nor a named runnable target layer. Coding at repository root now would create an unnamed downstream refinement whose authority, regeneration boundary, and stale-descendant behavior are unclear.
+
+### Required change
+
+Before runtime files are created, the architect must select and record one coherent artifact boundary:
+
+1. create a named sibling runtime layer and place the uv project and executable artifacts inside that layer; or
+2. create a named sibling runtime layer whose source-colocated transform explicitly owns a repository-root executable projection, including an exhaustive manifest of projected files and regeneration rules.
+
+The first option fits the flat-layer ADR more directly but revises the accepted root uv location. The second preserves a root uv project but introduces a split physical boundary that must be justified and kept mechanically explicit.
+
+### Questions
+
+- Is “root uv project” a stronger constraint than keeping all implementation artifacts physically within the runnable layer directory?
+- If root placement is retained, which files are authoritative layer artifacts and which are generated projections?
+
+### Review disposition
+
+Changes required. The implementation is buildable after `IR-001` is resolved; no other blocking implementation finding was identified.
 
 ## 14. Product Owner Review
 
@@ -342,7 +369,19 @@ Approved the decisions recorded in section 9 on 2026-07-26.
 - Reviewer: product owner (human)
 - Date: 2026-07-26
 - Disposition: approved the migration runner, service topology, API stack, root uv project, local shared database login, and local port block
-- Remaining scope: architecture and implementation-engineering reviews remain pending
+- Remaining scope: none from product-owner review
+
+- Reviewer: project architect (human)
+- Date: 2026-07-26
+- Disposition: approved the technical design
+- Remaining scope: implementation-engineering review
+
+- Reviewer: Codex
+- Signer type: agent
+- Role: senior implementation engineer
+- Date: 2026-07-26
+- Disposition: changes required
+- Blocking finding: `IR-001`, unresolved runtime-layer and repository-root artifact boundary
 
 ### Product Owner Sign-Off
 
@@ -351,4 +390,4 @@ Approved the decisions recorded in section 9 on 2026-07-26.
 
 ### Workflow Status
 
-- Current status: product-approved design awaiting engineering reviews
+- Current status: architecture approved; implementation blocked on `IR-001`

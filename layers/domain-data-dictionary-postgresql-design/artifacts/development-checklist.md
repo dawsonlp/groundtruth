@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: active pre-implementation checklist
-- Execution status: product choices approved; blocked on architecture and implementation-engineering review
+- Execution status: architecture approved; blocked on implementation finding `IR-001`
 - Last updated: 2026-07-26
 - Source technical design: `technical-design.md`, product-owner decisions approved 2026-07-26
 - Source logical revision: `f71a279`
@@ -27,7 +27,7 @@ This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, an
 
 ## 4. Governing Inputs
 
-The product owner approved the technology, topology, organization, local-login, and port decisions on 2026-07-26. Phase 1 and later remain blocked until the architecture and implementation-engineering reviews record no unresolved blocker.
+The product owner approved the technology, topology, organization, local-login, and port decisions on 2026-07-26. The architect approved the technical design on 2026-07-26. Phase 1 and later remain blocked until implementation finding `IR-001` resolves the conflict between the root uv layout and the required named runnable layer and outbound transform.
 
 ## 5. Checklist Conventions
 
@@ -54,8 +54,8 @@ The product owner approved the technology, topology, organization, local-login, 
 - [x] Product owner accepted root-level uv project organization.
 - [x] Product owner accepted a local shared database login.
 - [x] Product owner accepted the recognizable `2xxxx` port block: PostgreSQL `25432`, API `28000`.
-- [ ] Architect review is recorded in `technical-design.md`.
-- [ ] Senior implementation engineer review is recorded in `technical-design.md`.
+- [x] Architect approval is recorded in `technical-design.md`.
+- [x] Senior implementation engineer review is recorded in `technical-design.md`.
 - [ ] All blocking review findings are resolved at the owning layer.
 
 Completion evidence:
@@ -235,11 +235,11 @@ The remaining open questions in technical-design section 8 remain authoritative.
 
 ## 17. Recommended Next Step
 
-Record architecture and implementation-engineering reviews of the technical design. After blocking findings are resolved, execute Phase 1 through the operational scaffold while the physical-model transform is designed separately.
+Resolve `IR-001`, create the source-colocated outbound transform for the named runnable sibling layer, and then execute Phase 1 through the operational scaffold while the physical-model transform is designed separately.
 
 ## 18. Approval Status
 
-Product-owner choices approved; execution blocked on the two engineering reviews in Phase 0.
+Architecture approved; execution blocked on implementation finding `IR-001`.
 
 ## 19. Product Owner Review
 
@@ -260,7 +260,16 @@ Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose t
 
 - Reviewer: product owner (human)
 - Date: 2026-07-26
-- Disposition: approved the six Phase 0 product decisions; engineering reviews remain pending
+- Disposition: approved the six Phase 0 product decisions
+
+- Reviewer: project architect (human)
+- Date: 2026-07-26
+- Disposition: approved the technical design
+
+- Reviewer: Codex
+- Role: senior implementation engineer
+- Date: 2026-07-26
+- Disposition: changes required before implementation; see technical-design finding `IR-001`
 
 ### Product Owner Sign-Off
 
@@ -269,4 +278,4 @@ Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose t
 
 ### Workflow Status
 
-- Current status: active checklist; pre-implementation engineering review gate remains open
+- Current status: active checklist; runtime artifact-boundary decision remains open

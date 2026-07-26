@@ -68,3 +68,9 @@ Refine the technology-neutral Domain Data Dictionary logical model into an engin
 ## Retry Guidance
 
 If implementation exposes a database or service-design failure, assign it to the earliest owning layer. Repository shape and datatype failures return to `CAT-LOG` or its PostgreSQL physical-model transform; Compose, migration-runner, or API-runtime failures return to this design transform. Do not repair a missing logical concept with an undocumented SQL column or API-only field.
+
+## Review Evidence
+
+- The human architect approved the target technical design on 2026-07-26.
+- Senior implementation-engineering review found the runtime behavior buildable but recorded blocking finding `IR-001`: the accepted repository-root uv layout does not yet identify a named runnable sibling layer, source-colocated outbound transform, or unambiguous artifact and regeneration boundary.
+- No runtime files may be created until the owning design resolves that boundary.
