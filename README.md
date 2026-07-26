@@ -39,17 +39,27 @@ layers/
 │   └── transforms/
 │       └── domain-data-dictionary-component/
 │           └── transform.md
-└── domain-data-dictionary-component/
+├── domain-data-dictionary-component/
+│   ├── README.md
+│   ├── artifacts/
+│   │   └── component-design.md
+│   └── transforms/
+│       └── domain-data-dictionary-conceptual-model/
+│           └── transform.md
+└── domain-data-dictionary-conceptual-model/
     ├── README.md
     └── artifacts/
-        └── component-design.md
+        ├── build-design.md
+        └── conceptual-data-model.md
 ```
 
 - `artifacts/` contains the product as expressed at this refinement level.
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The design execution exposed an upstream gap: `DML-DEF` names `BDM-FAMILY` but does not structurally define family identity or model membership. That gap remains recorded and must be corrected before the branch becomes effective, but it does not block further draft refinement. The next component work may proceed into architecture and first-target selection using an explicit provisional assumption. Once the source definition is corrected, the component design and its affected descendants must be regenerated. The source definition also still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
+The Model C design now has a draft conceptual refinement in [build-design.md](layers/domain-data-dictionary-conceptual-model/artifacts/build-design.md) and [conceptual-data-model.md](layers/domain-data-dictionary-conceptual-model/artifacts/conceptual-data-model.md). The next product refinement is the technology-neutral logical repository model. PostgreSQL is the required later physical target, and the API will expose a common capability boundary to machine and human-facing clients.
+
+Conceptual refinement places explicit model-family membership, responsible agents, and provenance records in `CAT-CON` as catalog business concepts governed by `DML-CON`; it does not promote them into the general language without evidence that they are general concerns. The canonical registry still requires provisional `CAT-FAMILY`, `CAT-CON`, and `CAT-LOG` role names to be accepted or replaced. Draft refinement may continue, but affected descendants require regeneration after an upstream naming or semantic correction. The source definition also still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
 
 ## Working With This Project
 
@@ -95,7 +105,7 @@ Do not invent a missing transform, silently select an implementation branch, or 
 
 An exploratory build may instead follow a deliberately selected draft branch. Execute its recorded draft transforms, identify every exact source revision, validate what can be validated, and carry unresolved gaps and provisional assumptions into the runnable descendant. The result remains a draft experiment rather than an effective product build, but creating and running it is permitted and is expected to provide evidence for upstream revision.
 
-This project is currently **not buildable as an effective product**: no layer is effective, both draft transforms have unmet validation conditions, and no accepted path reaches a runnable layer. Exploratory implementation may continue once its outbound transform and provisional inputs are recorded.
+This project is currently **not buildable as an effective product**: no layer is effective, the current draft transforms have unmet validation conditions, and no accepted path reaches a runnable layer. Exploratory implementation may continue once its outbound transform and provisional inputs are recorded.
 
 ### Updating the product
 
