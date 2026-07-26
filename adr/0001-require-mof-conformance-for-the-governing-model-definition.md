@@ -144,10 +144,10 @@ The judgment round requires:
 
 - the normative CMOF 2.5.1 specification, machine-readable model, and production constraints;
 - a reviewable inventory of the DAMA-aligned concepts, relationships, constraints, and model levels required by the first use case;
-- the complete relevant DAMA-DMBOK2R and DAMA Dictionary material, not only public summaries; and
+- the complete relevant material from the user's 2010 DAMA-DMBOK edition, with exact page evidence rather than only public summaries;
 - a worked example that exercises conceptual, logical, and physical modeling plus cross-model correspondence.
 
-The CMOF decision must remain open until this evidence is available. The judgment round may conclude that CMOF should be used directly, that EMOF is sufficient, or that a distinct MOF-conforming governing model is justified.
+The CMOF decision must remain open until this evidence is available. The judgment round may conclude that CMOF should be used directly, that EMOF is sufficient, or that a distinct MOF-conforming governing model is justified. This round does not establish conformance with a later DAMA-DMBOK edition; that would require a separate delta assessment.
 
 ## References
 

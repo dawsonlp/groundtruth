@@ -171,7 +171,9 @@ That application will be described by a DAMA-aligned data-modeling definition mo
 
 The general metamodel will govern how the definition model expresses types, relationships, constraints, composition, and conformance. The definition model will own the actual data-modeling vocabulary and semantic rules. Its candidate vocabulary may include `Domain`, `Model`, `Conceptual entity`, `Relationship`, `Constraint`, `Relation`, `Table`, `View`, `Column`, and `Index`, but their precise names, meanings, abstraction levels, and relationships are decisions for that definition model rather than this conception.
 
-The data-modeling definition will follow DAMA nomenclature and approach carefully. DAMA-DMBOK2R and the DAMA Dictionary of Data Management are governing references for that definition. Any notation, technique, or product behavior not established by those sources must be identified as a separate design choice.
+The data-modeling definition will follow DAMA nomenclature and approach carefully. For the initial definition and CMOF judgment round, the user's 2010 DAMA-DMBOK edition is the verification baseline. Exact page evidence must be recorded before the definition is accepted. Conformance to a later DAMA-DMBOK edition is not implied and would require a separate delta assessment.
+
+Applicable industry standards should govern the concerns they actually standardize. Their scope must be stated explicitly: a standard for registering models, for example, does not thereby define the semantics of conceptual, logical, and physical data models. Any notation, technique, or product behavior not established by the selected DAMA source or an identified standard must be marked as a project design choice.
 
 This statement selects a refinement target. It does not yet specify the target model or its product requirements.
 
@@ -221,9 +223,9 @@ Only after that model is reviewable should the project define the behavior of a 
 ## 11. References for the First Specialized Definition
 
 - [DAMA-DMBOK official overview](https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/)
-- [DAMA-DMBOK2R context diagrams and approved citation](https://dama.org/dmbok2r-infographics/)
 - [DAMA Dictionary of Data Management official overview](https://dama.org/learning-resources/dama-dictionary-of-data-management/)
-- DAMA International. *The DAMA Guide to the Data Management Body of Knowledge (DAMA-DMBOK2R).* 2nd ed., revised. Technics Publications, 2024.
+- DAMA International. User-owned 2010 edition of the *DAMA Guide to the Data Management Body of Knowledge*. Exact edition statement and page references are to be captured during verification.
+- Later DAMA-DMBOK editions are comparison sources only until a version-delta assessment is performed.
 
 ## Sign-Off
 
