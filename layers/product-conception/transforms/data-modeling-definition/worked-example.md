@@ -28,6 +28,8 @@ This semantic vocabulary is referenced by conceptual business properties and log
 
 Model: `Commerce Conceptual Model`
 
+Canonical reference: `BDM-CON/commerce@1`
+
 Business entity types:
 
 - `Customer` — a party that places an order
@@ -51,6 +53,8 @@ The second relationship is modeled as a `BusinessRelationship` with ends and its
 
 Model: `Commerce Logical Model`
 
+Canonical reference: `BDM-LOG/commerce@1`
+
 | Logical entity type | Attributes | Preferred identifier |
 | --- | --- | --- |
 | `Customer` | `customerNumber`, `customerName` | `customerNumber` |
@@ -73,6 +77,8 @@ This expression is executable only after the logical model's OCL environment map
 ## Relational-Logical Model
 
 Model: `Commerce Relational Model`
+
+Canonical reference: `BDM-REL/commerce@1`
 
 ```text
 CUSTOMER(
@@ -112,6 +118,8 @@ These are relations and relation attributes. They have no database-product types
 
 Model: `Commerce PostgreSQL Physical Model`
 
+Canonical reference: `BDM-PHY/commerce/postgresql-17@1`
+
 Target: PostgreSQL 17 for this example only. This illustrates a well-formed physical target and does not select a project implementation branch.
 
 Role: `design`
@@ -141,7 +149,7 @@ These designs refine the same logical meaning without being descendants of the r
 
 ### Document-store branch
 
-Physical model: `Commerce Document Physical Model`, role `design`
+Physical model: `Commerce Document Physical Model`, reference `BDM-PHY/commerce/document-store@1`, role `design`
 
 - `orders` is a `DocumentCollection`.
 - Its `DataShape` contains order number, ordered time, a customer reference, and repeated line nodes with product code and positive quantity.
@@ -150,7 +158,7 @@ Physical model: `Commerce Document Physical Model`, role `design`
 
 ### API branch
 
-Physical model: `Commerce Order API Physical Model`, role `design`
+Physical model: `Commerce Order API Physical Model`, reference `BDM-PHY/commerce/order-api@1`, role `design`
 
 - `Commerce Orders API` is an `ApiService`.
 - `POST /orders` is an `ApiOperation` with request and response `ApiMessage` elements.
@@ -159,7 +167,7 @@ Physical model: `Commerce Order API Physical Model`, role `design`
 
 ### Stored-asset branch
 
-Physical model: `Commerce Invoice Image Physical Model`, role `design`
+Physical model: `Commerce Invoice Image Physical Model`, reference `BDM-PHY/commerce/invoice-object-store@1`, role `design`
 
 - `invoice-images` is an unstructured `StoredAssetCollection` in object storage.
 - Its content has no invented tabular or document shape.
@@ -170,11 +178,11 @@ These branches demonstrate that relational-logical refinement is useful for a re
 
 ## Deployment, Observation, and Maintenance
 
-The PostgreSQL physical design produces deployment package revision `commerce-pg-deploy/1` containing immutable DDL and migration artifacts with PostgreSQL SQL language identifiers, content references, and digests. Realization records connect each artifact to the physical design elements it creates or alters.
+The PostgreSQL physical design produces deployment package `BDM-DEPLOY/commerce/postgresql-17@1` containing immutable DDL and migration artifacts with PostgreSQL SQL language identifiers, content references, and digests. Realization records connect each artifact to the physical design elements it creates or alters.
 
-A successful deployment record for the production environment reports that revision 1 executed successfully. It does not prove that the resulting catalog matches the design.
+A successful deployment record for the production environment reports that revision 1 executed successfully. It does not prove that the deployed subject schema (`BDM-RUNTIME`) matches the design.
 
-A later introspection produces `Commerce PostgreSQL Observation 2026-07-26`, a physical model with `role = observed`, the production environment, capture time, collector identity, active PostgreSQL metadata profile, and native catalog facts. A comparison finds:
+A later introspection produces `Commerce PostgreSQL Observation 2026-07-26`, reference `BDM-OBS/commerce/postgresql-17-production@1`, with `role = observed`, the production environment, capture time, collector identity, active PostgreSQL metadata profile, and native catalog facts. Comparison `BDM-COMP/commerce/postgresql-17-production@1` finds:
 
 | Expected state | Observed state | Difference | Initial disposition |
 | --- | --- | --- | --- |
@@ -183,6 +191,8 @@ A later introspection produces `Commerce PostgreSQL Observation 2026-07-26`, a p
 | check `quantity > 0` | check `quantity >= 0` | `changed` | `correctDeployment` |
 
 If `fulfillment_note` is a legitimate new business fact, maintenance does not edit the observed model into the design. It starts a new revision at the conceptual or logical artifact that owns that meaning, then produces new physical and deployment revisions. If it is unauthorized drift, the intended design remains unchanged and corrective deployment material is generated. Either disposition preserves the evidence of what was observed.
+
+The definitions of all Commerce models above, their elements, expressions, realization records, and revisions are `CAT-DATA` when persisted in the Domain Catalog repository. Actual customer, order, product, and order-line occurrences are `BDM-DATA` in the deployed Commerce subject system. This example does not imply that those operational occurrences are copied into the Domain Catalog.
 
 ## Realization Records
 

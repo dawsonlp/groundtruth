@@ -39,6 +39,7 @@ The official scopes divide the territory among metamodel definition, constraint 
 ## Consequences for This Transform
 
 - The standard selections and their concern boundaries belong in the target artifact.
+- The external MOF document and the normative CMOF model/compliance point require distinct references: `MOF-SPEC` defines `CMOF-GOV`; `DML-DEF` conforms to `CMOF-GOV`.
 - Detailed conformance claims remain blocked where only public abstracts have been reviewed.
 - The absence of one all-encompassing standard does not authorize unmarked invention; each project extension must identify the standards gap it bridges.
 - CMOF, OCL, and XMI can be validated mechanically once the machine-readable representation exists.

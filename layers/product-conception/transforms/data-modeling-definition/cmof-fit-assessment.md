@@ -2,7 +2,7 @@
 
 ## Result
 
-The current language inventory exposes no blocking CMOF 2.5.1 expressiveness gap. CMOF can govern the structure of the data-modeling definition without containing data-modeling concepts itself.
+The current `DML-DEF` inventory exposes no blocking `CMOF-GOV` 2.5.1 expressiveness gap. `CMOF-GOV` can govern the structure of the data-modeling definition without containing data-modeling concepts itself.
 
 This supports continuing with direct CMOF use as the working presumption. It does not yet settle the ADR because the definition has not been encoded in machine-readable CMOF, the normative production constraints have not been executed, and the DAMA inventory has not been verified page by page.
 

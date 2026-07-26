@@ -16,6 +16,8 @@ The artifact remains a draft. A draft outbound transform now produces the siblin
 
 The draft target artifact is [data-modeling-language.md](layers/data-modeling-definition/artifacts/data-modeling-language.md). It is authoritative for the language's OMG, ISO, and DAMA standards profile. Its owning [transform](layers/product-conception/transforms/data-modeling-definition/transform.md) records the supporting standards evidence, CMOF fit assessment, worked example, and remaining validation conditions.
 
+Use the target artifact's **Canonical Model and Artifact Registry** when referring to the model stack. In particular, distinguish the MOF specification (`MOF-SPEC`) from its Complete MOF governing model (`CMOF-GOV`), the data-modeling definition (`DML-*`) from particular business models (`BDM-*`), and the catalog repository (`CAT-*`) from subject-system deployment and data.
+
 ## Layout
 
 ```text

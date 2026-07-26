@@ -4,32 +4,145 @@
 
 - Status: draft
 - Effective: no
-- Governing model: CMOF 2.5.1, presumed pending the follow-up ADR
+- Top-level governing standard: OMG MOF Core 2.5.1
+- Selected governing model and compliance level: CMOF 2.5.1, presumed pending the follow-up ADR
 - Standards profile: incorporated in section 2
 - DAMA verification baseline: user's 2010 DAMA-DMBOK edition
 - DAMA page verification: pending
 - External normative-text verification: pending where identified below
 - Machine-readable CMOF validation: pending
 
-This artifact defines the modeling language for the first application of Domain Catalog. It is intended to become a CMOF-conforming model that acts as the governing model for particular data models. Those models may progress from conceptual meaning through logical and technology-specific physical design, deployment, observation, and maintenance.
+This artifact is the review projection of `DML-DEF`, the modeling language for the first application of Domain Catalog. `DML-DEF` is intended to become a `CMOF-GOV`-conforming model that governs particular data models. Those models may progress from conceptual meaning through logical and technology-specific physical design, deployment, observation, and maintenance.
 
 The language is technology-neutral at its core but must have a lossless physical repository realization in a relational database. That repository is the deployed representation of the language and its instances; it is distinct from the subject databases, APIs, schemas, and stored assets described by the catalog. This artifact constrains that future repository realization but is not itself its database schema, validator design, or user-interface design.
 
-## 1. Governing Relationships
+## 1. Canonical Model and Artifact Registry
+
+This section is the naming authority for the models, standards inputs, deployment artifacts, runtime structures, and data instances discussed in this project. A role reference such as `BDM-LOG` identifies a kind of model in the stack; it is not the catalog identifier of a particular model revision.
+
+When ambiguity is possible, use the canonical reference on first mention. A particular revision uses the form `<role-reference>/<lineage>@<revision>`, for example `BDM-LOG/commerce@3` or `BDM-PHY/commerce/postgresql-17@2`.
+
+### 1.1 Governing standard and model
+
+| Reference | Canonical name | Kind and role | Relationship | Must not be confused with |
+| --- | --- | --- | --- | --- |
+| `MOF-SPEC` | OMG Meta Object Facility Core Specification 2.5.1 | External governing standard | Defines the MOF architecture, the EMOF and CMOF compliance points, the normative MOF model, and production constraints | A project-authored model or another refinement layer |
+| `CMOF-GOV` | Complete MOF 2.5.1 Model | Normative general-purpose metamodel and selected governing model for this project | Is defined by `MOF-SPEC`, includes EMOF, and governs the valid form of `DML-DEF` by conformance | A data-modeling language, the standards profile, or the Domain Catalog repository schema |
+
+`MOF-SPEC` and `CMOF-GOV` are related but not interchangeable. The MOF specification states that EMOF and CMOF are its two compliance points and that CMOF includes EMOF. It also describes CMOF as providing the full metamodeling capabilities of MOF 2. In this project, “conforms to MOF” means specifically “conforms to the `CMOF-GOV` compliance level and its applicable production constraints,” unless another compliance level is named.
+
+### 1.2 Standards inputs and the data-modeling definition
+
+| Reference | Canonical name | Kind and role | Relationship | Must not be confused with |
+| --- | --- | --- | --- | --- |
+| `DM-STD` | Data-Modeling Standards Profile | Curated set of DAMA, ISO, OMG, W3C, and industry-standard inputs listed in section 2 | Constrains `DML-DEF` concern by concern according to the authority boundaries in section 2 | One unified metamodel or a model to which every artifact conforms |
+| `DML-DEF` | Domain Catalog Data-Modeling Language Definition Model | Project definition model expressed as a CMOF model; this document is its review projection | Conforms to `CMOF-GOV`; incorporates the selected semantics from `DM-STD`; governs particular data models | A particular business model or the relational database that persists catalog records |
+
+`DM-STD` is named because it is a material input, but it is not itself one model. Each source governs only its assigned concern. The act of composing those concerns into one coherent CMOF model occurs in `DML-DEF`.
+
+`DML-DEF` has these named definition submodels, represented as CMOF packages unless later machine-readable validation requires a different package boundary:
+
+| Reference | Canonical name | Defines the permitted vocabulary for |
+| --- | --- | --- |
+| `DML-SEM` | Data Semantics Definition Submodel | Domains, object classes, property concepts, data-element concepts, conceptual domains, value domains, and data elements shared across model levels |
+| `DML-CON` | Conceptual Data-Modeling Definition Submodel | Business entity types, business properties, relationships, cardinality, and business constraints |
+| `DML-LOG` | Logical Data-Modeling Definition Submodel | Technology-neutral entity, identity, relationship, datatype, structure, and integrity concepts |
+| `DML-REL` | Relational-Logical Definition Submodel | Relations, relation attributes, candidate keys, and relational foreign keys; optional for non-relational branches |
+| `DML-PHY` | Physical Data-Modeling Definition Submodel | Target-specific databases, non-relational stores, APIs, schema documents, stored assets, native metadata, and physical constraints |
+| `DML-DEP` | Deployment Definition Submodel | Immutable deployment packages, executable or publishable artifacts, environments, and execution records |
+| `DML-OBS` | Observation and Maintenance Definition Submodel | Observed inventories, metadata coverage, intended-versus-observed comparisons, drift, and disposition |
+| `DML-REA` | Realization Definition Submodel | Explicit many-to-many correspondence, introduced detail, omission, and transformation references across refinement artifacts |
+
+The conceptual, logical, and physical definition submodels are therefore `DML-CON`, `DML-LOG`, and `DML-PHY`. They define how to construct corresponding subject models; they are not themselves a business domain's conceptual, logical, or physical model.
+
+### 1.3 Particular business data-model family
+
+A particular business use case produces a related family of subject models. `commerce` is illustrative; each real family has its own lineage and revisions.
+
+| Reference | Canonical name | Governing definition scope | Relationship to the family |
+| --- | --- | --- | --- |
+| `BDM-FAMILY` | Particular Business Data-Model Family | Its model members conform to `DML-DEF` using the applicable `DML-*` package scopes | Groups the purposeful models for one business scope; it is not one model with mutable level labels |
+| `BDM-CON` | Particular Conceptual Business Data Model | `DML-DEF`, principally `DML-CON` plus shared `DML-SEM` | States business meaning and scope; example `BDM-CON/commerce@1` |
+| `BDM-LOG` | Particular Logical Business Data Model | `DML-DEF`, principally `DML-LOG` plus shared `DML-SEM` | Realizes selected conceptual meaning as technology-neutral structure; example `BDM-LOG/commerce@3` |
+| `BDM-REL` | Particular Relational-Logical Business Data Model | `DML-DEF`, principally `DML-REL` | Optional relational refinement of `BDM-LOG`; it is not a table schema |
+| `BDM-PHY` | Particular Physical Business Data Model | `DML-DEF`, principally `DML-PHY` | Realizes upstream meaning for one named technology target; example `BDM-PHY/commerce/postgresql-17@2` |
+| `BDM-OBS` | Particular Observed Physical Model | `DML-DEF`, using `DML-PHY` with `role = observed` and `DML-OBS` rules | Point-in-time evidence collected from a deployed subject environment; it is not intended design |
+| `BDM-COMP` | Particular Physical-State Comparison | `DML-DEF`, principally `DML-OBS` | Compares one intended `BDM-PHY` revision with one `BDM-OBS` inventory and records drift disposition; it is evidence, not another design model |
+
+The `BDM-*` family is the principal object used to test whether `DML-DEF` supports the business data-modeling use case. A branch may go from `BDM-LOG` directly to a document, API, schema, graph, or stored-asset `BDM-PHY`; `BDM-REL` is required only for a relational-logical refinement.
+
+### 1.4 Subject-system deployment and data
+
+| Reference | Canonical name | Kind | Relationship |
+| --- | --- | --- | --- |
+| `BDM-DEPLOY` | Particular Business-Model Deployment Package | Revisioned collection of DDL, migrations, schemas, API descriptions, or configuration | Realizes one `BDM-PHY` design for a named environment |
+| `BDM-RUNTIME` | Deployed Subject Data Structure | Actual database schema, API contract, schema resource, or storage structure in use | Is created or changed by `BDM-DEPLOY` and described at a point in time by `BDM-OBS` |
+| `BDM-DATA` | Subject Business Data | Rows, documents, messages, files, graph values, or other operational data | Is stored, exchanged, or constrained by `BDM-RUNTIME`; it is data described by the business models, not a model in the conformance stack |
+
+### 1.5 Domain Catalog repository deployment and records
+
+The product's own database is a separate physical realization:
+
+| Reference | Canonical name | Kind | Relationship |
+| --- | --- | --- | --- |
+| `CAT-PHY` | Domain Catalog Repository Physical Data Model | Particular relational physical model of the metadata repository | Conforms to `DML-DEF`, principally its `DML-PHY` scope, and specifies lossless persistence of `CMOF-GOV`, `DML-DEF`, `BDM-*`, realization, revision, deployment, and observation content |
+| `CAT-DEPLOY` | Domain Catalog Repository Deployment Package | Repository DDL and migrations | Realizes `CAT-PHY` for the selected repository DBMS |
+| `CAT-RUNTIME` | Deployed Domain Catalog Repository Schema | Actual running relational schema | Is created or changed by `CAT-DEPLOY` and may be described by its own observed physical model |
+| `CAT-OBS` | Observed Domain Catalog Repository Model | Point-in-time physical inventory of the running repository | Conforms to `DML-DEF` and describes `CAT-RUNTIME` using `DML-PHY` with `role = observed` and `DML-OBS` rules |
+| `CAT-COMP` | Domain Catalog Repository Physical-State Comparison | Intended-versus-observed comparison artifact | Compares `CAT-PHY` with `CAT-OBS` and records repository drift disposition |
+| `CAT-DATA` | Domain Catalog Repository Records | Rows representing model definitions, particular model revisions, mappings, provenance, deployment records, and observations | Is stored under and constrained by `CAT-RUNTIME` and must reconstruct the represented CMOF and data models without semantic loss |
+
+`CAT-DATA` stores the content of business data models: their entities, attributes, relationships, constraints, mappings, revisions, and related metadata. It does **not** mean that the Domain Catalog stores the operational `BDM-DATA`—for example, customer and order records—unless a later product requirement explicitly adds that separate responsibility.
+
+### 1.6 Object of the first business-use-case study
+
+The first use case couples, but does not collapse, two objects:
+
+1. A data architect creates and refines a `BDM-FAMILY`: conceptual, logical, optional relational-logical, and one or more physical business data models, together with their realization records.
+2. Domain Catalog persists the complete model content as `CAT-DATA` in `CAT-RUNTIME`, whose intended schema is specified by `CAT-PHY`.
+3. A `BDM-PHY` may separately produce `BDM-DEPLOY` and `BDM-RUNTIME` for a subject system. That path stores or exchanges operational `BDM-DATA` outside the Domain Catalog.
+4. Readback from either runtime produces the appropriate observed model and comparison: `BDM-OBS`/`BDM-COMP` for a subject system or `CAT-OBS`/`CAT-COMP` for the repository itself.
+
+The repository realization is therefore part of the product being designed, while the `BDM-FAMILY` is both the content it must persist and the concrete use case used to validate the data-modeling language.
+
+### 1.7 Relationship map
 
 ```text
-CMOF 2.5.1
-    governs the valid form of
-this data-modeling language definition
-    governs the valid form of
-particular conceptual, logical, relational-logical, and heterogeneous physical data models
-    whose elements may be realized by
-deployment artifacts and observed deployed resources
+MOF-SPEC
+  defines
+CMOF-GOV
+  governs by conformance
+DML-DEF  <--- incorporates assigned semantics from ---  DM-STD
+  contains DML-SEM, DML-CON, DML-LOG, DML-REL, DML-PHY,
+           DML-DEP, DML-OBS, and DML-REA
+
+DML-CON    DML-LOG    DML-REL    DML-PHY
+   |          |          |          |
+governs    governs    governs    governs
+   |          |          |          |
+BDM-CON -> BDM-LOG -> BDM-REL -> BDM-PHY -> BDM-DEPLOY -> BDM-RUNTIME
+               \----------------->/                            |
+                                                               constrains
+                                                                   |
+                                                               BDM-DATA
+BDM-RUNTIME --observed as--> BDM-OBS --compared with BDM-PHY--> BDM-COMP
+
+CMOF-GOV + DML-DEF + BDM-* content
+               |
+        persisted according to
+               |
+            CAT-PHY -> CAT-DEPLOY -> CAT-RUNTIME -> CAT-DATA
+                                      |
+                                 observed as
+                                      |
+                                  CAT-OBS --compared with CAT-PHY--> CAT-COMP
 ```
 
 `Conforms to` means that a model uses permitted element types and satisfies this definition's rules. It does not mean that the model was generated from its governing model.
 
 `Realizes` relates a more concrete model or deployment artifact to meaning in an upstream artifact. Realization does not imply equivalence, automation, or absence of added decisions. Observation records what is found in a deployed environment; it is not silently treated as the authoritative design.
+
+`Defines`, `incorporates`, `conforms to`, `realizes`, `deploys`, `observes`, `persists`, and `constrains data` are different relationships. Do not substitute the generic word “uses” when one of these relationships is known.
 
 ## 2. Standards Profile and Authority
 
@@ -45,7 +158,8 @@ The status terms mean:
 
 | Standard or reference | Status in this language | Concern incorporated | Authority boundary |
 | --- | --- | --- | --- |
-| [OMG MOF 2.5.1, CMOF](https://www.omg.org/spec/MOF/2.5.1) | Governing; acceptance pending | Packages, classes, datatypes, enumerations, properties, multiplicity, composition, generalization, constraints, identifiers, and reflection | Defines the form of this language, not data-modeling meaning |
+| [`MOF-SPEC`: OMG MOF Core 2.5.1](https://www.omg.org/spec/MOF/2.5.1) | Top-level governing standard | Defines the MOF architecture, compliance points, normative model, and production-constraint framework | Defines `CMOF-GOV`; it is not a project model or data-modeling language |
+| [`CMOF-GOV`: Complete MOF 2.5.1](https://www.omg.org/spec/MOF/2.5.1) | Governing model and compliance level; acceptance pending | Full MOF metamodeling capabilities plus the applicable CMOF production constraints: packages, classes, datatypes, enumerations, properties, multiplicity, composition, generalization, constraints, identifiers, and reflection | Governs the form of `DML-DEF`, not its data-modeling meaning |
 | [ISO/IEC 19508:2014, MOF Core](https://www.iso.org/standard/61844.html) | Alignment required; version delta pending | ISO-standardized MOF baseline | Predates the selected OMG MOF 2.5.1; ISO and OMG conformance must not be treated as identical without a delta assessment |
 | [ISO/IEC 19507:2012, OCL 2.3.1](https://www.iso.org/standard/57306.html) | Default constraint and query language wherever its side-effect-free model semantics apply; encoding pending | `DM-*` rules, derived values, model queries, guards, and business/logical constraints over a defined subject-data environment | Does not replace SQL syntax, external facts, temporal state that is not modeled, or procedural transformation bodies |
 | [ISO/IEC/IEEE 31320-2:2012, IDEF1X97](https://www.iso.org/standard/60614.html) | Adopted for overlapping schema semantics; normative-text verification pending | Entity types, attributes, identifiers, relationships, relationship ends, and cardinality | Its term `conceptual schema` is not assumed to equal this language's `ConceptualDataModel`; constructs are mapped individually |
@@ -68,7 +182,7 @@ The status terms mean:
 ### 2.1 Precedence and conflict rules
 
 1. A standard governs only the concern assigned to it in the table.
-2. CMOF governs whether this definition is a valid metamodel; the adopted data standards govern the meanings expressed by CMOF classes and properties.
+2. `MOF-SPEC` defines the selected `CMOF-GOV` compliance level. `CMOF-GOV` governs whether `DML-DEF` is a valid metamodel; the adopted data standards govern the meanings expressed by its CMOF classes and properties.
 3. DAMA 2010 governs the intended data-modeling abstraction and approach. It does not override a formal standard silently; any conflict must be recorded and resolved explicitly.
 4. A target-platform or format specification may specialize the physical package. It must preserve any applicable portable meaning and identify the profile, version, and native extensions under which each physical fact is interpreted.
 5. OCL is the default for every constraint, derivation, query, guard, or pre/postcondition expressible over modeled state. A non-OCL expression must identify the owning language and either be intrinsic target syntax or state why OCL is insufficient.
@@ -116,13 +230,13 @@ The abstraction belongs to a model. An element belongs to exactly one model and 
 
 | Model kind | Purpose | Includes | Excludes |
 | --- | --- | --- | --- |
-| `ConceptualDataModel` | State business meaning and scope | Business entity types, business properties, relationships, cardinality, and business constraints | Relations, foreign keys, tables, columns, platform types, indexes |
-| `LogicalDataModel` | State technology-neutral data structure and integrity | Logical entity types, attributes, identifiers, relationships, constraints, and scalar, record, collection, map, choice, or opaque value structures | Database products, storage objects, platform types, indexes |
-| `RelationalLogicalDataModel` | State a logical model using the relational model | Relations, relation attributes, candidate keys, and relational foreign keys | Tables, storage options, platform data types, indexes |
-| `PhysicalDataModel` with `role = design` | State technology-specific detailed design for one named target | Relational structures; NoSQL structures; API contracts; JSON or XML schemas; data files, objects, blobs, or block-storage descriptions; physical constraints and access structures; target-native metadata | Unresolved business meaning, unnamed implementation targets, deployment execution, or claims about observed state |
-| `DeploymentPackage` | Hold executable or publishable material that realizes a physical design | DDL, migrations, schema documents, API descriptions, configuration, and other target-owned artifacts plus integrity digests | Conceptual or logical authority and unverified claims about deployed state |
-| `PhysicalDataModel` with `role = observed` | Record a point-in-time inventory read from a deployed environment | Discovered resources, structures, native metadata, collection provenance, and unresolved target extensions | Intended design authority or an implicit declaration that drift is acceptable |
-| `PhysicalComparison` | Compare intended and observed physical state for maintenance | Missing, unexpected, changed, and equivalent correspondences with dispositions | Mutation of either source model or replacement of upstream design decisions |
+| `ConceptualDataModel` (`BDM-CON`) | State business meaning and scope | Business entity types, business properties, relationships, cardinality, and business constraints | Relations, foreign keys, tables, columns, platform types, indexes |
+| `LogicalDataModel` (`BDM-LOG`) | State technology-neutral data structure and integrity | Logical entity types, attributes, identifiers, relationships, constraints, and scalar, record, collection, map, choice, or opaque value structures | Database products, storage objects, platform types, indexes |
+| `RelationalLogicalDataModel` (`BDM-REL`) | State a logical model using the relational model | Relations, relation attributes, candidate keys, and relational foreign keys | Tables, storage options, platform data types, indexes |
+| `PhysicalDataModel` with `role = design` (`BDM-PHY` or `CAT-PHY`) | State technology-specific detailed design for one named target | Relational structures; NoSQL structures; API contracts; JSON or XML schemas; data files, objects, blobs, or block-storage descriptions; physical constraints and access structures; target-native metadata | Unresolved business meaning, unnamed implementation targets, deployment execution, or claims about observed state |
+| `DeploymentPackage` (`BDM-DEPLOY` or `CAT-DEPLOY`) | Hold executable or publishable material that realizes a physical design | DDL, migrations, schema documents, API descriptions, configuration, and other target-owned artifacts plus integrity digests | Conceptual or logical authority and unverified claims about deployed state |
+| `PhysicalDataModel` with `role = observed` (`BDM-OBS` or `CAT-OBS`) | Record a point-in-time inventory read from a deployed environment | Discovered resources, structures, native metadata, collection provenance, and unresolved target extensions | Intended design authority or an implicit declaration that drift is acceptable |
+| `PhysicalComparison` (`BDM-COMP` or `CAT-COMP`) | Compare intended and observed physical state for maintenance | Missing, unexpected, changed, and equivalent correspondences with dispositions | Mutation of either source model or replacement of upstream design decisions |
 
 A relation and a table are not synonyms. A relation is a logical value with a heading and relational constraints. A table is a physical database object in a target environment. A table may realize one relation, several relations, or part of a relation, and that correspondence is explicit.
 
@@ -132,7 +246,7 @@ Maintenance creates new revisioned artifacts. It does not overwrite the historic
 
 ## 4. CMOF and Repository Representation
 
-The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`, `Logical`, `Relational`, `Physical`, `Deployment`, `Observation`, and `Realization`.
+`DML-DEF` consists of CMOF packages named `Core`, `Semantics`, `Conceptual`, `Logical`, `Relational`, `Physical`, `Deployment`, `Observation`, and `Realization`.
 
 - Every type below is a CMOF `Class`, `DataType`, or `Enumeration`.
 - Every field or role is a CMOF `Property` with the stated multiplicity.
@@ -146,16 +260,16 @@ The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`
 
 This Markdown is a review projection, not the machine-readable CMOF representation required for acceptance.
 
-### 4.1 Required relational repository realization
+### 4.1 Required relational repository realization (`CAT-PHY`)
 
-The production catalog is expected to deploy this language and its instances as a physical relational database artifact. The later repository design must provide a lossless, bidirectional representation of:
+The production catalog is expected to deploy `CAT-PHY`, a physical relational model that conforms to `DML-DEF` under its `DML-PHY` scope and persists `CMOF-GOV`, `DML-DEF`, and their conforming model instances. The later repository design must provide a lossless, bidirectional representation of:
 
 - every CMOF package, class, datatype, enumeration, property, generalization, constraint, and expression in this definition;
 - every domain, semantic element, model, model element, physical metadata profile, deployment artifact, observation, comparison, and realization record;
 - stable identity, revision lineage, artifact status, provenance, ordered collections, multiplicity, and explicit cross-artifact correspondence; and
 - both portable typed constructs and target-native metadata whose exact semantics are owned by a named product, standard, dialect, or format version.
 
-The machine-readable CMOF model remains the semantic authority. The relational repository schema realizes it and must support round-trip reconstruction without inventing, dropping, or changing meaning. The repository schema is itself a subject physical model governed by this language, so its tables, constraints, indexes, deployment artifacts, and observed runtime state can be cataloged and related back to the CMOF definition.
+The machine-readable `CMOF-GOV` and `DML-DEF` models remain the semantic authorities at their respective levels. `CAT-PHY` realizes their persistence, and `CAT-RUNTIME` plus `CAT-DATA` must support round-trip reconstruction without inventing, dropping, or changing meaning. `CAT-PHY` is itself a particular physical model governed by `DML-DEF` through `DML-PHY`, so its tables, constraints, indexes, deployment artifacts, and observed runtime state can be cataloged and related back to the definitions they represent.
 
 XMI remains a validation and interchange representation. It is not a competing source of truth and does not preclude a relational runtime repository. Selecting the database product, repository schema pattern, migration mechanism, and executable DDL belongs to a later refinement.
 
@@ -959,7 +1073,7 @@ Those are decisions for later refinements after this language and its governing 
 
 The standards are part of this language definition now; the outstanding work is verification, not selection by implication.
 
-- CMOF is the presumed governing model pending the follow-up ADR and executable production-constraint validation.
+- `CMOF-GOV` is the presumed governing model defined by `MOF-SPEC`, pending the follow-up ADR and executable production-constraint validation.
 - OCL 2.3.1 is the default wherever its side-effect-free model semantics apply; equivalent encodings of the `DM-*` rules and derived properties remain to be written.
 - The definition-model and subject-data OCL evaluation environments remain to be specified and validated separately.
 - ISO/IEC 11179-31 concepts are adopted, while exact inheritance, role names, and multiplicities await normative-text checking.
@@ -974,6 +1088,6 @@ The standards are part of this language definition now; the outstanding work is 
 - ISO/IEC 11179-35 and ISO/IEC 19763-12 mappings remain to be demonstrated.
 - The OMG MOF 2.5.1 to ISO/IEC 19508:2014 version delta has not been assessed, so ISO MOF conformance is not claimed.
 - ISO/IEC 19509 XMI output has not been produced, so representation conformance is not claimed; XMI is a validation/interchange form rather than the selected runtime repository.
-- The required relational repository realization has not been designed or round-trip tested. Its future acceptance requires reconstructing the CMOF definition and representative instances without semantic loss.
+- `CAT-PHY`, `CAT-DEPLOY`, `CAT-RUNTIME`, and `CAT-DATA` have not been designed or round-trip tested. Their future acceptance requires reconstructing `CMOF-GOV`, `DML-DEF`, and representative `BDM-*` instances without semantic loss.
 - DAMA alignment remains a hypothesis until checked against exact pages in the user's 2010 edition.
 - Realization coverage rules, optional relational-logical refinement, relation/table separation, lifecycle artifacts, and heterogeneous physical profiles are project composition decisions subject to product-owner review.

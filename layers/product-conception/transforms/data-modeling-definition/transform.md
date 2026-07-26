@@ -21,6 +21,7 @@ Produce a reviewable definition of a data-modeling language that:
 - covers relational databases and their complete target-specific metadata surfaces, non-relational stores, APIs, JSON and XML schemas, and metadata-bearing stored assets;
 - records explicit realization between model elements and deployment artifacts at different refinements;
 - can be realized losslessly as a deployed relational catalog without making that repository schema part of this layer;
+- assigns stable canonical references to every governing, definition, subject-model, deployment, runtime, and data role so similarly named models cannot be conflated;
 - is expressible as a CMOF 2.5.1 model; and
 - uses DAMA and industry standards only for the concerns they actually govern.
 
@@ -37,7 +38,7 @@ The transform is also the evidence-producing judgment round required by Domain C
 
 - Use the user's 2010 DAMA-DMBOK edition as the current verification baseline.
 - Prefer applicable industry standards over project-specific invention.
-- Presume CMOF 2.5.1 as the governing model while testing its fit.
+- Presume `CMOF-GOV` 2.5.1 as the governing model while testing its fit.
 - Make the target artifact authoritative for its OMG and ISO standards profile; keep standards research with the transform as evidence.
 - Use OCL wherever the required semantics can be expressed over modeled state; make every exception explicit.
 - Cover conceptual, logical, and physical data abstraction, from business entity types to tables, columns, foreign-key constraints, and indexes.
@@ -45,12 +46,14 @@ The transform is also the evidence-producing judgment round required by Domain C
 - Represent every physical fact available from a named target and version, using portable typed constructs where honest and explicit target metadata profiles for native kinds, properties, and relationships.
 - Support stepwise refinement through detailed design, deployment, observation, drift comparison, and maintenance revisions.
 - Require the language and its instances to have a lossless relational repository realization, while keeping the repository implementation distinct from subject systems represented in the catalog.
+- Name the model stack explicitly: distinguish the MOF specification from its CMOF model/compliance level; name the standards profile, data-modeling definition and its submodels, particular business-model families, subject-system deployment, and Domain Catalog repository deployment.
+- Interpret Domain Catalog repository data as the content and metadata of business data models, not the operational business data described by those models. Treat storing operational subject data as a separate future product decision.
 
 ### External evidence
 
 - OMG Meta Object Facility 2.5.1, including CMOF and its production constraints
 - User-owned 2010 DAMA-DMBOK edition; exact pages still required
-- ISO and OMG sources listed in `standards-assessment.md`
+- ISO, OMG, W3C, and industry sources listed in `standards-assessment.md`
 
 ## Upstream Meaning to Preserve
 
@@ -82,7 +85,10 @@ The output must preserve these distinctions from `product-conception`:
 - Separate intended physical design, immutable deployment packages, deployment execution records, observed physical inventories, and maintenance comparisons.
 - Generalize realization from model-to-model correspondence to refinement-artifact correspondence so deployment material participates without being mislabeled as a data model.
 - Require artifact revision lineage and acyclic refinement rather than a fixed universal conceptual-to-logical-to-relational-to-physical sequence.
-- Require a future relational repository realization to reconstruct the CMOF definition and representative instances without semantic loss; retain XMI as validation/interchange rather than runtime persistence.
+- Require a future relational repository realization to reconstruct `CMOF-GOV`, `DML-DEF`, and representative `BDM-*` instances without semantic loss; retain XMI as validation/interchange rather than runtime persistence.
+- Use the canonical references `MOF-SPEC`, `CMOF-GOV`, `DM-STD`, `DML-*`, `BDM-*`, and `CAT-*`. Distinguish role references from concrete revision references such as `BDM-LOG/commerce@3`.
+- Treat `DM-STD` as a collection of concern-specific authorities incorporated into `DML-DEF`, not as a fictitious unified model or universal conformance target.
+- Separate the subject-system path (`BDM-PHY` through `BDM-DATA`) from the catalog-repository path (`CAT-PHY` through `CAT-DATA`).
 
 These are provisional definition decisions, not accepted product decisions, until the validation conditions pass.
 
@@ -90,15 +96,16 @@ These are provisional definition decisions, not accepted product decisions, unti
 
 1. Classify candidate standards by the concern they actually standardize and incorporate the resulting standards profile into the target artifact.
 2. Establish unambiguous definitions for each data-model abstraction.
-3. Define a minimal shared semantic core.
-4. Define conceptual, logical, relational-logical, heterogeneous physical, deployment, observation, and realization packages using only CMOF classes, properties, datatypes, enumerations, generalizations, packages, and constraints.
-5. State cross-package well-formedness rules independently of any future software validator.
-6. Exercise the language with one subject model across all abstractions.
-7. Classify each required capability against CMOF and assess unused CMOF surface and the practical UML relationship.
-8. Test physical extensibility against at least one relational catalog, one JSON or XML schema, one API description, one non-relational store, and one metadata-bearing stored-asset example.
-9. Test deployment, readback, drift comparison, and maintenance revision without conflating intended and observed state.
-10. Test a relational repository mapping for lossless round-trip of the language definition and representative instances.
-11. Record unresolved evidence rather than converting uncertainty into a conformance claim.
+3. Enumerate and assign canonical references to every model and non-model artifact in the governing, definition, subject, deployment, runtime, and persistence chains.
+4. Define a minimal shared semantic core.
+5. Define conceptual, logical, relational-logical, heterogeneous physical, deployment, observation, and realization packages using only CMOF classes, properties, datatypes, enumerations, generalizations, packages, and constraints.
+6. State cross-package well-formedness rules independently of any future software validator.
+7. Exercise the language with one subject model across all abstractions.
+8. Classify each required capability against `CMOF-GOV` and assess unused CMOF surface and the practical UML relationship.
+9. Test physical extensibility against at least one relational catalog, one JSON or XML schema, one API description, one non-relational store, and one metadata-bearing stored-asset example.
+10. Test deployment, readback, drift comparison, and maintenance revision without conflating intended and observed state.
+11. Test a relational repository mapping for lossless round-trip of the language definition and representative instances.
+12. Record unresolved evidence rather than converting uncertainty into a conformance claim.
 
 ## Expected Outputs
 
@@ -125,6 +132,9 @@ The target can become effective only when all conditions below pass.
 - [x] Physical design is no longer defined as relational-only, and target-native metadata has an explicit representation boundary.
 - [x] Intended design, deployment material, deployment records, observations, comparisons, and revision lineage are semantically distinct.
 - [x] The required relational repository realization is distinguished from the subject systems represented by the catalog.
+- [x] Every model and artifact role in the governing, definition, business-model, subject-system, and catalog-repository chains has a canonical reference and an explicit relationship.
+- [x] The standards profile is not misrepresented as one model, and `MOF-SPEC` is distinguished from `CMOF-GOV`.
+- [x] `CAT-DATA` model records are distinguished from operational `BDM-DATA`.
 - [ ] Exact definitions and model-level distinctions are verified against cited pages in the user's 2010 DAMA-DMBOK edition.
 - [ ] Adopted semantics from ISO/IEC/IEEE 31320-2, ISO/IEC 11179-31, ISO/IEC 11404, and ISO/IEC 9075-2 are checked against their normative texts, not only their public abstracts.
 - [ ] The `DM-*` rules and derived properties are encoded in ISO/IEC 19507:2012 OCL 2.3.1 and shown equivalent to the normative prose.
@@ -136,7 +146,7 @@ The target can become effective only when all conditions below pass.
 - [ ] JSON Schema 2020-12, XML Schema 1.1, and OpenAPI 3.2.0 examples round-trip without losing native structure, references, or constraints.
 - [ ] Representative document, key-value, wide-column, graph, and stored-asset metadata can be represented without falsely forcing it into relational constructs.
 - [ ] A design model, deployment package, observed inventory, drift comparison, and maintenance revision are exercised end to end.
-- [ ] A relational repository prototype round-trips the CMOF definition and representative instances without loss of identity, ordering, multiplicity, expressions, profiles, revisions, or realization links.
+- [ ] A relational repository prototype round-trips `CMOF-GOV`, `DML-DEF`, and representative `BDM-*` instances without loss of identity, ordering, multiplicity, expressions, profiles, revisions, or realization links.
 - [ ] The product owner accepts or revises the language inventory and abstraction boundaries.
 - [ ] A follow-up ADR decides whether direct CMOF use is accepted.
 
