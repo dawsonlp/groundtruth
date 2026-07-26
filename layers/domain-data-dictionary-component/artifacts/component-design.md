@@ -409,9 +409,11 @@ The canonical registry names `BDM-FAMILY` and says that it groups the purposeful
 - `lineageIdentifier` connects revisions of one artifact, not conceptual, logical, and physical artifacts of different kinds; and
 - realization records state correspondence but do not establish one authoritative family boundary.
 
-The component therefore cannot implement stable family identity or membership honestly from revision `19133fd`. Inferring membership from names, containment, or reachability would violate the explicit-relationship principle.
+Revision `19133fd` does not provide a governing definition for stable family identity or membership. Inferring membership from names, containment, or reachability would violate the explicit-relationship principle.
 
-Before architecture or implementation, `DML-DEF` must either define an explicit family construct and membership semantics or replace `BDM-FAMILY` with another equally explicit grouping mechanism. That choice belongs to the source definition and its owning transform. This component design records the required responsibility but does not select the missing language construct.
+Before this branch becomes effective, `DML-DEF` must either define an explicit family construct and membership semantics or replace `BDM-FAMILY` with another equally explicit grouping mechanism. That choice belongs to the source definition and its owning transform. This component design records the required responsibility but does not select the missing language construct.
+
+Further draft architecture and implementation work may continue in order to test the rest of the model. Until the upstream choice is made, each descendant must identify revision `19133fd`, carry family identity as an explicit provisional assumption rather than a conformance claim, and avoid treating its temporary representation as authority for `DML-DEF`. When the source is corrected, this design and affected descendants must be regenerated.
 
 No other component responsibility currently demonstrates a new governing-model primitive or definition-language gap. Executable transformation behavior, repository mapping, validation-report retention, and target-profile contracts still require later refinement.
 
@@ -488,4 +490,4 @@ This design satisfies the structural componentization conditions in its owning t
 - no repository round-trip or target-profile implementation has validated the design constraints; and
 - product owner acceptance is pending.
 
-The next action is to correct the `BDM-FAMILY` gap in the source definition and regenerate this design. Product-owner review of the component boundary and first deployable scope follows before selecting the first physical target or writing architecture.
+The `BDM-FAMILY` gap must be corrected before acceptance, but it does not block continued draft refinement. The next component work may select a first physical target and produce draft architecture while carrying the gap as an explicit provisional assumption. When `DML-DEF` is corrected, this design and its affected descendants must be regenerated before the branch becomes effective.

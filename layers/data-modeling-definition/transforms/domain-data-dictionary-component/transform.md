@@ -103,10 +103,10 @@ The target design can become effective only when all conditions below pass.
 - [x] Every design responsibility traces to the source definition or records a concrete upstream gap.
 - [ ] The product owner accepts the component boundary and first deployable scope.
 
-The design execution exposed one concrete upstream gap: `DML-DEF` names `BDM-FAMILY` as the grouping object for related subject models but revision `19133fd` has no family class or explicit membership relationship. The target design records the required responsibility but does not infer or invent the missing construct. The source definition must resolve the gap before this target can be accepted.
+The design execution exposed one concrete upstream gap: `DML-DEF` names `BDM-FAMILY` as the grouping object for related subject models but revision `19133fd` has no family class or explicit membership relationship. The target design records the required responsibility but does not silently infer or promote a missing construct into the source definition. The gap must be resolved before this target can be accepted, but it does not block creating further draft descendants that identify it and state any provisional assumption used.
 
 Because the source layer is not effective, passing these conditions would still leave the target provisional until its accepted source revision and transform are identified.
 
 ## Retry Guidance
 
-If design work exposes an unsupported modeling concept or a contradiction in `DML-DEF`, change the source definition and its owning transform first, then restart this transform from the corrected source revision. If the problem is limited to component boundaries or implementation responsibilities, revise this transform and regenerate only the component-design layer. Do not repair an implementation symptom by weakening the governing model silently.
+If design or implementation work exposes an unsupported modeling concept or a contradiction in `DML-DEF`, record the gap with this transform. Draft downstream work may continue when it names the exact source revision and keeps any provisional assumption explicit. When the source definition and its owning transform are corrected, restart this transform from that revision and regenerate affected descendants in order. If a problem is limited to component boundaries or implementation responsibilities, revise this transform and regenerate only the affected downstream branch. Do not repair an implementation symptom by weakening the governing model silently.

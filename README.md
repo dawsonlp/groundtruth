@@ -49,7 +49,7 @@ layers/
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The design execution exposed an upstream gap: `DML-DEF` names `BDM-FAMILY` but does not structurally define family identity or model membership. The next action is to correct that source definition and regenerate the component design, then review and accept or revise its component boundary and first deployable scope. Architecture and first-target selection remain downstream decisions. The source definition also still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
+The design execution exposed an upstream gap: `DML-DEF` names `BDM-FAMILY` but does not structurally define family identity or model membership. That gap remains recorded and must be corrected before the branch becomes effective, but it does not block further draft refinement. The next component work may proceed into architecture and first-target selection using an explicit provisional assumption. Once the source definition is corrected, the component design and its affected descendants must be regenerated. The source definition also still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
 
 ## Working With This Project
 
@@ -66,9 +66,22 @@ The **latest effective layer** is the most concrete effective layer on a selecte
 
 Directory depth, modification time, and Git commit order do not determine which layer is effective.
 
+### Exploratory refinement from draft layers
+
+Effectiveness controls whether a layer is accepted as a reliable source for a build or further accepted refinement. It does not control whether exploratory downstream work may be created.
+
+A draft layer may be used as the source of another draft layer in order to test the model against more concrete design and implementation. The descendant must:
+
+- identify the exact source revision and transform used;
+- remain explicitly draft and non-effective;
+- record unresolved upstream gaps and any provisional assumptions used to continue; and
+- avoid converting a provisional assumption into upstream authority merely because code or a concrete artifact now depends on it.
+
+Discovery of an upstream shortcoming does not require all downstream exploration to stop. Work may continue to expose additional consequences and test candidate realizations. When the upstream layer is corrected, every affected descendant becomes stale and must be regenerated in transform order before the branch can become effective.
+
 ### Building the product
 
-To build or run the product:
+To build or run the product from an effective branch:
 
 1. Select the intended implementation branch. If several alternatives exist and none was requested, do not choose one implicitly.
 2. Follow the branch's transform references to find its latest effective layer.
@@ -78,9 +91,11 @@ To build or run the product:
 6. Repeat the transform-and-validate process until reaching a runnable layer.
 7. Follow the runnable layer's own build and execution instructions.
 
-Do not invent a missing transform, silently select an implementation branch, or treat an unvalidated generated layer as effective. If no accepted path reaches a runnable layer, report that the product is not yet buildable and identify the missing transform or decision.
+Do not invent a missing transform, silently select an implementation branch, or treat an unvalidated generated layer as effective. If no accepted path reaches a runnable layer, report that no effective build is available and identify the missing transform or decision.
 
-This project is currently **not buildable**: no layer is effective, both draft transforms have unmet validation conditions, and no accepted path reaches a runnable layer.
+An exploratory build may instead follow a deliberately selected draft branch. Execute its recorded draft transforms, identify every exact source revision, validate what can be validated, and carry unresolved gaps and provisional assumptions into the runnable descendant. The result remains a draft experiment rather than an effective product build, but creating and running it is permitted and is expected to provide evidence for upstream revision.
+
+This project is currently **not buildable as an effective product**: no layer is effective, both draft transforms have unmet validation conditions, and no accepted path reaches a runnable layer. Exploratory implementation may continue once its outbound transform and provisional inputs are recorded.
 
 ### Updating the product
 
@@ -88,7 +103,7 @@ To make a product change:
 
 1. Describe the semantic change before selecting files to edit.
 2. Find the least concrete layer that owns the decision being changed. A visible defect in a downstream layer may originate in an upstream artifact, the transform, a human input to the transform, or generation that failed to follow valid inputs.
-3. Create a Git branch or worktree from the last accepted state.
+3. Create a Git branch or worktree from the last accepted state. If no accepted state exists, or the purpose is explicitly exploratory refinement, start from the exact recorded draft revision and keep the resulting branch non-effective.
 4. Change the owning layer artifact, transform specification, or recorded human input. Do not repair only a downstream symptom while leaving its source contradictory.
 5. Identify affected descendants by following outbound transform references. Unrelated sibling implementations remain unchanged unless they consume the changed source.
 6. Treat each affected descendant as stale until it has been regenerated from the new source revision and validated.
