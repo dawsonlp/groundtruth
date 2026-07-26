@@ -7,7 +7,7 @@
 - Provisional canonical reference: `CAT-LOG/domain-data-dictionary@1`
 - Model kind: `LogicalDataModel`
 - Governing definition: `DML-DEF` revision `19133fd`, principally `DML-LOG`, `DML-SEM`, and `DML-REA`
-- Source conceptual model: `CAT-CON/domain-data-dictionary@1` at revision `f311eac`
+- Source conceptual model: `CAT-CON/domain-data-dictionary@1` at revision `73ed9df`
 - PostgreSQL realization: deferred
 - API realization: deferred
 
@@ -336,9 +336,9 @@ inv NonRootHasParent:
 
 The machine-readable model must add and validate OCL for definition applicability, multiplicity, type conformance, composite ownership, acyclicity, value-tree shape, immutability, artifact closure, and projection derivation before this layer becomes effective.
 
-## 10. PostgreSQL Physical-Model Contract
+## 10. PostgreSQL Realization Contract
 
-The later `CAT-PHY` model must:
+The PostgreSQL realization transform and its artifacts must:
 
 1. realize the three typed governance entities and three reflective-content entities without loss;
 2. preserve composite identifiers and derived value paths or provide explicit equivalent realization;
@@ -351,11 +351,11 @@ The later `CAT-PHY` model must:
 9. deploy through `CAT-DEPLOY` and observe itself as `CAT-OBS`; and
 10. demonstrate round-trip reconstruction of representative `CMOF-GOV`, `DML-DEF`, `CAT-CON`, and subject-model content.
 
-PostgreSQL table, column, constraint, index, extension, partition, JSONB, and migration choices are intentionally absent from this logical model.
+PostgreSQL table, column, constraint, index, extension, partition, JSONB, and migration choices are intentionally absent from this logical model and owned by the realization transform.
 
 ## 11. Open Questions
 
-1. Should reflected-content projections exist only as queries, or may the physical model materialize them with mandatory derivation provenance?
+1. Should reflected-content projections exist only as queries, or may the PostgreSQL realization materialize them with mandatory derivation provenance?
 2. Which primitive lexical forms require canonicalization in `CAT-LOG`, and which remain governed entirely by their datatype definitions?
 3. Must property occurrences themselves be addressable by external provenance, or is their composite logical identity sufficient?
 4. How should an accepted artifact reference an accepted shared semantic object outside its own composite closure?

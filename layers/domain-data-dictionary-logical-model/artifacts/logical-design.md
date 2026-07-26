@@ -5,12 +5,12 @@
 - Status: draft
 - Effective: no
 - Provisional canonical reference: `CAT-LOG/domain-data-dictionary@1`
-- Source conceptual model: `CAT-CON/domain-data-dictionary@1` at revision `f311eac`
-- First physical target: PostgreSQL, deferred to `CAT-PHY`
+- Source conceptual model: `CAT-CON/domain-data-dictionary@1` at revision `73ed9df`
+- First repository realization: PostgreSQL
 
 ## Inputs Consulted
 
-- `CAT-CON/domain-data-dictionary@1` conceptual data model and build design at revision `f311eac`
+- `CAT-CON/domain-data-dictionary@1` conceptual data model and build design at revision `73ed9df`
 - Model C component design at revision `5a0993d`
 - `DML-DEF` at revision `19133fd`, principally `DML-LOG`, `DML-SEM`, and `DML-REA`
 - source-colocated conceptual-to-logical transform at this source revision
@@ -28,7 +28,7 @@ The authoritative logical state has two non-overlapping forms:
 
 CMOF and `DML-DEF` definitions are stored through the same reflective mechanism as the models they govern. Capability modules derive typed views of that reflective content by interpreting the exact governing-definition revision associated with an object. The three catalog-specific record types are already typed authority and are not reconstructed as projections.
 
-This is a logical model decision, not a PostgreSQL EAV schema decision. The physical model may use several tables, typed partitions, materialized projections, JSON, or other PostgreSQL mechanisms, provided it reconstructs both parts of the logical kernel exactly and retains one authority for each fact.
+This is a logical model decision, not a PostgreSQL EAV schema decision. The PostgreSQL realization may use several tables, typed partitions, materialized projections, JSON, or other PostgreSQL mechanisms, provided it reconstructs both parts of the logical kernel exactly and retains one authority for each fact.
 
 ## 2. Why This Model
 
@@ -120,9 +120,9 @@ Projection structure is generated from applicable CMOF properties rather than ma
 - Authorization filters capabilities and scopes; it does not create a second data model.
 - Direct PostgreSQL mutation bypasses validation and is outside the product interface.
 
-## 8. Physical Refinement Constraints
+## 8. PostgreSQL Realization Constraints
 
-The PostgreSQL model must demonstrate:
+The PostgreSQL realization must demonstrate:
 
 - unique and stable catalog identity;
 - type and property-definition referential integrity;
@@ -150,11 +150,11 @@ It may not make a projection table, JSON document, generated API model, or vendo
 
 ## 10. Decisions Requested
 
-The product owner is asked to accept, revise, or reject the hybrid catalog kernel before this layer becomes effective. Acceptance would authorize the PostgreSQL physical refinement to optimize typed governance records and reflective model content differently without creating a second writable authority for either.
+The product owner is asked to accept, revise, or reject the hybrid catalog kernel before this layer becomes effective. Acceptance would confirm the semantic authority that the PostgreSQL realization must preserve; ordinary physical choices remain owned by the realization transform and do not require table-by-table approval.
 
 ## 11. Recommended Next Step
 
-Review this logical design for architectural fidelity and buildability. If it remains a useful working hypothesis, create a source-colocated outbound transform and a draft PostgreSQL `CAT-PHY` sibling layer. Use that physical refinement to test identity, recursive values, constraint enforcement, atomic artifact publication, projection performance, and lossless round-trip behavior; route failures back to the earliest owning layer.
+Review this logical design for architectural fidelity and buildability. If it remains a useful working hypothesis, execute the source-colocated PostgreSQL realization transform: author migration SQL from this logical authority, derive a traceability manifest and deployed inventory, and test identity, recursive values, constraint enforcement, atomic artifact publication, projection performance, and lossless round-trip behavior. Route failures back to the earliest owning layer; do not introduce a separately approved physical-model authority.
 
 ## 12. Review and Sign-Off
 

@@ -6,7 +6,7 @@
 - Transform execution: complete
 - Validation status: incomplete
 - Source layer: `domain-data-dictionary-conceptual-model`
-- Source revision: `f311eac`
+- Source revision: `73ed9df`
 - Source status: draft and not effective
 - Target layer: `domain-data-dictionary-logical-model`
 - Target status: draft and not effective
@@ -19,12 +19,12 @@ Refine the Domain Data Dictionary conceptual model into a technology-neutral log
 - stores CMOF, `DML-DEF`, catalog definitions, and conforming model instances without requiring a repository redesign for every new governed type;
 - supplies stable logical identity, typed values, ordered multiplicity, containment, references, and recursive structured values;
 - remains independent of PostgreSQL structures and API message design; and
-- provides the complete semantic input for the later PostgreSQL physical model.
+- provides the complete semantic input for the later PostgreSQL realization transform.
 
 ## Inputs
 
-- `layers/domain-data-dictionary-conceptual-model/artifacts/build-design.md` at source revision `f311eac`
-- `layers/domain-data-dictionary-conceptual-model/artifacts/conceptual-data-model.md` at source revision `f311eac`
+- `layers/domain-data-dictionary-conceptual-model/artifacts/build-design.md` at source revision `73ed9df`
+- `layers/domain-data-dictionary-conceptual-model/artifacts/conceptual-data-model.md` at source revision `73ed9df`
 - `layers/domain-data-dictionary-component/artifacts/component-design.md` at revision `5a0993d`
 - `layers/data-modeling-definition/artifacts/data-modeling-language.md` at revision `19133fd`
 
@@ -32,7 +32,7 @@ Refine the Domain Data Dictionary conceptual model into a technology-neutral log
 
 - Use Model C with one Catalog Record Kernel and capability-oriented modules.
 - Use the conceptual model to drive the logical model.
-- Target PostgreSQL only in the later physical refinement.
+- Target PostgreSQL only in the later repository realization.
 - Expose the later component through one capability boundary shared by machine and human-facing clients.
 - Continue exploratory refinement while provisional upstream decisions remain explicit.
 
@@ -100,4 +100,4 @@ This transform selects option 3.
 
 ## Retry Guidance
 
-Draft PostgreSQL refinement may continue from this exact revision while failures and provisional decisions remain explicit. If a representative model cannot round-trip, first determine whether the loss belongs to the conceptual model, this transform, or the generic value representation. Correct the earliest owning layer and regenerate affected descendants; do not add an untraceable PostgreSQL escape column as a substitute for missing logical meaning.
+Draft PostgreSQL realization may continue from this exact revision while failures and provisional decisions remain explicit. If a representative model cannot round-trip, first determine whether the loss belongs to the conceptual model, this transform, or the generic value representation. Correct the earliest owning layer and regenerate affected descendants; do not add an untraceable PostgreSQL escape column as a substitute for missing logical meaning.
