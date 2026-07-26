@@ -4,7 +4,7 @@
 
 - Transform status: approved for exploratory execution
 - Source layer: `domain-data-dictionary-postgresql-design`
-- Source revision: `f1308e8`, plus the architect's 2026-07-26 clarification recorded in the source design
+- Source revision: `ba65ccf`
 - Source effectiveness: draft and not effective
 - Target layer: `domain-data-dictionary-postgresql-runtime`
 - Target effectiveness: must remain draft and not effective
