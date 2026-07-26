@@ -30,7 +30,8 @@ CAT-CON  Domain Data Dictionary conceptual model   <- this layer
 CAT-LOG  technology-neutral logical repository model
         |
         v
-CAT-PHY  PostgreSQL physical repository model
+CAT-PHY  PostgreSQL realization artifacts
+         (migration SQL + traceability manifest + deployed inventory)
         |
         +--> CAT-DEPLOY / CAT-RUNTIME / CAT-OBS / CAT-COMP
         |
@@ -48,7 +49,7 @@ capability API and executable component
 - `DML-DEF`, principally `DML-SEM` and `DML-CON`, governs the conceptual model in this layer.
 - The conceptual model owns the business meaning the logical repository model must preserve.
 - The logical model will own technology-neutral structures, identifiers, datatypes, and integrity decisions.
-- The PostgreSQL physical model will own tables, columns, constraints, indexes, PostgreSQL-native metadata, and deployment material.
+- The PostgreSQL realization transform will own tables, columns, constraints, indexes, PostgreSQL-native metadata, and migration material. Migration SQL is the executable physical authority; its traceability manifest and deployed inventory are derived evidence, not separately writable models.
 - The capability design will own commands, queries, responses, interaction semantics, and client-independent access to component behavior.
 - The implementation may realize these authorities but may not redefine them through code, repository structure, or API convenience.
 
@@ -81,23 +82,24 @@ Equal capability access means that the client classes reach the same commands, q
 
 No client may treat direct PostgreSQL access as a substitute for the application capability boundary. Administrative and recovery access may exist operationally, but it is not a competing product interface or semantic authority.
 
-API resources, operations, protocols, schemas, error formats, streaming behavior, and tool descriptions are deferred until after the logical and physical data responsibilities are stable.
+API resources, operations, protocols, schemas, error formats, streaming behavior, and tool descriptions are deferred until the logical responsibilities are stable and a PostgreSQL realization has tested them against an actual database.
 
-## 6. PostgreSQL Constraint
+## 6. PostgreSQL Realization Constraint
 
-PostgreSQL is the required first `CAT-PHY` target. The physical refinement must therefore provide:
+PostgreSQL is the required first repository realization. Its transform must produce:
 
 - a named PostgreSQL version and extension policy;
 - a target metadata profile and complete declared catalog inventory;
-- a lossless representation of the accepted logical model and required CMOF/DML content;
-- executable deployment and migration artifacts;
+- a lossless representation of the selected logical-model revision and required CMOF/DML content;
+- SQL-authored executable migration artifacts as the physical authority;
+- a derived manifest tracing logical entities, relationships, and invariants to PostgreSQL objects and enforcement mechanisms;
 - observation of the running repository through PostgreSQL metadata;
 - intended-versus-observed comparison; and
 - round-trip evidence demonstrating that catalog meaning survives persistence.
 
-This constraint does not authorize PostgreSQL concepts in `CAT-CON` or `CAT-LOG`. Tables, columns, keys, indexes, JSONB, arrays, schemas, sequences, triggers, functions, and catalog-specific facts belong to `CAT-PHY` unless a technology-neutral logical need independently requires an upstream construct.
+This constraint does not authorize PostgreSQL concepts in `CAT-CON` or `CAT-LOG`. Tables, columns, keys, indexes, JSONB, arrays, schemas, sequences, triggers, functions, and catalog-specific facts are engineering decisions owned by the PostgreSQL realization transform unless a technology-neutral logical need independently requires an upstream construct.
 
-The PostgreSQL version, extensions, schema design, migration mechanism, hosting, backup, and performance choices remain deferred.
+The architect approves the realization policy and material dependencies, not every physical object. Engineers may select appropriate native PostgreSQL facilities without another approval. Review is required when a choice weakens or changes logical meaning, creates another writable authority, adds a material external dependency, makes a major operational commitment, or exposes an upstream deficiency. Extensions are enabled for demonstrated requirements, not merely because the image contains them.
 
 ## 7. Conceptual Model Contract
 
@@ -123,11 +125,11 @@ The next logical model must:
 6. define technology-neutral representations for provenance, ordered collections, expressions, and target-native metadata values;
 7. identify every detail introduced at the logical level and its rationale;
 8. remain independent of PostgreSQL declarations and API message shapes; and
-9. provide enough structure for a lossless PostgreSQL physical realization.
+9. provide enough structure for a lossless PostgreSQL realization without prescribing its physical objects.
 
 ## 9. API Refinement Contract
 
-After the logical and physical responsibilities are stable, the capability design must:
+After the logical responsibilities are stable and the PostgreSQL realization has supplied round-trip evidence, the capability design must:
 
 - derive capabilities from Model C responsibilities and lifecycle consequences, not from PostgreSQL tables;
 - distinguish commands that change authority-bearing state from queries and derived diagnostics;
