@@ -2,12 +2,12 @@
 
 ## Document Status
 
-- Status: architecture approved; implementation review has one blocking artifact-boundary finding
+- Status: approved for exploratory runtime implementation
 - Effective: no
 - Source logical model: `CAT-LOG/domain-data-dictionary@1` at revision `f71a279`
 - Owning transform: `domain-data-dictionary-logical-model/transforms/domain-data-dictionary-postgresql-design`
 - Design date: 2026-07-26
-- Runtime creation: blocked pending resolution of implementation review finding `IR-001`
+- Runtime creation: authorized through the source-colocated `domain-data-dictionary-postgresql-runtime` transform
 
 ## 1. Purpose
 
@@ -164,7 +164,7 @@ The first product migration is blocked until the PostgreSQL physical data model 
 
 ### 4.6 Python and uv project
 
-Use one Python project at the repository root for the first service. Additional Python processes may share the package until a real dependency or ownership boundary justifies a uv workspace or separate project.
+Use one Python project at the root of the runnable runtime artifact subproject for the first service. The subproject root is `layers/domain-data-dictionary-postgresql-runtime/artifacts/`; it is not the repository root. Additional Python processes may share the package until a real dependency or ownership boundary justifies a uv workspace or separate project.
 
 Planned layout:
 
@@ -293,7 +293,7 @@ The implementation is not complete until it proves:
 
 1. Should provenance be able to target typed `ModelFamily` and `ResponsibleAgent` records, requiring a logical-model revision before physical design?
 2. Does the first `CAT-PHY` need any included extension, or should it begin with PostgreSQL core only?
-3. Should the API project remain at repository root if the second non-Python service arrives, or move into a uv workspace at that time?
+3. Should the API subproject become a uv workspace if a second Python service arrives?
 
 ## 9. Accepted Product-Owner Decisions
 
@@ -302,17 +302,17 @@ On 2026-07-26, the product owner accepted:
 - Flyway Open Source as the SQL migration runner;
 - the `postgres` → `migrate` → `api` Compose dependency topology;
 - FastAPI/Uvicorn with async Psycopg pooling for the scaffold;
-- root-level uv project organization;
+- a uv project rooted at the runnable subproject;
 - the local-only shared database login concession; and
 - the recognizable `2xxxx` local port block: PostgreSQL `25432` and API `28000`.
 
 ## 10. Recommended Next Step
 
-Resolve `IR-001` by naming the runnable sibling layer and deciding whether the root uv project is authoritative or a governed projection. Then create the source-colocated outbound transform and execute the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
+Execute the source-colocated `domain-data-dictionary-postgresql-runtime` transform and the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
 
 ## 11. Approval Status
 
-Architecture approved; implementation remains blocked on `IR-001`.
+Approved for exploratory implementation. This approval does not make the design or its draft upstream sources effective.
 
 ## 12. Architect Review
 
@@ -340,6 +340,10 @@ Before runtime files are created, the architect must select and record one coher
 
 The first option fits the flat-layer ADR more directly but revises the accepted root uv location. The second preserves a root uv project but introduces a split physical boundary that must be justified and kept mechanically explicit.
 
+### Resolution
+
+The human architect resolved `IR-001` on 2026-07-26: “root uv project” means the root of the runnable subproject. The named target is `domain-data-dictionary-postgresql-runtime`, its uv and executable artifact root is `layers/domain-data-dictionary-postgresql-runtime/artifacts/`, and the source-colocated transform is held under this design layer. No repository-root executable projection is authorized.
+
 ### Questions
 
 - Is “root uv project” a stronger constraint than keeping all implementation artifacts physically within the runnable layer directory?
@@ -347,7 +351,7 @@ The first option fits the flat-layer ADR more directly but revises the accepted 
 
 ### Review disposition
 
-Changes required. The implementation is buildable after `IR-001` is resolved; no other blocking implementation finding was identified.
+Accepted after resolution of `IR-001`. No blocking implementation finding remains.
 
 ## 14. Product Owner Review
 
@@ -380,8 +384,8 @@ Approved the decisions recorded in section 9 on 2026-07-26.
 - Signer type: agent
 - Role: senior implementation engineer
 - Date: 2026-07-26
-- Disposition: changes required
-- Blocking finding: `IR-001`, unresolved runtime-layer and repository-root artifact boundary
+- Disposition: accepted after architect resolution
+- Finding resolution: `IR-001` resolved by making the named runtime layer's `artifacts/` directory the uv subproject root
 
 ### Product Owner Sign-Off
 
@@ -390,4 +394,4 @@ Approved the decisions recorded in section 9 on 2026-07-26.
 
 ### Workflow Status
 
-- Current status: architecture approved; implementation blocked on `IR-001`
+- Current status: approved for exploratory runtime implementation

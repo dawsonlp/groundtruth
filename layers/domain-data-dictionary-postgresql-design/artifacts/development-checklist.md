@@ -3,7 +3,7 @@
 ## Document Status
 
 - Status: active pre-implementation checklist
-- Execution status: architecture approved; blocked on implementation finding `IR-001`
+- Execution status: approved for exploratory implementation; execution in progress
 - Last updated: 2026-07-26
 - Source technical design: `technical-design.md`, product-owner decisions approved 2026-07-26
 - Source logical revision: `f71a279`
@@ -27,7 +27,7 @@ This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, an
 
 ## 4. Governing Inputs
 
-The product owner approved the technology, topology, organization, local-login, and port decisions on 2026-07-26. The architect approved the technical design on 2026-07-26. Phase 1 and later remain blocked until implementation finding `IR-001` resolves the conflict between the root uv layout and the required named runnable layer and outbound transform.
+The product owner approved the technology, topology, organization, local-login, and port decisions on 2026-07-26. The architect approved the technical design and clarified that the uv root is the runnable subproject root on 2026-07-26. The runnable subproject is owned by the `domain-data-dictionary-postgresql-runtime` sibling layer at `layers/domain-data-dictionary-postgresql-runtime/artifacts/`.
 
 ## 5. Checklist Conventions
 
@@ -51,21 +51,23 @@ The product owner approved the technology, topology, organization, local-login, 
 - [x] Product owner selected Flyway Open Source; Sqitch remains the documented alternative.
 - [x] Product owner accepted FastAPI/Uvicorn and async Psycopg pooling.
 - [x] Product owner accepted the three-service Compose topology.
-- [x] Product owner accepted root-level uv project organization.
+- [x] Product owner accepted a uv project rooted at the runnable subproject.
 - [x] Product owner accepted a local shared database login.
 - [x] Product owner accepted the recognizable `2xxxx` port block: PostgreSQL `25432`, API `28000`.
 - [x] Architect approval is recorded in `technical-design.md`.
 - [x] Senior implementation engineer review is recorded in `technical-design.md`.
-- [ ] All blocking review findings are resolved at the owning layer.
+- [x] All blocking review findings are resolved at the owning layer; `IR-001` was resolved by the architect.
 
 Completion evidence:
 
-- [ ] Technical design status permits implementation.
+- [x] Technical design status permits exploratory implementation.
 - [x] Accepted product decisions and exact source revision are recorded before runtime files are created.
 
 ## 8. Phase 1 — Repository and Python Project Scaffold
 
 Planned files:
+
+All paths in this phase are relative to `layers/domain-data-dictionary-postgresql-runtime/artifacts/`, the uv subproject root.
 
 - `pyproject.toml`
 - `uv.lock`
@@ -235,15 +237,15 @@ The remaining open questions in technical-design section 8 remain authoritative.
 
 ## 17. Recommended Next Step
 
-Resolve `IR-001`, create the source-colocated outbound transform for the named runnable sibling layer, and then execute Phase 1 through the operational scaffold while the physical-model transform is designed separately.
+Execute the source-colocated outbound transform for the named runnable sibling layer through the operational scaffold while the physical-model transform is designed separately.
 
 ## 18. Approval Status
 
-Architecture approved; execution blocked on implementation finding `IR-001`.
+Approved for exploratory implementation; checklist execution is in progress.
 
 ## 19. Product Owner Review
 
-Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose topology, the root uv project, a local shared database login, and ports `25432`/`28000` on 2026-07-26.
+Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose topology, the uv project rooted at the runnable subproject, a local shared database login, and ports `25432`/`28000` on 2026-07-26.
 
 ## 20. Sign-Off
 
@@ -269,7 +271,7 @@ Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose t
 - Reviewer: Codex
 - Role: senior implementation engineer
 - Date: 2026-07-26
-- Disposition: changes required before implementation; see technical-design finding `IR-001`
+- Disposition: accepted after the architect resolved `IR-001`
 
 ### Product Owner Sign-Off
 
@@ -278,4 +280,4 @@ Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose t
 
 ### Workflow Status
 
-- Current status: active checklist; runtime artifact-boundary decision remains open
+- Current status: active checklist; implementation in progress
