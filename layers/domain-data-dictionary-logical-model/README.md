@@ -16,6 +16,6 @@
 
 This layer refines the conceptual Domain Data Dictionary into a technology-neutral repository model. It selects a hybrid catalog kernel: typed authoritative records for `ModelFamily`, `ResponsibleAgent`, and `ProvenanceRecord`; a reflective `CatalogObject`/`PropertyOccurrence`/`ValueNode` graph for CMOF and DML model objects; and typed capability projections derived from the exact governing-definition revision. Derived projections are readable interfaces to one authority, not independently writable copies.
 
-The next refinement is a draft `CAT-PHY` model targeting PostgreSQL. That refinement must be owned by an outbound transform colocated in this layer. PostgreSQL structures and API contracts do not belong in this logical layer.
+The draft PostgreSQL implementation-design refinement is [domain-data-dictionary-postgresql-design](../domain-data-dictionary-postgresql-design/README.md), produced by its source-colocated [transform](transforms/domain-data-dictionary-postgresql-design/transform.md). It specifies the runtime and engineering boundary but deliberately does not create the `CAT-PHY` schema or API contract. PostgreSQL structures and API contracts do not belong in this logical layer.
 
 This layer remains non-effective because its source is non-effective and its transform validation is incomplete. Downstream experimentation may continue from this exact revision, but any affected upstream correction makes the resulting descendants stale and requires regeneration in transform order.
