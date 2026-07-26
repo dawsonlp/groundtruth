@@ -5,8 +5,10 @@
 - Status: draft
 - Effective: no
 - Governing model: CMOF 2.5.1, presumed pending the follow-up ADR
+- Standards profile: incorporated in section 2
 - DAMA verification baseline: user's 2010 DAMA-DMBOK edition
 - DAMA page verification: pending
+- ISO normative-text verification: pending where identified below
 - Machine-readable CMOF validation: pending
 
 This artifact defines the modeling language for the first application of Domain Catalog. It is intended to become a CMOF-conforming model that acts as the governing model for particular data models. It is not a product requirements document, validator design, database schema, or user-interface design.
@@ -25,7 +27,58 @@ particular conceptual, logical, relational-logical, and physical data models
 
 `Realizes` relates a more concrete model to meaning in an upstream model. Realization does not imply equivalence, automation, or absence of added decisions.
 
-## 2. Abstraction Boundaries
+## 2. Standards Profile and Authority
+
+This section is the authority for how external standards constrain this language. The transform's `standards-assessment.md` records the investigation that produced the profile; it is evidence rather than a second definition.
+
+The status terms mean:
+
+- **Governing** — the standard defines the valid form of this language definition.
+- **Adopted** — the language uses the identified semantics for the stated concern.
+- **Alignment required** — the language retains an explicit mapping boundary but does not import the standard's complete metamodel.
+- **Informative** — the source is prior art and creates no conformance obligation.
+- **Verification pending** — adoption is a design decision, but detailed conformance must not be claimed until the normative text or executable constraints have been checked.
+
+| Standard or reference | Status in this language | Concern incorporated | Authority boundary |
+| --- | --- | --- | --- |
+| [OMG MOF 2.5.1, CMOF](https://www.omg.org/spec/MOF/2.5.1) | Governing; acceptance pending | Packages, classes, datatypes, enumerations, properties, multiplicity, composition, generalization, constraints, identifiers, and reflection | Defines the form of this language, not data-modeling meaning |
+| [ISO/IEC 19508:2014, MOF Core](https://www.iso.org/standard/61844.html) | Alignment required; version delta pending | ISO-standardized MOF baseline | Predates the selected OMG MOF 2.5.1; ISO and OMG conformance must not be treated as identical without a delta assessment |
+| [ISO/IEC 19507:2012, OCL 2.3.1](https://www.iso.org/standard/57306.html) | Adopted for definition-level constraints; encoding pending | Formal expression of the `DM-*` well-formedness rules and CMOF production constraints | Does not automatically govern business rules, SQL expressions, or transformation procedures |
+| [ISO/IEC/IEEE 31320-2:2012, IDEF1X97](https://www.iso.org/standard/60614.html) | Adopted for overlapping schema semantics; normative-text verification pending | Entity types, attributes, identifiers, relationships, relationship ends, and cardinality | Its term `conceptual schema` is not assumed to equal this language's `ConceptualDataModel`; constructs are mapped individually |
+| [ISO/IEC 11179-31:2023](https://www.iso.org/standard/78925.html) | Adopted semantic vocabulary; multiplicity verification pending | Object classes, properties, data-element concepts, conceptual domains, value domains, datatypes, and data elements | Registry administration is not imported into the modeling language |
+| [ISO/IEC 11404:2007](https://www.iso.org/standard/39479.html) | Adopted datatype framework; type catalogue pending | Separation of conceptual, structural, and implementation datatype notions and explicit datatype mappings | Does not define business meaning or target-product types |
+| [ISO/IEC 9075-2:2023, SQL/Foundation](https://www.iso.org/standard/76584.html) | Adopted portable physical baseline; normative-text verification pending | Tables, views, columns, physical datatypes, and SQL integrity constraints | Target products govern extensions and physical access structures such as indexes |
+| [ISO/IEC 11179-35:2023](https://www.iso.org/standard/81727.html) | Alignment required | Registration of models, metamodels, concepts, and mappings | Does not define the models' internal semantics or physical instantiation |
+| [ISO/IEC 19763-12:2015 with Amendment 1:2023](https://www.iso.org/standard/61559.html) | Alignment required | Registration of information-requirement and database-structure models | A registry metamodel, not the data-modeling language |
+| [ISO/IEC 19509:2014, XMI](https://www.iso.org/standard/61845.html) | Selected validation representation; production pending | The XMI 2.4.2 representation referenced by MOF 2.5.1 | Does not select product persistence or require XMI as the eventual runtime interchange format |
+| [OMG UML 2.5.1](https://www.omg.org/spec/UML/2.5.1) and [ISO/IEC 19505-1:2012](https://www.iso.org/standard/32624.html) | Alignment required for notation and interchange; version delta pending | Shared structural kernel and standard class-diagram presentation | A data model governed here is not thereby a UML model, and the ISO publication predates OMG UML 2.5.1 |
+| [OMG CWM 1.1](https://www.omg.org/spec/CWM/1.1) | Informative | Relational, datatype, key/index, expression, transformation, and warehouse-model coverage precedent | Warehouse-oriented, MOF 1.3/XMI 1.1-era, and not imported as this language's metamodel |
+| User's 2010 DAMA-DMBOK edition | Verification baseline | Conceptual, logical, and physical abstraction; DAMA nomenclature and practice | Not a formal metamodel or substitute for the standards assigned above |
+
+### 2.1 Precedence and conflict rules
+
+1. A standard governs only the concern assigned to it in the table.
+2. CMOF governs whether this definition is a valid metamodel; the adopted data standards govern the meanings expressed by CMOF classes and properties.
+3. DAMA 2010 governs the intended data-modeling abstraction and approach. It does not override a formal standard silently; any conflict must be recorded and resolved explicitly.
+4. A target-platform specification may specialize the physical package but must preserve portable SQL meaning and identify every extension.
+5. `Project choice` is used only where the adopted sources leave a gap or where this language deliberately composes them.
+6. A pending verification item prevents a detailed conformance claim but does not move the standards decision back into transform evidence.
+
+### 2.2 Construct traceability
+
+| Language concern | Primary source | Project composition or extension |
+| --- | --- | --- |
+| Definition packages, types, properties, inheritance, containment, and constraints | OMG CMOF 2.5.1; ISO/IEC 19508 alignment | Package boundaries, the selected CMOF subset, and explicit treatment of the OMG/ISO version delta |
+| `DM-*` well-formedness rules | ISO/IEC 19507 OCL | Prose is currently authoritative until equivalent OCL is committed and validated |
+| `ObjectClass`, `PropertyConcept`, `DataElementConcept`, `ConceptualDomain`, `ValueDomain`, `DataElement` | ISO/IEC 11179-31 | Domain ownership and imports connect the standard vocabulary to particular models |
+| Business entity types, properties, relationships, ends, cardinality, and identifiers | DAMA 2010 and ISO/IEC/IEEE 31320-2 | Separate conceptual and logical model kinds; reified n-ary relationships |
+| Logical, structural, and physical datatype separation | ISO/IEC 11404 and ISO/IEC 11179-31 | Explicit realization between value domains and target datatypes remains to be completed |
+| Relations, relation attributes, candidate keys, and relational foreign keys | DAMA 2010 and IDEF1X where applicable | A relational-logical model is explicitly separate from a physical database model |
+| Tables, views, columns, primary/unique/foreign-key/check constraints | ISO/IEC 9075-2 | Physical target and version make implementation semantics explicit |
+| Indexes | Target-platform specification; CWM as informative precedent | Core `Index` preserves the distinction between access path and integrity constraint |
+| Cross-model realization and registration mapping | ISO/IEC 11179-35 and ISO/IEC 19763-12 alignment | Many-to-many realization, introduction, omission, rationale, and coverage rules are project semantics |
+
+## 3. Abstraction Boundaries
 
 The abstraction belongs to a model. An element belongs to exactly one model and acquires its permitted vocabulary from that model's kind.
 
@@ -38,7 +91,7 @@ The abstraction belongs to a model. An element belongs to exactly one model and 
 
 A relation and a table are not synonyms. A relation is a logical value with a heading and relational constraints. A table is a physical database object in a target environment. A table may realize one relation, several relations, or part of a relation, and that correspondence is explicit.
 
-## 3. CMOF Representation
+## 4. CMOF Representation
 
 The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`, `Logical`, `Relational`, `Physical`, and `Realization`.
 
@@ -47,12 +100,12 @@ The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`
 - `owns` denotes a composite CMOF property.
 - `extends` denotes CMOF `Generalization`.
 - `{derived}` denotes a read-only navigation calculated from the named authoritative reverse reference, not separately stored membership.
-- Each rule in section 11 is a CMOF `Constraint` whose specification is an `OpaqueExpression`.
+- Each rule in section 12 is a CMOF `Constraint` whose specification is an OCL `OpaqueExpression`.
 - Subject-model constraints such as a foreign key are instances of language classes; they are not CMOF constraints governing the form of the language.
 
 This Markdown is a review projection, not the machine-readable CMOF representation required for acceptance.
 
-## 4. Core Package
+## 5. Core Package
 
 ### `IdentifiedElement` (abstract)
 
@@ -88,9 +141,9 @@ The subclass is the single authority for abstraction. There is no separately edi
 
 - `model: DataModel [1]`, opposite `DataModel::elements`
 
-## 5. Semantics Package
+## 6. Semantics Package
 
-This package adopts the distinctions described by ISO/IEC 11179-31. Exact multiplicities remain subject to verification against the normative text.
+This package adopts the ISO/IEC 11179-31 distinctions identified in section 2. Exact multiplicities remain subject to normative-text verification.
 
 ### `SemanticElement` (abstract) extends `IdentifiedElement`
 
@@ -131,7 +184,9 @@ A permitted representation of values in a conceptual domain.
 
 The binding of data meaning to a permitted value representation.
 
-## 6. Conceptual Package
+## 7. Conceptual Package
+
+This package combines the DAMA 2010 conceptual abstraction with the overlapping IDEF1X entity, relationship, end, and cardinality semantics assigned in section 2. The mapping must be verified construct by construct before IDEF1X conformance is claimed.
 
 ### `BusinessEntityType` extends `ModelElement`
 
@@ -167,13 +222,13 @@ A business association among two or more entity types. It is reified so it can b
 - `expression: String [1]`
 - `constrainedElements: ModelElement [1..*]`
 
-A business rule that limits valid states or events in the modeled domain. Its expression language is not yet selected.
+A business rule that limits valid states or events in the modeled domain. Its expression language belongs to the domain or a later rule profile; adopting OCL for definition-level constraints does not silently make every business rule OCL.
 
-## 7. Logical Package
+## 8. Logical Package
 
 ### `LogicalDatatype` extends `SemanticElement`
 
-A technology-neutral datatype. Its eventual standard inventory and mapping semantics are expected to align with ISO/IEC 11404.
+A technology-neutral datatype using the ISO/IEC 11404 distinction between conceptual, structural, and implementation datatype notions. The exact standard type inventory remains pending.
 
 ### `LogicalEntityType` extends `ModelElement`
 
@@ -215,7 +270,9 @@ A set of logical attributes whose values identify an occurrence of a logical ent
 
 A technology-neutral integrity condition not completely represented by identity, optionality, or relationship cardinality.
 
-## 8. Relational Package
+## 9. Relational Package
+
+This package expresses relational-logical structure independently of a database product. DAMA 2010 governs the abstraction; IDEF1X governs overlapping schema semantics after normative verification. Physical SQL constructs remain in section 10.
 
 ### `Relation` extends `ModelElement`
 
@@ -249,7 +306,9 @@ A logical relation schema. Its possible values are relations; duplicate tuples a
 - `referencingAttribute: RelationAttribute [1]`
 - `referencedAttribute: RelationAttribute [1]`
 
-## 9. Physical Package
+## 10. Physical Package
+
+This package adopts ISO/IEC 9075-2 as the portable SQL baseline for tables, views, columns, datatypes, and integrity constraints. Every target-specific extension is interpreted under the named `PhysicalTarget` rather than attributed to portable SQL.
 
 ### `PhysicalTarget` extends `IdentifiedElement`
 
@@ -343,7 +402,9 @@ An index is an access structure. `unique = true` describes the index behavior in
 
 Expression indexes, included columns, partitions, file placement, and vendor-specific options are deferred until a physical target requires them.
 
-## 10. Realization Package
+## 11. Realization Package
+
+This package must remain mappable to the model and mapping registration concepts of ISO/IEC 11179-35 and ISO/IEC 19763-12. Its many-to-many disposition and coverage semantics are project extensions, not claims that either registration standard defines realization this way.
 
 ### `RealizationSet` extends `IdentifiedElement`
 
@@ -367,7 +428,9 @@ Expression indexes, included columns, partitions, file placement, and vendor-spe
 
 `Realization` is a class rather than a CMOF association because the correspondence is many-to-many and has disposition, rationale, and rule semantics of its own.
 
-## 11. Well-Formedness Rules
+## 12. Well-Formedness Rules
+
+The rules below are normative prose in this draft. Their machine-readable form shall use ISO/IEC 19507:2012 OCL 2.3.1 and shall be equivalent to the prose before the layer can become effective. Business-rule and SQL-expression languages remain governed by their own model or target profiles.
 
 ### Cross-model rules
 
@@ -417,7 +480,7 @@ Expression indexes, included columns, partitions, file placement, and vendor-spe
 - `DM-405`: Every target element is covered by a realized or introduced record, and every source element is covered by a realized or omitted record.
 - `DM-406`: Realization never transfers identity implicitly; each model element retains its own identifier and correspondence remains explicit.
 
-## 12. Definition Boundary
+## 13. Definition Boundary
 
 This layer owns the vocabulary and well-formedness of data models. It does not yet define:
 
@@ -425,18 +488,25 @@ This layer owns the vocabulary and well-formedness of data models. It does not y
 - diagnostics or validator behavior;
 - automatic conceptual-to-logical or logical-to-physical generation;
 - database introspection or readback behavior;
-- a constraint-expression language;
-- CMOF serialization or repository storage;
+- business-rule and transformation-expression languages beyond the adopted definition-level OCL profile;
+- product persistence and runtime interchange beyond the XMI validation representation;
 - a product API or user interface; or
 - vendor-specific physical options.
 
 Those are decisions for later refinements after this language and its governing CMOF choice are accepted.
 
-## 13. Standard and Project-Choice Marking
+## 14. Verification State
 
-The basis of each construct is recorded in the transform's `standards-assessment.md`. Until normative-text checks are complete:
+The standards are part of this language definition now; the outstanding work is verification, not selection by implication.
 
-- CMOF structural mappings are provisional conformance claims;
-- ISO-aligned semantics are candidates, not certified conformance;
-- DAMA alignment is a hypothesis awaiting exact 2010 page verification; and
-- realization coverage rules and the exact separation of relation from table are explicit project choices subject to product-owner review.
+- CMOF is the presumed governing model pending the follow-up ADR and executable production-constraint validation.
+- OCL 2.3.1 is selected for definition-level well-formedness rules; equivalent encodings of the `DM-*` rules remain to be written.
+- ISO/IEC 11179-31 concepts are adopted, while exact inheritance, role names, and multiplicities await normative-text checking.
+- IDEF1X compatibility is required for overlapping constructs, while its conceptual-schema terminology must be mapped rather than copied onto DAMA model levels.
+- ISO/IEC 11404 governs datatype separation, while the standard type catalogue and datatype mappings remain incomplete.
+- ISO/IEC 9075-2 governs the portable physical SQL subset, while detailed construct mapping remains incomplete.
+- ISO/IEC 11179-35 and ISO/IEC 19763-12 mappings remain to be demonstrated.
+- The OMG MOF 2.5.1 to ISO/IEC 19508:2014 version delta has not been assessed, so ISO MOF conformance is not claimed.
+- ISO/IEC 19509 XMI output has not been produced, so representation conformance is not claimed; XMI is not yet a product runtime requirement.
+- DAMA alignment remains a hypothesis until checked against exact pages in the user's 2010 edition.
+- Realization coverage rules, the explicit relational-logical stage, and the relation/table separation are project composition decisions subject to product-owner review.

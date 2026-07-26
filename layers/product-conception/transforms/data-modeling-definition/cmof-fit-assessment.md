@@ -18,7 +18,7 @@ This supports continuing with direct CMOF use as the working presumption. It doe
 | Binary entity relationship | Reified relationship class with two end objects | Directly expressible | A CMOF `Association` is optional, not required |
 | N-ary entity relationship | Reified relationship class with two or more end objects | Directly expressible | Required because CMOF associations have exactly two member ends |
 | Relationship-associated properties or rules | Properties referencing the reified relationship as their subject | Directly expressible | Preserves relationship semantics without encoding tricks |
-| Governing-model constraints | CMOF `Constraint` with `OpaqueExpression` | Native CMOF | Expression language and evaluator still need selection |
+| Governing-model constraints | CMOF `Constraint` with OCL `OpaqueExpression` | Native CMOF | ISO/IEC 19507:2012 OCL 2.3.1 is selected; equivalent expressions and an evaluator remain to be supplied |
 | Subject-model business, logical, and physical constraints | Instances of definition classes such as `BusinessConstraint` and `ForeignKeyConstraint` | Directly expressible | Correctly distinct from CMOF constraints |
 | Semantic data concepts and value domains | Definition classes and properties | Directly expressible | ISO/IEC 11179 alignment requires normative-text verification |
 | Relation, key, and foreign-key structure | Definition classes, ordered multivalued properties, and constraints | Directly expressible | Compatibility rules require a constraint expression |
@@ -61,7 +61,7 @@ Direct CMOF use does not require exposing these features to a data architect. Th
 
 - a conforming implementation must understand the selected CMOF subset and normative constraints;
 - CMOF's UML-kernel dependency makes the external standard larger than this language;
-- CMOF XMI and OCL tooling may add interchange and validation complexity if selected; and
+- the selected XMI validation representation and OCL constraint profile add tooling and version-compatibility obligations; and
 - the binary-association restriction requires relationship reification for n-ary data semantics.
 
 Defining a smaller project-specific MOF-conforming governing model would move these costs rather than eliminate them. The project would then own its subset semantics, its proof of MOF conformance, its versioning, and an additional conformance relationship. No current requirement justifies that extra governing layer.
@@ -85,8 +85,8 @@ The final decision remains open until:
 
 1. DAMA 2010 verification fixes the required semantic inventory;
 2. normative ISO checks settle the adopted standard semantics;
-3. the definition is represented in machine-readable CMOF;
-4. the normative CMOF OCL constraints pass; and
+3. the definition is represented in machine-readable CMOF/XMI;
+4. both the normative CMOF production constraints and the definition's OCL constraints pass; and
 5. the product owner accepts the abstraction and vocabulary choices.
 
 ## Evidence

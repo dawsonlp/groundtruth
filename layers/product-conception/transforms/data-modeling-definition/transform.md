@@ -36,6 +36,7 @@ The transform is also the evidence-producing judgment round required by Domain C
 - Use the user's 2010 DAMA-DMBOK edition as the current verification baseline.
 - Prefer applicable industry standards over project-specific invention.
 - Presume CMOF 2.5.1 as the governing model while testing its fit.
+- Make the target artifact authoritative for its OMG and ISO standards profile; keep standards research with the transform as evidence.
 - Cover conceptual, logical, and physical data abstraction, from business entity types to tables, columns, foreign-key constraints, and indexes.
 
 ### External evidence
@@ -61,6 +62,9 @@ The output must preserve these distinctions from `product-conception`:
 - Separate a technology-neutral logical package from a relational-logical package. A relation is not treated as a table.
 - Represent entity relationships and cross-model mappings as classes with explicit ends. This supports n-ary relationships and relationship-owned semantics despite CMOF associations being binary.
 - Reuse ISO/IEC 11179-31 concepts for the semantic connection between object classes, properties, data-element concepts, conceptual domains, value domains, and data elements.
+- Use ISO/IEC 19507:2012 OCL 2.3.1 for definition-level well-formedness constraints and ISO/IEC 19509:2014 XMI as the machine-readable validation representation, without selecting product persistence or runtime interchange.
+- Treat ISO/IEC 19508:2014 as an MOF alignment obligation rather than as equivalent to the later governing OMG MOF 2.5.1.
+- Require explicit alignment boundaries for IDEF1X, ISO/IEC 11404, ISO SQL, ISO/IEC 11179-35, ISO/IEC 19763-12, and UML rather than treating shared terminology as conformance.
 - Treat physical indexes as target-specific access structures, distinct from logical identifiers and physical uniqueness constraints.
 - Require every physical element either to realize an upstream element or to record that it was introduced at the physical level with a rationale.
 
@@ -68,7 +72,7 @@ These are provisional definition decisions, not accepted product decisions, unti
 
 ## Procedure
 
-1. Classify candidate standards by the concern they actually standardize.
+1. Classify candidate standards by the concern they actually standardize and incorporate the resulting standards profile into the target artifact.
 2. Establish unambiguous definitions for each data-model abstraction.
 3. Define a minimal shared semantic core.
 4. Define conceptual, logical, relational-logical, physical, and realization packages using only CMOF classes, properties, datatypes, enumerations, generalizations, packages, and constraints.
@@ -84,7 +88,7 @@ These are provisional definition decisions, not accepted product decisions, unti
 - `layers/product-conception/transforms/data-modeling-definition/cmof-fit-assessment.md`
 - `layers/product-conception/transforms/data-modeling-definition/worked-example.md`
 
-The first file is the target product artifact. The other files are evidence governing this execution of the transform and remain with the transform.
+The first file is the target product artifact and is authoritative for its standards profile. The other files are evidence governing this execution of the transform and remain with the transform.
 
 ## Validation Conditions
 
@@ -96,9 +100,14 @@ The target can become effective only when all conditions below pass.
 - [x] Every definition construct has a stated CMOF representation.
 - [x] A worked example exercises all abstractions and cross-model realization.
 - [x] No ISO registration standard is misrepresented as a complete data-modeling language.
+- [x] The target artifact identifies each adopted, governing, aligned, or informative standard and its authority boundary.
+- [x] Standards research remains transform evidence rather than a competing product definition.
 - [ ] Exact definitions and model-level distinctions are verified against cited pages in the user's 2010 DAMA-DMBOK edition.
-- [ ] Adopted semantics from ISO/IEC/IEEE 31320-2 and ISO/IEC 11179-31 are checked against their normative texts, not only their public abstracts.
-- [ ] A machine-readable CMOF form of the definition is produced and passes the normative CMOF 2.5.1 OCL production constraints.
+- [ ] Adopted semantics from ISO/IEC/IEEE 31320-2, ISO/IEC 11179-31, ISO/IEC 11404, and ISO/IEC 9075-2 are checked against their normative texts, not only their public abstracts.
+- [ ] The `DM-*` rules are encoded in ISO/IEC 19507:2012 OCL 2.3.1 and shown equivalent to the normative prose.
+- [ ] A machine-readable CMOF/ISO 19509 XMI form of the definition is produced and passes the normative CMOF 2.5.1 production constraints.
+- [ ] The version delta between OMG MOF 2.5.1 and ISO/IEC 19508:2014 is assessed before any ISO MOF conformance claim.
+- [ ] Alignment mappings to ISO/IEC 11179-35, ISO/IEC 19763-12, and UML are demonstrated where claimed.
 - [ ] The product owner accepts or revises the language inventory and abstraction boundaries.
 - [ ] A follow-up ADR decides whether direct CMOF use is accepted.
 

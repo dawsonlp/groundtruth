@@ -14,7 +14,7 @@ Its product artifact is [product-investigation.md](layers/product-conception/art
 
 The artifact remains a draft. A draft outbound transform now produces the sibling `data-modeling-definition` layer, but neither the source nor the target has been accepted as effective.
 
-The draft target artifact is [data-modeling-language.md](layers/data-modeling-definition/artifacts/data-modeling-language.md). Its owning [transform](layers/product-conception/transforms/data-modeling-definition/transform.md) records the standards assessment, CMOF fit assessment, worked example, and remaining validation conditions.
+The draft target artifact is [data-modeling-language.md](layers/data-modeling-definition/artifacts/data-modeling-language.md). It is authoritative for the language's OMG, ISO, and DAMA standards profile. Its owning [transform](layers/product-conception/transforms/data-modeling-definition/transform.md) records the supporting standards evidence, CMOF fit assessment, worked example, and remaining validation conditions.
 
 ## Layout
 
@@ -38,7 +38,7 @@ layers/
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The next step is to review the draft language, verify its terminology against exact pages in the user's 2010 DAMA-DMBOK edition, validate a machine-readable CMOF representation, and decide whether direct CMOF use is accepted.
+The next step is to review the draft language, verify its terminology against exact pages in the user's 2010 DAMA-DMBOK edition and the identified ISO texts, encode its constraints in OCL, validate a machine-readable CMOF/XMI representation, and decide whether direct CMOF use is accepted.
 
 ## Working With This Project
 
