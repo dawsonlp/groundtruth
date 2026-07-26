@@ -2,9 +2,10 @@
 
 ## Document Status
 
-- Status: draft
-- Execution status: blocked on technical-design approval
-- Source technical design: `technical-design.md`, draft dated 2026-07-26
+- Status: active pre-implementation checklist
+- Execution status: product choices approved; blocked on architecture and implementation-engineering review
+- Last updated: 2026-07-26
+- Source technical design: `technical-design.md`, product-owner decisions approved 2026-07-26
 - Source logical revision: `f71a279`
 - Intended audience: implementation engineers and reviewing agents
 
@@ -14,7 +15,7 @@ Translate the PostgreSQL technical design into ordered, verifiable implementatio
 
 ## 2. Scope
 
-This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, and a Python API with operational health behavior. It does not authorize product DDL or capability endpoints. Those enter the checklist only after their owning physical-model and API designs are accepted.
+This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, and a Python API with operational health behavior. It is the shared execution record: engineers check an item only after its completion evidence exists. It does not authorize product DDL or capability endpoints. Those enter the checklist only after their owning physical-model and API designs are accepted.
 
 ## 3. Inputs Consulted
 
@@ -26,9 +27,17 @@ This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, an
 
 ## 4. Governing Inputs
 
-No approved technical design exists yet. This checklist is submitted with the draft design so engineers can assess completeness. Phase 1 and later remain blocked until the product owner accepts the requested decisions and the required design reviews record no unresolved blocker.
+The product owner approved the technology, topology, organization, local-login, and port decisions on 2026-07-26. Phase 1 and later remain blocked until the architecture and implementation-engineering reviews record no unresolved blocker.
 
-## 5. Sequencing Decisions
+## 5. Checklist Conventions
+
+- `[x]` means completion is supported by an artifact, review entry, command result, or other named evidence.
+- `[ ]` means incomplete or not yet evidenced; it does not mean work was attempted.
+- Complete items in order unless the checklist explicitly identifies an independent track.
+- Record verification evidence in the repository before marking implementation or verification items complete.
+- Do not mark a downstream item complete merely because its upstream design was accepted.
+
+## 6. Sequencing Decisions
 
 - Build and verify the runtime scaffold before adding product schema.
 - Make PostgreSQL health a prerequisite for migrations and successful migrations a prerequisite for API startup.
@@ -37,13 +46,14 @@ No approved technical design exists yet. This checklist is submitted with the dr
 - Do not activate included PostgreSQL extensions until the physical model requires them.
 - Do not add product endpoints before the capability API design owns their semantics.
 
-## 6. Phase 0 — Approval Gates
+## 7. Phase 0 — Approval Gates
 
-- [ ] Product owner accepts or revises Flyway versus Sqitch.
-- [ ] Product owner accepts or revises FastAPI/Uvicorn and async Psycopg pooling.
-- [ ] Product owner accepts or revises the three-service Compose topology.
-- [ ] Product owner accepts or revises root-level uv project organization.
-- [ ] Product owner accepts or revises local shared database credentials and default ports.
+- [x] Product owner selected Flyway Open Source; Sqitch remains the documented alternative.
+- [x] Product owner accepted FastAPI/Uvicorn and async Psycopg pooling.
+- [x] Product owner accepted the three-service Compose topology.
+- [x] Product owner accepted root-level uv project organization.
+- [x] Product owner accepted a local shared database login.
+- [x] Product owner accepted the recognizable `2xxxx` port block: PostgreSQL `25432`, API `28000`.
 - [ ] Architect review is recorded in `technical-design.md`.
 - [ ] Senior implementation engineer review is recorded in `technical-design.md`.
 - [ ] All blocking review findings are resolved at the owning layer.
@@ -51,9 +61,9 @@ No approved technical design exists yet. This checklist is submitted with the dr
 Completion evidence:
 
 - [ ] Technical design status permits implementation.
-- [ ] Accepted decisions and exact source revision are recorded before files are created.
+- [x] Accepted product decisions and exact source revision are recorded before runtime files are created.
 
-## 7. Phase 1 — Repository and Python Project Scaffold
+## 8. Phase 1 — Repository and Python Project Scaffold
 
 Planned files:
 
@@ -92,7 +102,7 @@ Verification:
 - [ ] Importing Psycopg reports the binary implementation selected for the final application.
 - [ ] Package import and empty test collection work from a clean environment.
 
-## 8. Phase 2 — API Operational Scaffold
+## 9. Phase 2 — API Operational Scaffold
 
 - [ ] Create FastAPI application construction without product routes.
 - [ ] Implement `/health/live` without a database dependency.
@@ -112,7 +122,7 @@ Verification:
 - [ ] Integration test transaction commit on success and rollback on exception.
 - [ ] Ruff, mypy, and pytest pass through `uv run`.
 
-## 9. Phase 3 — Reproducible API Image
+## 10. Phase 3 — Reproducible API Image
 
 - [ ] Pin `python:3.14.6-slim-trixie`.
 - [ ] Re-query the official uv release and image digest immediately before implementation.
@@ -131,7 +141,7 @@ Verification:
 - [ ] Container starts with valid configuration and fails clearly with missing required configuration.
 - [ ] Image inspection finds no committed secret or local `.env` content.
 
-## 10. Phase 4 — Flyway Project and Migration Service
+## 11. Phase 4 — Flyway Project and Migration Service
 
 - [ ] Pin `flyway/flyway:13.0.0`.
 - [ ] Create non-secret `flyway.toml` with versioned migration location, history behavior, and clean disabled.
@@ -156,7 +166,7 @@ Migration verification after the physical-model gate:
 - [ ] An isolated transactional failure leaves no partial product objects.
 - [ ] No migration depends on `/docker-entrypoint-initdb.d` having run beyond standard database initialization.
 
-## 11. Phase 5 — Docker Compose Topology
+## 12. Phase 5 — Docker Compose Topology
 
 - [ ] Define `postgres`, `migrate`, and `api` services without global `container_name` values.
 - [ ] Pin all images and the API build definition.
@@ -167,7 +177,7 @@ Migration verification after the physical-model gate:
 - [ ] Configure PostgreSQL health for the selected database and user.
 - [ ] Configure `migrate` to wait for healthy PostgreSQL.
 - [ ] Configure `api` to wait for successful migration completion.
-- [ ] Publish configurable default host ports 25432 and 28000.
+- [ ] Publish configurable defaults in the accepted `2xxxx` block: PostgreSQL `25432` and API `28000`.
 - [ ] Keep internal connections on `postgres:5432`; never use the host-mapped port between services.
 - [ ] Add `.env.example` with names and explanations but no working password.
 - [ ] Require the local password rather than supplying a committed default.
@@ -184,7 +194,7 @@ Verification:
 - [ ] Normal container recreation preserves a test record.
 - [ ] Compose shutdown does not remove the named volume.
 
-## 12. Phase 6 — Clean-Room and Architecture Verification
+## 13. Phase 6 — Clean-Room and Architecture Verification
 
 - [ ] Run the full build on an isolated Compose project name and disposable test volume.
 - [ ] Rebuild from no Python environment, no API image, and an empty database.
@@ -196,7 +206,7 @@ Verification:
 - [ ] Confirm no `BDM-DATA` was introduced into catalog storage by tests or fixtures.
 - [ ] Remove only the explicitly disposable test volume after recording results.
 
-## 13. Completion Criteria
+## 14. Completion Criteria
 
 The scaffold is complete when:
 
@@ -210,7 +220,7 @@ The scaffold is complete when:
 - [ ] no product DDL exists without an accepted physical-model source; and
 - [ ] no product API behavior exists without an accepted capability source.
 
-## 14. Decisions Explicitly Deferred
+## 15. Decisions Explicitly Deferred
 
 - Physical schema and extension activation
 - Product API contract and authorization
@@ -219,23 +229,23 @@ The scaffold is complete when:
 - Performance targets and connection-pool sizing
 - CI and release automation
 
-## 15. Open Questions
+## 16. Open Questions
 
-The open questions in technical-design section 8 remain authoritative. Engineers must not resolve them implicitly in code or configuration.
+The remaining open questions in technical-design section 8 remain authoritative. The accepted Flyway, local-login, and port decisions are no longer open questions. Engineers must not resolve the remaining questions implicitly in code or configuration.
 
-## 16. Recommended Next Step
+## 17. Recommended Next Step
 
-Obtain architecture, implementation, and product-owner review of the technical design. After approval, execute Phase 1 through the operational scaffold while the physical-model transform is designed separately.
+Record architecture and implementation-engineering reviews of the technical design. After blocking findings are resolved, execute Phase 1 through the operational scaffold while the physical-model transform is designed separately.
 
-## 17. Approval Status
+## 18. Approval Status
 
-Draft; execution blocked.
+Product-owner choices approved; execution blocked on the two engineering reviews in Phase 0.
 
-## 18. Product Owner Review
+## 19. Product Owner Review
 
-Pending.
+Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose topology, the root uv project, a local shared database login, and ports `25432`/`28000` on 2026-07-26.
 
-## 19. Sign-Off
+## 20. Sign-Off
 
 ### Author
 
@@ -243,18 +253,20 @@ Pending.
 - Signer type: agent
 - Role: development checklist author
 - Review perspective: implementation planning
-- Disposition: submitted for review
+- Disposition: updated after product-owner decision
 - Date: 2026-07-26
 
 ### Review Entries
 
-No review entries yet.
+- Reviewer: product owner (human)
+- Date: 2026-07-26
+- Disposition: approved the six Phase 0 product decisions; engineering reviews remain pending
 
 ### Product Owner Sign-Off
 
 - Signer: product owner (human)
-- Status: pending
+- Status: approved product decisions on 2026-07-26
 
 ### Workflow Status
 
-- Current status: draft and blocked on design approval
+- Current status: active checklist; pre-implementation engineering review gate remains open

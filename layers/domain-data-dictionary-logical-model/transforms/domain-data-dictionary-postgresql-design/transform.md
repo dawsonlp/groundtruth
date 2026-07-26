@@ -60,8 +60,8 @@ Refine the technology-neutral Domain Data Dictionary logical model into an engin
 - [x] Python, uv, Psycopg, connection-pool, packaging, and container constraints are specified.
 - [x] The engineer checklist is ordered and gated on design approval.
 - [x] No runtime files, migration SQL, schema objects, API behavior, or containers were created.
-- [ ] The product owner accepts or revises the migration-tool decision.
-- [ ] The product owner accepts or revises the Compose and Python service design.
+- [x] The product owner accepted Flyway Open Source as the migration-tool decision on 2026-07-26.
+- [x] The product owner accepted the Compose and Python service design, root uv project, local shared login, and `2xxxx` port block on 2026-07-26.
 - [ ] The PostgreSQL physical data model maps all six authoritative logical entities and passes architectural review.
 - [ ] The API capability contract is designed before business endpoints are implemented.
 

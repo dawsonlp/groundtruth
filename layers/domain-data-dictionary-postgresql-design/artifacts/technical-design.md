@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Status: draft
+- Status: product-owner decisions approved; engineering review pending
 - Effective: no
 - Source logical model: `CAT-LOG/domain-data-dictionary@1` at revision `f71a279`
 - Owning transform: `domain-data-dictionary-logical-model/transforms/domain-data-dictionary-postgresql-design`
@@ -94,7 +94,7 @@ named volume: postgres_data
 
 Compose must not set `container_name`; project-scoped names avoid collisions and preserve future scaling. The three services use one internal Compose network. Only `api` and, for local developer access, `postgres` publish host ports. `migrate` publishes none.
 
-Default host ports are configurable and chosen to avoid known local allocations:
+Default host ports are configurable and use a recognizable `2xxxx` local-development block while preserving each service's familiar port suffix:
 
 - PostgreSQL: `${DOMAINCATALOG_POSTGRES_PORT:-25432}:5432`
 - API: `${DOMAINCATALOG_API_PORT:-28000}:8000`
@@ -293,28 +293,26 @@ The implementation is not complete until it proves:
 
 1. Should provenance be able to target typed `ModelFamily` and `ResponsibleAgent` records, requiring a logical-model revision before physical design?
 2. Does the first `CAT-PHY` need any included extension, or should it begin with PostgreSQL core only?
-3. Is one local database login acceptable for the scaffold, with role separation required before shared deployment?
-4. Should Flyway remain selected, or does the desired database-change review process justify Sqitch's separate verify and revert scripts now?
-5. Should the API project remain at repository root if the second non-Python service arrives, or move into a uv workspace at that time?
+3. Should the API project remain at repository root if the second non-Python service arrives, or move into a uv workspace at that time?
 
-## 9. Decisions Requested
+## 9. Accepted Product-Owner Decisions
 
-The product owner is asked to accept, revise, or reject:
+On 2026-07-26, the product owner accepted:
 
 - Flyway Open Source as the SQL migration runner;
 - the `postgres` → `migrate` → `api` Compose dependency topology;
 - FastAPI/Uvicorn with async Psycopg pooling for the scaffold;
 - root-level uv project organization;
 - the local-only shared database login concession; and
-- default host ports 25432 and 28000.
+- the recognizable `2xxxx` local port block: PostgreSQL `25432` and API `28000`.
 
 ## 10. Recommended Next Step
 
-Review this design as architecture and implementation engineering. After acceptance, execute the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
+Review this design as architecture and implementation engineering. After those reviews resolve any blocking findings, execute the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
 
 ## 11. Approval Status
 
-Draft; implementation not approved.
+Product-owner decisions approved; implementation remains blocked on architecture and implementation-engineering review.
 
 ## 12. Architect Review
 
@@ -326,7 +324,7 @@ Pending.
 
 ## 14. Product Owner Review
 
-Pending decisions listed in section 9.
+Approved the decisions recorded in section 9 on 2026-07-26.
 
 ## 15. Sign-Off
 
@@ -341,13 +339,16 @@ Pending decisions listed in section 9.
 
 ### Review Entries
 
-No review entries yet.
+- Reviewer: product owner (human)
+- Date: 2026-07-26
+- Disposition: approved the migration runner, service topology, API stack, root uv project, local shared database login, and local port block
+- Remaining scope: architecture and implementation-engineering reviews remain pending
 
 ### Product Owner Sign-Off
 
 - Signer: product owner (human)
-- Status: pending
+- Status: approved decisions in section 9 on 2026-07-26
 
 ### Workflow Status
 
-- Current status: draft and non-effective
+- Current status: product-approved design awaiting engineering reviews
