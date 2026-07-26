@@ -14,4 +14,4 @@ This layer defines the business concepts the Domain Data Dictionary must retain.
 
 PostgreSQL is the required downstream physical target. The later API must expose one capability boundary to machine and human-facing clients. Neither decision changes the conceptual meanings in this layer.
 
-The next refinement is a logical data model that covers this conceptual model explicitly. Draft work may continue while the provisional placement, naming, and standards-alignment decisions remain unresolved, but affected descendants must be regenerated after an upstream correction.
+The draft logical refinement is [domain-data-dictionary-logical-model](../domain-data-dictionary-logical-model/README.md), produced by its source-colocated [transform](transforms/domain-data-dictionary-logical-model/transform.md). Draft work may continue while provisional placement, naming, and standards-alignment decisions remain unresolved, but affected descendants must be regenerated after an upstream correction.

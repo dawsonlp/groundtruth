@@ -46,18 +46,26 @@ layers/
 │   └── transforms/
 │       └── domain-data-dictionary-conceptual-model/
 │           └── transform.md
-└── domain-data-dictionary-conceptual-model/
+├── domain-data-dictionary-conceptual-model/
+│   ├── README.md
+│   ├── artifacts/
+│   │   ├── build-design.md
+│   │   └── conceptual-data-model.md
+│   └── transforms/
+│       └── domain-data-dictionary-logical-model/
+│           └── transform.md
+└── domain-data-dictionary-logical-model/
     ├── README.md
     └── artifacts/
-        ├── build-design.md
-        └── conceptual-data-model.md
+        ├── logical-design.md
+        └── logical-data-model.md
 ```
 
 - `artifacts/` contains the product as expressed at this refinement level.
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The Model C design now has a draft conceptual refinement in [build-design.md](layers/domain-data-dictionary-conceptual-model/artifacts/build-design.md) and [conceptual-data-model.md](layers/domain-data-dictionary-conceptual-model/artifacts/conceptual-data-model.md). The next product refinement is the technology-neutral logical repository model. PostgreSQL is the required later physical target, and the API will expose a common capability boundary to machine and human-facing clients.
+The Model C design now has a conceptual refinement and a draft logical refinement in [logical-design.md](layers/domain-data-dictionary-logical-model/artifacts/logical-design.md) and [logical-data-model.md](layers/domain-data-dictionary-logical-model/artifacts/logical-data-model.md). The logical model selects a hybrid catalog kernel: typed authority for catalog-specific governance records, a reflective authority for CMOF/DML model objects, and derived typed projections over those objects. The next product refinement is `CAT-PHY`, targeting PostgreSQL. The later API will expose a common capability boundary to machine and human-facing clients.
 
 Conceptual refinement places explicit model-family membership, responsible agents, and provenance records in `CAT-CON` as catalog business concepts governed by `DML-CON`; it does not promote them into the general language without evidence that they are general concerns. The canonical registry still requires provisional `CAT-FAMILY`, `CAT-CON`, and `CAT-LOG` role names to be accepted or replaced. Draft refinement may continue, but affected descendants require regeneration after an upstream naming or semantic correction. The source definition also still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
 
