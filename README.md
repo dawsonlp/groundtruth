@@ -63,11 +63,25 @@ layers/
 │       └── domain-data-dictionary-postgresql-design/
 │           ├── transform.md
 │           └── migration-tool-assessment.md
-└── domain-data-dictionary-postgresql-design/
+├── domain-data-dictionary-postgresql-design/
+│   ├── README.md
+│   ├── artifacts/
+│   │   ├── technical-design.md
+│   │   └── development-checklist.md
+│   └── transforms/
+│       └── domain-data-dictionary-postgresql-runtime/
+│           └── transform.md
+└── domain-data-dictionary-postgresql-runtime/
     ├── README.md
-    └── artifacts/
-        ├── technical-design.md
-        └── development-checklist.md
+    ├── artifacts/
+    │   ├── pyproject.toml
+    │   ├── compose.yaml
+    │   ├── Dockerfile
+    │   ├── src/
+    │   ├── tests/
+    │   └── infra/
+    └── evidence/
+        └── scaffold-verification.md
 ```
 
 - `artifacts/` contains the product as expressed at this refinement level.

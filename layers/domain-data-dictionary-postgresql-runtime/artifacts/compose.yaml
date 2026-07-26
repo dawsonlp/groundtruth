@@ -1,0 +1,68 @@
+name: domaincatalog
+
+services:
+  postgres:
+    image: dawsonlp/postgres-batteries-inc:18.4
+    command: ["postgres"]
+    environment:
+      POSTGRES_DB: domaincatalog
+      POSTGRES_USER: domaincatalog
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "${DOMAINCATALOG_POSTGRES_PORT:-25432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./infra/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+    restart: unless-stopped
+
+  migrate:
+    image: flyway/flyway:13.0.0@sha256:db6195c21e90872063ff257ec38edcb8d3c77259b25a7a8fee67189511079511
+    working_dir: /flyway/project
+    command: ["migrate"]
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/domaincatalog
+      FLYWAY_USER: domaincatalog
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - ./infra/flyway:/flyway/project:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: domaincatalog
+      PGUSER: domaincatalog
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      FLYWAY_HISTORY_RELATION: public.flyway_schema_history
+    ports:
+      - "${DOMAINCATALOG_API_PORT:-28000}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

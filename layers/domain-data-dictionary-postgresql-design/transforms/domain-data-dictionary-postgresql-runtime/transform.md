@@ -70,15 +70,16 @@ No executable projection at repository root is produced. The target README and e
 
 ## Validation Conditions
 
-- [ ] Every target path is owned by this transform and lies inside the target layer.
-- [ ] Locked Python 3.14 sync, lint, types, and tests pass.
-- [ ] Compose configuration validates with a supplied local password.
-- [ ] The API image builds reproducibly and runs as a non-root user.
-- [ ] PostgreSQL health precedes Flyway success, which precedes API startup.
-- [ ] Fresh initialization contains no baked sample objects or unrequested extensions.
-- [ ] API liveness is database-independent and readiness reflects database and migration state.
-- [ ] A normal recreate preserves named-volume data.
-- [ ] No product DDL or product API behavior exists.
+- [x] Every target path is owned by this transform and lies inside the target layer.
+- [x] Locked Python 3.14 sync, lint, types, unit tests, and database integration tests pass.
+- [x] Compose configuration validates with a supplied local password.
+- [x] The API image builds from the lockfile and runs as a non-root user.
+- [x] PostgreSQL health precedes Flyway success, which precedes API startup.
+- [x] Fresh initialization contains no baked sample objects or unrequested extensions.
+- [x] API liveness is database-independent and readiness reflects database and migration state.
+- [x] A normal recreate and a normal shutdown preserve named-volume data.
+- [x] A failed transactional migration blocks API startup and leaves no partial table.
+- [x] No product DDL or product API behavior exists.
 
 ## Retry Guidance
 
