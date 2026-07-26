@@ -36,6 +36,7 @@ The official scopes divide the territory among metamodel definition, constraint 
 - Detailed conformance claims remain blocked where only public abstracts have been reviewed.
 - The absence of one all-encompassing standard does not authorize unmarked invention; each project extension must identify the standards gap it bridges.
 - CMOF, OCL, and XMI can be validated mechanically once the machine-readable representation exists.
+- OCL can be the common side-effect-free language for model validation and subject constraints only if their different evaluation environments are defined explicitly.
 - DAMA, IDEF1X, ISO/IEC 11179, ISO/IEC 11404, and ISO SQL require semantic mapping evidence as well as syntactic representation.
 
 ## References

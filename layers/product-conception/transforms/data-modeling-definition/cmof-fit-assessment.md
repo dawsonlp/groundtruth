@@ -19,9 +19,9 @@ This supports continuing with direct CMOF use as the working presumption. It doe
 | N-ary entity relationship | Reified relationship class with two or more end objects | Directly expressible | Required because CMOF associations have exactly two member ends |
 | Relationship-associated properties or rules | Properties referencing the reified relationship as their subject | Directly expressible | Preserves relationship semantics without encoding tricks |
 | Governing-model constraints | CMOF `Constraint` with OCL `OpaqueExpression` | Native CMOF | ISO/IEC 19507:2012 OCL 2.3.1 is selected; equivalent expressions and an evaluator remain to be supplied |
-| Subject-model business, logical, and physical constraints | Instances of definition classes such as `BusinessConstraint` and `ForeignKeyConstraint` | Directly expressible | Correctly distinct from CMOF constraints |
+| Subject-model business, logical, and physical constraints | Instances of definition classes such as `BusinessConstraint` and `ForeignKeyConstraint` | Directly expressible | Business and logical predicates default to OCL over a subject-data environment; target SQL remains distinct from CMOF constraints |
 | Semantic data concepts and value domains | Definition classes and properties | Directly expressible | ISO/IEC 11179 alignment requires normative-text verification |
-| Relation, key, and foreign-key structure | Definition classes, ordered multivalued properties, and constraints | Directly expressible | Compatibility rules require a constraint expression |
+| Relation, key, and foreign-key structure | Definition classes, ordered multivalued properties, and OCL constraints | Directly expressible | OCL expresses model-level compatibility; physical enforcement remains target-specific |
 | Table, view, column, physical type, constraint, and index | Definition classes and properties | Directly expressible | Vendor-specific semantics remain in later target profiles |
 | Cross-model many-to-many realization | Reified `Realization` class and multivalued source/target properties | Directly expressible | This semantic is not native CMOF |
 | Introduced or omitted realization detail | Realization disposition plus constraints | Directly expressible | This semantic is a project choice |

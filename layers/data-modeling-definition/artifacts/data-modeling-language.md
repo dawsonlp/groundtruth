@@ -43,7 +43,7 @@ The status terms mean:
 | --- | --- | --- | --- |
 | [OMG MOF 2.5.1, CMOF](https://www.omg.org/spec/MOF/2.5.1) | Governing; acceptance pending | Packages, classes, datatypes, enumerations, properties, multiplicity, composition, generalization, constraints, identifiers, and reflection | Defines the form of this language, not data-modeling meaning |
 | [ISO/IEC 19508:2014, MOF Core](https://www.iso.org/standard/61844.html) | Alignment required; version delta pending | ISO-standardized MOF baseline | Predates the selected OMG MOF 2.5.1; ISO and OMG conformance must not be treated as identical without a delta assessment |
-| [ISO/IEC 19507:2012, OCL 2.3.1](https://www.iso.org/standard/57306.html) | Adopted for definition-level constraints; encoding pending | Formal expression of the `DM-*` well-formedness rules and CMOF production constraints | Does not automatically govern business rules, SQL expressions, or transformation procedures |
+| [ISO/IEC 19507:2012, OCL 2.3.1](https://www.iso.org/standard/57306.html) | Default constraint and query language wherever its side-effect-free model semantics apply; encoding pending | `DM-*` rules, derived values, model queries, guards, and business/logical constraints over a defined subject-data environment | Does not replace SQL syntax, external facts, temporal state that is not modeled, or procedural transformation bodies |
 | [ISO/IEC/IEEE 31320-2:2012, IDEF1X97](https://www.iso.org/standard/60614.html) | Adopted for overlapping schema semantics; normative-text verification pending | Entity types, attributes, identifiers, relationships, relationship ends, and cardinality | Its term `conceptual schema` is not assumed to equal this language's `ConceptualDataModel`; constructs are mapped individually |
 | [ISO/IEC 11179-31:2023](https://www.iso.org/standard/78925.html) | Adopted semantic vocabulary; multiplicity verification pending | Object classes, properties, data-element concepts, conceptual domains, value domains, datatypes, and data elements | Registry administration is not imported into the modeling language |
 | [ISO/IEC 11404:2007](https://www.iso.org/standard/39479.html) | Adopted datatype framework; type catalogue pending | Separation of conceptual, structural, and implementation datatype notions and explicit datatype mappings | Does not define business meaning or target-product types |
@@ -61,15 +61,30 @@ The status terms mean:
 2. CMOF governs whether this definition is a valid metamodel; the adopted data standards govern the meanings expressed by CMOF classes and properties.
 3. DAMA 2010 governs the intended data-modeling abstraction and approach. It does not override a formal standard silently; any conflict must be recorded and resolved explicitly.
 4. A target-platform specification may specialize the physical package but must preserve portable SQL meaning and identify every extension.
-5. `Project choice` is used only where the adopted sources leave a gap or where this language deliberately composes them.
-6. A pending verification item prevents a detailed conformance claim but does not move the standards decision back into transform evidence.
+5. OCL is the default for every constraint, derivation, query, guard, or pre/postcondition expressible over modeled state. A non-OCL expression must identify the owning language and either be intrinsic target syntax or state why OCL is insufficient.
+6. `Project choice` is used only where the adopted sources leave a gap or where this language deliberately composes them.
+7. A pending verification item prevents a detailed conformance claim but does not move the standards decision back into transform evidence.
 
-### 2.2 Construct traceability
+### 2.2 OCL usage profile
+
+OCL is applied at two distinct evaluation planes:
+
+1. **Definition and model validation.** The OCL context is a CMOF class in this language, such as `LogicalEntityType` or `ForeignKeyConstraint`. These expressions validate whether a particular data model conforms to this definition. All `DM-*` rules and derived navigation properties belong here.
+2. **Subject-data validation.** The OCL context is a classifier defined by a particular conceptual or logical model, such as that model's `OrderLine`. These expressions constrain occurrences described by the model. This use is valid only when an OCL evaluation environment maps the model-defined entity types, attributes, relationships, datatypes, and values into OCL classifiers and properties.
+
+OCL may also provide queries, guards, and pre/postconditions to a later transformation language. Because OCL is side-effect free, it does not by itself specify how a target model is created or mutated.
+
+SQL view definitions, column defaults, and check expressions retain the language of their `PhysicalTarget`. OCL can validate their surrounding model and can be the upstream logical constraint they realize, but translating OCL into target SQL is a separate, explicit realization decision.
+
+Rules requiring external observations, event history, or time not represented in the model are not falsely declared OCL-executable. They carry a non-OCL rationale until their required state is modeled or another governing rule language is selected.
+
+### 2.3 Construct traceability
 
 | Language concern | Primary source | Project composition or extension |
 | --- | --- | --- |
 | Definition packages, types, properties, inheritance, containment, and constraints | OMG CMOF 2.5.1; ISO/IEC 19508 alignment | Package boundaries, the selected CMOF subset, and explicit treatment of the OMG/ISO version delta |
-| `DM-*` well-formedness rules | ISO/IEC 19507 OCL | Prose is currently authoritative until equivalent OCL is committed and validated |
+| `DM-*` rules, derived navigation, model queries, and expressible subject constraints | ISO/IEC 19507 OCL | Prose is currently authoritative until equivalent OCL and both evaluation environments are committed and validated |
+| `ExpressionSpecification` and evaluation scope | OCL, ISO SQL, and named target languages | One wrapper records the language, body, evaluation plane, and reason for any non-OCL exception |
 | `ObjectClass`, `PropertyConcept`, `DataElementConcept`, `ConceptualDomain`, `ValueDomain`, `DataElement` | ISO/IEC 11179-31 | Domain ownership and imports connect the standard vocabulary to particular models |
 | Business entity types, properties, relationships, ends, cardinality, and identifiers | DAMA 2010 and ISO/IEC/IEEE 31320-2 | Separate conceptual and logical model kinds; reified n-ary relationships |
 | Logical, structural, and physical datatype separation | ISO/IEC 11404 and ISO/IEC 11179-31 | Explicit realization between value domains and target datatypes remains to be completed |
@@ -101,6 +116,7 @@ The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`
 - `extends` denotes CMOF `Generalization`.
 - `{derived}` denotes a read-only navigation calculated from the named authoritative reverse reference, not separately stored membership.
 - Each rule in section 12 is a CMOF `Constraint` whose specification is an OCL `OpaqueExpression`.
+- Every derived property has an OCL derivation in the machine-readable definition.
 - Subject-model constraints such as a foreign key are instances of language classes; they are not CMOF constraints governing the form of the language.
 
 This Markdown is a review projection, not the machine-readable CMOF representation required for acceptance.
@@ -112,6 +128,22 @@ This Markdown is a review projection, not the machine-readable CMOF representati
 - `identifier: String [1]` — stable identity within the catalog
 - `name: String [1]`
 - `definition: String [1]`
+
+### `ExpressionSpecification` (DataType)
+
+- `language: String [1]`
+- `body: String [1]`
+- `scope: ExpressionScope [1]`
+- `nonOclRationale: String [0..1]`
+
+An expression declares its governing language and evaluation plane. `nonOclRationale` is required when OCL could reasonably have been expected but cannot express the required semantics.
+
+### `ExpressionScope` enumeration
+
+- `definitionModel` — evaluates the structure of a model against this definition
+- `subjectData` — evaluates occurrences described by a particular conceptual or logical model
+- `physicalTarget` — uses syntax and semantics owned by the named physical target
+- `external` — depends on state not represented in the model
 
 ### `DataDomain` extends `IdentifiedElement`
 
@@ -219,10 +251,10 @@ A business association among two or more entity types. It is reified so it can b
 
 ### `BusinessConstraint` extends `ModelElement`
 
-- `expression: String [1]`
+- `specification: ExpressionSpecification [1]`
 - `constrainedElements: ModelElement [1..*]`
 
-A business rule that limits valid states or events in the modeled domain. Its expression language belongs to the domain or a later rule profile; adopting OCL for definition-level constraints does not silently make every business rule OCL.
+A business rule that limits valid states or events in the modeled domain. It uses OCL with `scope = subjectData` when the required facts and state are represented by the model. External or unmodeled temporal dependencies require an explicit exception rationale.
 
 ## 8. Logical Package
 
@@ -265,7 +297,7 @@ A set of logical attributes whose values identify an occurrence of a logical ent
 
 ### `LogicalConstraint` extends `ModelElement`
 
-- `expression: String [1]`
+- `specification: ExpressionSpecification [1]`
 - `constrainedElements: ModelElement [1..*]`
 
 A technology-neutral integrity condition not completely represented by identity, optionality, or relationship cardinality.
@@ -338,7 +370,7 @@ The platform and version against which physical meaning is interpreted.
 
 ### `View` extends `PhysicalTabularObject`
 
-- `definitionExpression: String [1]`
+- `definition: ExpressionSpecification [1]`
 
 ### `PhysicalDatatype` extends `IdentifiedElement`
 
@@ -350,7 +382,7 @@ The platform and version against which physical meaning is interpreted.
 - `tabularObject: PhysicalTabularObject [1]`
 - `datatype: PhysicalDatatype [1]`
 - `nullable: Boolean [1]`
-- `defaultExpression: String [0..1]`
+- `default: ExpressionSpecification [0..1]`
 
 ### `TableConstraint` (abstract) extends `PhysicalElement`
 
@@ -379,7 +411,7 @@ The referenced constraint must be a primary-key or unique constraint.
 
 ### `CheckConstraint` extends `TableConstraint`
 
-- `expression: String [1]`
+- `specification: ExpressionSpecification [1]`
 
 ### `Index` extends `PhysicalElement`
 
@@ -418,7 +450,9 @@ This package must remain mappable to the model and mapping registration concepts
 - `sourceElements: ModelElement [0..*] {unique}`
 - `targetElements: ModelElement [0..*] {unique}`
 - `rationale: String [0..1]`
-- `transformationRule: String [0..1]`
+- `transformationReference: String [0..1]`
+
+`transformationReference` identifies a transformation specification or human procedure. It is not an OCL body. A later transformation definition may use OCL for its queries, guards, and pre/postconditions while using an appropriate transformation language for target creation.
 
 ### `RealizationDisposition` enumeration
 
@@ -430,7 +464,7 @@ This package must remain mappable to the model and mapping registration concepts
 
 ## 12. Well-Formedness Rules
 
-The rules below are normative prose in this draft. Their machine-readable form shall use ISO/IEC 19507:2012 OCL 2.3.1 and shall be equivalent to the prose before the layer can become effective. Business-rule and SQL-expression languages remain governed by their own model or target profiles.
+The rules below are normative prose in this draft. Their machine-readable form shall use ISO/IEC 19507:2012 OCL 2.3.1 wherever the required state is modeled and shall be equivalent to the prose before the layer can become effective. Every exception is identified below rather than left implicit.
 
 ### Cross-model rules
 
@@ -439,6 +473,9 @@ The rules below are normative prose in this draft. Their machine-readable form s
 - `DM-003`: A physical model has exactly one named `PhysicalTarget`.
 - `DM-004`: A conceptual or logical model contains no `PhysicalElement`, `PhysicalDatatype`, or `Index`.
 - `DM-005`: Definitions and names are non-empty; model-element identifiers are unique within their containing model and semantic-element identifiers within their domain.
+- `DM-006`: Every expression specification has a non-empty language and body and declares exactly one evaluation scope.
+- `DM-007`: Every `DM-*` constraint and derived property is expressed in OCL with `scope = definitionModel` in the machine-readable definition.
+- `DM-008`: A non-OCL expression either occupies syntax intrinsically owned by a physical target or supplies a non-empty `nonOclRationale`.
 
 ### Conceptual and logical rules
 
@@ -450,6 +487,7 @@ The rules below are normative prose in this draft. Their machine-readable form s
 - `DM-106`: A business property's subject is a business entity type or business relationship in the same conceptual model.
 - `DM-107`: A business entity type's properties use data-element concepts for its object class. A relationship with properties names an object class, and its properties use concepts for that object class.
 - `DM-108`: A logical attribute's data-element concept uses the object class named by its logical entity type.
+- `DM-109`: A business or logical constraint uses OCL with `scope = subjectData` when its required state is modeled. Its context and referenced properties resolve through the subject model's defined OCL evaluation environment; otherwise it records why OCL is insufficient.
 
 ### Relational rules
 
@@ -470,6 +508,8 @@ The rules below are normative prose in this draft. Their machine-readable form s
 - `DM-307`: Every index key column belongs to the indexed table; an index contains no duplicate key column.
 - `DM-308`: A view has a non-empty definition expression.
 - `DM-309`: A unique index does not satisfy a required logical uniqueness realization unless a corresponding primary-key or unique constraint is also modeled.
+- `DM-310`: A view definition, column default, or physical check constraint has `scope = physicalTarget` and names the expression language or dialect governed by its physical target.
+- `DM-311`: When a physical expression implements an upstream business or logical constraint, their realization record identifies that correspondence; target syntax does not silently replace upstream meaning.
 
 ### Realization rules
 
@@ -479,6 +519,7 @@ The rules below are normative prose in this draft. Their machine-readable form s
 - `DM-404`: Introduced and omitted realizations require a rationale.
 - `DM-405`: Every target element is covered by a realized or introduced record, and every source element is covered by a realized or omitted record.
 - `DM-406`: Realization never transfers identity implicitly; each model element retains its own identifier and correspondence remains explicit.
+- `DM-407`: A transformation reference identifies a transformation or human procedure rather than containing an OCL mutation body. OCL may specify its model queries, guards, and pre/postconditions.
 
 ## 13. Definition Boundary
 
@@ -488,7 +529,7 @@ This layer owns the vocabulary and well-formedness of data models. It does not y
 - diagnostics or validator behavior;
 - automatic conceptual-to-logical or logical-to-physical generation;
 - database introspection or readback behavior;
-- business-rule and transformation-expression languages beyond the adopted definition-level OCL profile;
+- external rule languages, target expression grammars, and transformation languages beyond the adopted OCL usage profile;
 - product persistence and runtime interchange beyond the XMI validation representation;
 - a product API or user interface; or
 - vendor-specific physical options.
@@ -500,7 +541,8 @@ Those are decisions for later refinements after this language and its governing 
 The standards are part of this language definition now; the outstanding work is verification, not selection by implication.
 
 - CMOF is the presumed governing model pending the follow-up ADR and executable production-constraint validation.
-- OCL 2.3.1 is selected for definition-level well-formedness rules; equivalent encodings of the `DM-*` rules remain to be written.
+- OCL 2.3.1 is the default wherever its side-effect-free model semantics apply; equivalent encodings of the `DM-*` rules and derived properties remain to be written.
+- The definition-model and subject-data OCL evaluation environments remain to be specified and validated separately.
 - ISO/IEC 11179-31 concepts are adopted, while exact inheritance, role names, and multiplicities await normative-text checking.
 - IDEF1X compatibility is required for overlapping constructs, while its conceptual-schema terminology must be mapped rather than copied onto DAMA model levels.
 - ISO/IEC 11404 governs datatype separation, while the standard type catalogue and datatype mappings remain incomplete.

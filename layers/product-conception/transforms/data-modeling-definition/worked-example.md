@@ -56,6 +56,16 @@ Model: `Commerce Logical Model`
 
 Logical relationships connect `SalesOrder` to `Customer`, `OrderLine` to `SalesOrder`, and `OrderLine` to `Product`. The `OrderLine` entity is an introduced logical structure that resolves the business relationship's repeatable product occurrences and carries `quantity`.
 
+Logical constraint `Positive quantity`:
+
+```text
+language: ISO/IEC 19507:2012 OCL 2.3.1
+scope: subjectData
+body: context OrderLine inv PositiveQuantity: self.quantity > 0
+```
+
+This expression is executable only after the logical model's OCL environment maps its `OrderLine` entity and `quantity` attribute into an OCL classifier and property. The example makes that dependency explicit rather than treating OCL text as self-validating.
+
 ## Relational-Logical Model
 
 Model: `Commerce Relational Model`
@@ -115,6 +125,8 @@ View:
 
 The physical surrogate identifiers `customer_id`, `order_id`, and `product_id` are introduced physical decisions. The business identifiers remain as unique constraints. The foreign-key indexes are introduced access-path decisions and remain separate from the foreign-key constraints.
 
+The `order_line` check uses a physical-target expression specification: language `PostgreSQL 17 SQL`, scope `physicalTarget`, body `quantity > 0`. It realizes the logical OCL constraint; the SQL text does not replace the logical rule as its source of meaning.
+
 ## Realization Records
 
 The complete example realization set covers every element as required by `DM-405`. Representative records are shown below:
@@ -130,6 +142,7 @@ The complete example realization set covers every element as required by `DM-405
 | Candidate key `CUSTOMER_NUMBER` | Unique constraint `customer_number` | realized | Enforce the business identifier physically |
 | No upstream element | Column `customer_id` and PK `customer_id` | introduced | Target-local surrogate identity |
 | Relational FK `SALES_ORDER.CUSTOMER_NUMBER` | Physical FK `sales_order.customer_id` | realized | Referential meaning is preserved despite use of surrogate columns |
+| Logical constraint `Positive quantity` | Physical check `order_line.quantity > 0` | realized | Preserve the logical rule while translating it into target SQL |
 | No upstream element | Index `ix_sales_order_customer_id` | introduced | Physical access path chosen for expected joins |
 | No upstream element | View `customer_order_summary` | introduced | Physical read model for an anticipated query; not yet an upstream requirement |
 
@@ -140,6 +153,7 @@ The relational foreign key to a business-key attribute and the physical foreign 
 The draft language represents every exercised construct without adding a new governing-model primitive beyond CMOF. The example also exposes matters that later refinements must decide rather than hide:
 
 - logical-to-physical generation needs human or target-profile decisions for names, datatypes, and surrogate keys;
+- OCL can express the logical constraint, but subject-data evaluation requires an explicit classifier and property mapping;
 - readback must distinguish declared constraints from implementation indexes;
 - a physical view may be introduced without a current upstream requirement and should therefore be visible as an introduced realization; and
 - datatype compatibility and expression semantics require a selected physical target profile.

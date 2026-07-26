@@ -37,6 +37,7 @@ The transform is also the evidence-producing judgment round required by Domain C
 - Prefer applicable industry standards over project-specific invention.
 - Presume CMOF 2.5.1 as the governing model while testing its fit.
 - Make the target artifact authoritative for its OMG and ISO standards profile; keep standards research with the transform as evidence.
+- Use OCL wherever the required semantics can be expressed over modeled state; make every exception explicit.
 - Cover conceptual, logical, and physical data abstraction, from business entity types to tables, columns, foreign-key constraints, and indexes.
 
 ### External evidence
@@ -62,7 +63,9 @@ The output must preserve these distinctions from `product-conception`:
 - Separate a technology-neutral logical package from a relational-logical package. A relation is not treated as a table.
 - Represent entity relationships and cross-model mappings as classes with explicit ends. This supports n-ary relationships and relationship-owned semantics despite CMOF associations being binary.
 - Reuse ISO/IEC 11179-31 concepts for the semantic connection between object classes, properties, data-element concepts, conceptual domains, value domains, and data elements.
-- Use ISO/IEC 19507:2012 OCL 2.3.1 for definition-level well-formedness constraints and ISO/IEC 19509:2014 XMI as the machine-readable validation representation, without selecting product persistence or runtime interchange.
+- Use ISO/IEC 19507:2012 OCL 2.3.1 for definition rules, derived values, model queries, guards, and expressible business/logical constraints. Distinguish definition-model evaluation from subject-data evaluation.
+- Retain target SQL for physical view, default, and check expressions; retain a separate transformation language boundary because OCL is side-effect free.
+- Use ISO/IEC 19509:2014 XMI as the machine-readable validation representation, without selecting product persistence or runtime interchange.
 - Treat ISO/IEC 19508:2014 as an MOF alignment obligation rather than as equivalent to the later governing OMG MOF 2.5.1.
 - Require explicit alignment boundaries for IDEF1X, ISO/IEC 11404, ISO SQL, ISO/IEC 11179-35, ISO/IEC 19763-12, and UML rather than treating shared terminology as conformance.
 - Treat physical indexes as target-specific access structures, distinct from logical identifiers and physical uniqueness constraints.
@@ -102,9 +105,11 @@ The target can become effective only when all conditions below pass.
 - [x] No ISO registration standard is misrepresented as a complete data-modeling language.
 - [x] The target artifact identifies each adopted, governing, aligned, or informative standard and its authority boundary.
 - [x] Standards research remains transform evidence rather than a competing product definition.
+- [x] OCL is the default for constraints, derivations, queries, guards, and pre/postconditions over modeled state; non-OCL cases have explicit boundaries.
 - [ ] Exact definitions and model-level distinctions are verified against cited pages in the user's 2010 DAMA-DMBOK edition.
 - [ ] Adopted semantics from ISO/IEC/IEEE 31320-2, ISO/IEC 11179-31, ISO/IEC 11404, and ISO/IEC 9075-2 are checked against their normative texts, not only their public abstracts.
-- [ ] The `DM-*` rules are encoded in ISO/IEC 19507:2012 OCL 2.3.1 and shown equivalent to the normative prose.
+- [ ] The `DM-*` rules and derived properties are encoded in ISO/IEC 19507:2012 OCL 2.3.1 and shown equivalent to the normative prose.
+- [ ] Separate OCL evaluation environments are defined and tested for definition-model validation and subject-data validation.
 - [ ] A machine-readable CMOF/ISO 19509 XMI form of the definition is produced and passes the normative CMOF 2.5.1 production constraints.
 - [ ] The version delta between OMG MOF 2.5.1 and ISO/IEC 19508:2014 is assessed before any ISO MOF conformance claim.
 - [ ] Alignment mappings to ISO/IEC 11179-35, ISO/IEC 19763-12, and UML are demonstrated where claimed.
