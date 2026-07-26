@@ -3,16 +3,16 @@
 ## Status
 
 - Transform status: draft
-- Transform execution: not started
+- Transform execution: complete
 - Directory scaffolding: complete
-- Validation status: not started
+- Validation status: incomplete
 - Source layer: `data-modeling-definition`
 - Source revision: `19133fd`
 - Source status: draft and not effective
 - Target layer: `domain-data-dictionary-component`
-- Target status: scaffolded, design not started, and not effective
+- Target status: draft design and not effective
 
-This transform will refine the data-modeling language definition into the design of the first deployable Domain Catalog component. Creating the target directory records the intended refinement branch; it does not execute the design transform or make either layer effective.
+This transform refines the data-modeling language definition into the design of the first deployable Domain Catalog component. The initial directory scaffold recorded the intended refinement branch; the completed execution now supplies a draft design but does not make either layer effective.
 
 ## Purpose
 
@@ -84,24 +84,26 @@ The scaffold makes none of the following decisions. They belong in the component
 
 - `layers/domain-data-dictionary-component/artifacts/component-design.md`
 
-That artifact does not yet exist. Its creation is the next transform execution step.
+The artifact exists as a draft component model. It remains provisional while its source and the transform validation are incomplete.
 
 ## Validation Conditions
 
 The target design can become effective only when all conditions below pass.
 
-- [ ] The component has one coherent responsibility and explicit exclusions.
-- [ ] The analyst workflow preserves conceptual, logical, and physical models as distinct revisioned artifacts.
-- [ ] Cross-model realization and traceability are explicit rather than inferred from names or containment.
-- [ ] Intended design, deployment material, runtime state, observation, comparison, and maintenance are distinct.
-- [ ] The design supports relational and non-relational physical branches without weakening the first deployable increment.
-- [ ] The data dictionary stores `CAT-DATA` and does not conflate it with operational `BDM-DATA`.
-- [ ] Persistence can reconstruct represented definitions and models without semantic loss.
-- [ ] Validation, transformation, deployment, and external observation have explicit authority boundaries.
+- [x] The component has one coherent responsibility and explicit exclusions.
+- [x] The analyst workflow preserves conceptual, logical, and physical models as distinct revisioned artifacts.
+- [x] Cross-model realization and traceability are explicit rather than inferred from names or containment.
+- [x] Intended design, deployment material, runtime state, observation, comparison, and maintenance are distinct.
+- [x] The design supports relational and non-relational physical branches without weakening the first deployable increment.
+- [x] The data dictionary stores `CAT-DATA` and does not conflate it with operational `BDM-DATA`.
+- [x] Persistence is constrained to reconstruct represented definitions and models without semantic loss; implementation proof remains downstream.
+- [x] Validation, transformation, deployment, and external observation have explicit authority boundaries.
 - [ ] DAMA-informed terminology agrees with the verified source definitions and does not overstate unverified conformance.
-- [ ] The design introduces no infrastructure or technology choice without a requirement that makes it necessary.
-- [ ] Every design responsibility traces to the source definition or records a concrete upstream gap.
+- [x] The design introduces no infrastructure or technology choice without a requirement that makes it necessary.
+- [x] Every design responsibility traces to the source definition or records a concrete upstream gap.
 - [ ] The product owner accepts the component boundary and first deployable scope.
+
+The design execution exposed one concrete upstream gap: `DML-DEF` names `BDM-FAMILY` as the grouping object for related subject models but revision `19133fd` has no family class or explicit membership relationship. The target design records the required responsibility but does not infer or invent the missing construct. The source definition must resolve the gap before this target can be accepted.
 
 Because the source layer is not effective, passing these conditions would still leave the target provisional until its accepted source revision and transform are identified.
 
