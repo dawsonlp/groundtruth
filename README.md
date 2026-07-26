@@ -4,7 +4,7 @@ This project is the first test case for the flat product-refinement layout propo
 
 ## Project Decisions
 
-- [Domain Catalog ADR 0001](adr/0001-require-mof-conformance-for-the-governing-model-definition.md): require the governing model definition to conform to MOF. Whether CMOF is used directly is the next decision.
+- [Domain Catalog ADR 0001](adr/0001-require-mof-conformance-for-the-governing-model-definition.md): require the governing model definition to conform to MOF. Direct CMOF use is now being tested by the first draft refinement but is not yet accepted.
 
 ## Current Product Layer
 
@@ -12,23 +12,33 @@ The current source layer is `product-conception`.
 
 Its product artifact is [product-investigation.md](layers/product-conception/artifacts/product-investigation.md).
 
-The artifact remains a draft. No outbound refinement transform or child product layer has been accepted yet.
+The artifact remains a draft. A draft outbound transform now produces the sibling `data-modeling-definition` layer, but neither the source nor the target has been accepted as effective.
+
+The draft target artifact is [data-modeling-language.md](layers/data-modeling-definition/artifacts/data-modeling-language.md). Its owning [transform](layers/product-conception/transforms/data-modeling-definition/transform.md) records the standards assessment, CMOF fit assessment, worked example, and remaining validation conditions.
 
 ## Layout
 
 ```text
 layers/
-└── product-conception/
-    ├── artifacts/
-    │   └── product-investigation.md
-    └── transforms/
+├── product-conception/
+│   ├── artifacts/
+│   │   └── product-investigation.md
+│   └── transforms/
+│       └── data-modeling-definition/
+│           ├── transform.md
+│           ├── standards-assessment.md
+│           ├── cmof-fit-assessment.md
+│           └── worked-example.md
+└── data-modeling-definition/
+    └── artifacts/
+        └── data-modeling-language.md
 ```
 
 - `artifacts/` contains the product as expressed at this refinement level.
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The next step is to agree on the first target layer and its transform before creating either one.
+The next step is to review the draft language, verify its terminology against exact pages in the user's 2010 DAMA-DMBOK edition, validate a machine-readable CMOF representation, and decide whether direct CMOF use is accepted.
 
 ## Working With This Project
 
@@ -59,7 +69,7 @@ To build or run the product:
 
 Do not invent a missing transform, silently select an implementation branch, or treat an unvalidated generated layer as effective. If no accepted path reaches a runnable layer, report that the product is not yet buildable and identify the missing transform or decision.
 
-This project is currently **not buildable**: `product-conception` is its only layer and it has no accepted outbound transform.
+This project is currently **not buildable**: neither layer is effective, the draft transform has unmet validation conditions, and no accepted path reaches a runnable layer.
 
 ### Updating the product
 
