@@ -110,7 +110,7 @@ The target design can become effective only when all conditions below pass.
 - [x] Every design responsibility traces to the source definition or records a concrete upstream gap.
 - [x] The product owner accepts Model C as the component boundary and directs the first deployable scope toward PostgreSQL and a shared capability API.
 
-The design execution exposed one concrete upstream gap: `DML-DEF` names `BDM-FAMILY` as the grouping object for related subject models but revision `19133fd` has no family class or explicit membership relationship. The target design records the required responsibility but does not silently infer or promote a missing construct into the source definition. The gap must be resolved before this target can be accepted, but it does not block creating further draft descendants that identify it and state any provisional assumption used.
+The first design execution identified the absence of a general `ModelFamily` class as a possible upstream gap. Conceptual refinement showed that `DML-CON` can instead govern an explicit `Model Family` business entity in the Domain Catalog repository model. The current placement is therefore downstream and catalog-specific. Promote it into `DML-DEF` only if later evidence shows that family membership is a general conformance concern rather than catalog organization.
 
 Because the source layer is not effective, passing these conditions would still leave the target provisional until its accepted source revision and transform are identified.
 

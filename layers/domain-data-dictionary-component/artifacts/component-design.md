@@ -402,7 +402,7 @@ The component boundaries remain capable of adding other target families, but the
 | Target Capability Gateway | `DML-PHY`, physical metadata profiles | Target/version interpretation, native metadata, datatype and expression boundaries |
 | Deployment and Reconciliation | `DML-DEP`, `DML-OBS` | Packages, execution evidence, observations, coverage, comparisons, dispositions |
 
-### 13.1 Upstream gap: explicit `BDM-FAMILY` identity
+### 13.1 Placement of explicit model-family identity
 
 The canonical registry names `BDM-FAMILY` and says that it groups the purposeful models for one business scope. The structural definition does not currently supply a corresponding class or membership relationship:
 
@@ -411,13 +411,13 @@ The canonical registry names `BDM-FAMILY` and says that it groups the purposeful
 - `lineageIdentifier` connects revisions of one artifact, not conceptual, logical, and physical artifacts of different kinds; and
 - realization records state correspondence but do not establish one authoritative family boundary.
 
-Revision `19133fd` does not provide a governing definition for stable family identity or membership. Inferring membership from names, containment, or reachability would violate the explicit-relationship principle.
+Inferring membership from names, containment, or reachability would violate the explicit-relationship principle. However, absence of a general `ModelFamily` class from `DML-DEF` is not by itself an expressiveness gap: `DML-CON` permits the Domain Catalog's own conceptual model to define `Model Family` as a business entity and its explicit membership relationship.
 
-Before this branch becomes effective, `DML-DEF` must either define an explicit family construct and membership semantics or replace `BDM-FAMILY` with another equally explicit grouping mechanism. That choice belongs to the source definition and its owning transform. This component design records the required responsibility but does not select the missing language construct.
+For the current branch, model-family identity and membership belong to the Domain Catalog repository conceptual model. This keeps catalog-specific organization out of the general modeling language. If later evidence shows that family membership must participate in conformance or exist independently of the catalog, the decision moves upstream into `DML-DEF` and affected descendants are regenerated.
 
-Further draft architecture and implementation work may continue in order to test the rest of the model. Until the upstream choice is made, each descendant must identify revision `19133fd`, carry family identity as an explicit provisional assumption rather than a conformance claim, and avoid treating its temporary representation as authority for `DML-DEF`. When the source is corrected, this design and affected descendants must be regenerated.
+The canonical role name `BDM-FAMILY` still lacks a structural catalog realization until the conceptual model defines it. Descendants must use that explicit repository concept rather than infer grouping, and must not promote it into `DML-DEF` without evidence that the responsibility is general.
 
-No other component responsibility currently demonstrates a new governing-model primitive or definition-language gap. Executable transformation behavior, repository mapping, validation-report retention, and target-profile contracts still require later refinement.
+No component responsibility currently demonstrates a new governing-model primitive or definition-language gap. Executable transformation behavior, repository mapping, validation-report retention, and target-profile contracts still require later refinement.
 
 ## 14. Rejected Alternatives
 
@@ -485,7 +485,7 @@ No other component responsibility currently demonstrates a new governing-model p
 6. How are changes to `DML-DEF` applied to existing model families: revalidation only, explicit migration, or both?
 7. Which actor and decision provenance is minimally required before collaboration and access-control semantics are designed?
 8. Does the first increment need to deploy changes itself, or is package production plus externally supplied execution evidence sufficient?
-9. How will `DML-DEF` represent the identity, boundary, and membership of `BDM-FAMILY` without inferring it from realization links?
+9. Does model-family membership remain a Domain Catalog repository concept, or will later evidence require promoting it into `DML-DEF` as a general modeling construct?
 10. What is the smallest stable capability vocabulary that supports LLMs, agents, automations, and human-facing interfaces without exposing repository-specific operations?
 
 ## 19. Validation Result
@@ -493,9 +493,9 @@ No other component responsibility currently demonstrates a new governing-model p
 This design satisfies the structural componentization conditions in its owning transform by inspection. It does not make the layer effective because:
 
 - `DML-DEF` is still draft and not effective;
-- `DML-DEF` names `BDM-FAMILY` but does not structurally define family identity or membership;
+- model-family identity is provisionally assigned to the downstream catalog conceptual model and still requires product-owner review;
 - DAMA and several normative-standard checks remain pending upstream;
 - no repository round-trip or target-profile implementation has validated the design constraints; and
 - product owner acceptance is pending.
 
-The `BDM-FAMILY` gap must be corrected before acceptance, but it does not block continued draft refinement. The next component work may select a first physical target and produce draft architecture while carrying the gap as an explicit provisional assumption. When `DML-DEF` is corrected, this design and its affected descendants must be regenerated before the branch becomes effective.
+The next component work is the Domain Catalog repository conceptual model. It must define model-family identity and membership explicitly, then drive the logical model. PostgreSQL and the capability API remain downstream constraints rather than reasons to move storage or interface concepts into this component model.

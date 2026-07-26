@@ -13,4 +13,4 @@ This layer is reserved for the design of the first deployable Domain Catalog com
 
 The product owner selected Model C: one Domain Data Dictionary boundary with a Catalog Record Kernel and capability-oriented internal components. PostgreSQL is the required first physical deployment target, and the later API must expose the same application capabilities to machine and human-facing clients. The PostgreSQL version, repository schema, API protocol, implementation technology, and deployment topology remain downstream decisions.
 
-Design execution exposed that `DML-DEF` names `BDM-FAMILY` without structurally defining family identity or membership. That gap prevents acceptance but does not block further draft refinement; any descendant must carry the gap and its provisional assumption explicitly, and must be regenerated after the upstream correction.
+The component requires explicit model-family identity and membership. Conceptual refinement places that responsibility in the Domain Catalog repository model under `DML-CON`, rather than promoting a catalog-specific construct into `DML-DEF` without evidence that it is generally required.
