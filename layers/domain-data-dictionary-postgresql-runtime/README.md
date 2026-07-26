@@ -2,21 +2,21 @@
 
 ## Status
 
-- Status: exploratory runtime scaffold implemented and verified
+- Status: exploratory runtime scaffold verified; PostgreSQL realization pending
 - Effective: no
 - Source layer: `domain-data-dictionary-postgresql-design`
-- Source revision: `ba65ccf`
-- Owning transform revision: `623ee6e`
+- Source revision: `f10afc7`
+- Owning transform: [domain-data-dictionary-postgresql-runtime](../domain-data-dictionary-postgresql-design/transforms/domain-data-dictionary-postgresql-runtime/transform.md)
 - Runnable subproject root: `artifacts/`
 
 ## Purpose
 
-Provide the local PostgreSQL, Flyway, and Python API scaffold specified by the approved PostgreSQL technical design. This layer tests the runtime architecture without claiming that the catalog physical schema or capability API has been designed.
+Provide the local PostgreSQL, Flyway, and Python API runtime specified by the approved PostgreSQL technical design. The operational scaffold is verified; its next refinement is migration SQL derived directly from `CAT-LOG`, accompanied by traceability and deployed-inventory evidence. The capability API remains undesigned.
 
 ## Boundaries
 
 - `artifacts/` owns the complete uv and Compose subproject.
-- The Flyway migration directory contains no product SQL until an accepted `CAT-PHY` artifact exists.
+- The current Flyway directory is the verified empty-schema baseline. Product SQL is now the next transform work and must trace to `CAT-LOG` through the derived realization manifest.
 - The API exposes operational liveness and readiness only.
 - This descendant remains non-effective while its source branch remains draft.
 

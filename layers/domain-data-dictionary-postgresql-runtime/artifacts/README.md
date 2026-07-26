@@ -33,6 +33,6 @@ docker compose down
 
 Do not add `--volumes` unless deliberately destroying this subproject's database state.
 
-## Current Product Boundary
+## Current Product Boundary and Next Work
 
-Only `/health/live` and `/health/ready` are implemented. The Flyway migration directory intentionally contains no SQL. Product schema and capability endpoints require their own accepted upstream artifacts.
+Only `/health/live` and `/health/ready` are implemented. The Flyway migration directory currently contains no SQL because this artifact set records the verified scaffold baseline. The next runtime-transform execution will author PostgreSQL migrations directly from the selected `CAT-LOG` revision and add derived traceability and deployed-inventory evidence. Capability endpoints still require their own accepted upstream contract.

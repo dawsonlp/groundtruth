@@ -3,17 +3,17 @@
 ## Status
 
 - Transform status: approved
-- Transform execution: complete
-- Validation status: operational scaffold passed; product-model validations remain deferred to their owning artifacts
+- Transform execution: operational scaffold complete; PostgreSQL realization pending
+- Validation status: operational scaffold passed; migration, traceability, inventory, and round-trip validations pending
 - Source layer: `domain-data-dictionary-postgresql-design`
-- Source revision: `ba65ccf`
+- Source revision: `f10afc7`
 - Source effectiveness: draft and not effective
 - Target layer: `domain-data-dictionary-postgresql-runtime`
 - Target effectiveness: must remain draft and not effective
 
 ## Purpose
 
-Produce a runnable local infrastructure and API scaffold that realizes the approved PostgreSQL technical design without inventing the catalog physical schema or product capability API.
+Produce and evolve the runnable local infrastructure, PostgreSQL realization, and API scaffold from the approved technical design. Derive migration SQL from `CAT-LOG` without inventing product semantics or a capability API.
 
 ## Required Human Inputs
 
@@ -22,6 +22,7 @@ Produce a runnable local infrastructure and API scaffold that realizes the appro
 - The uv project root is the root of the runnable subproject, not the repository root.
 - One local shared database login is acceptable.
 - Default host ports are PostgreSQL `25432` and API `28000`.
+- `CAT-LOG` directly governs the PostgreSQL realization; migration SQL is executable physical authority and does not wait on a separately approved physical model.
 
 ## Artifact Boundary
 
@@ -30,7 +31,7 @@ The target layer is `layers/domain-data-dictionary-postgresql-runtime/`. Its `ar
 - `pyproject.toml`, `uv.lock`, and `.python-version`;
 - Python packages and tests;
 - `Dockerfile`, `compose.yaml`, `.env.example`, and ignore files;
-- the Flyway project and empty product-migration directory; and
+- the Flyway project, product migrations, and derived realization manifest;
 - the PostgreSQL initialization-shadow directory.
 
 No executable projection at repository root is produced. The target README and evidence documents describe status and validation but do not become independent authorities for runtime behavior.
@@ -38,7 +39,7 @@ No executable projection at repository root is produced. The target README and e
 ## Inputs
 
 - approved PostgreSQL technical design and development checklist in the source layer;
-- `CAT-LOG/domain-data-dictionary@1` at revision `f71a279` as a provisional upstream contract;
+- `CAT-LOG/domain-data-dictionary@1` at revision `5728636` as the provisional semantic source;
 - pinned local PostgreSQL image `dawsonlp/postgres-batteries-inc:18.4`;
 - current official dependency and container-image evidence refreshed at execution time; and
 - the preserved user-owned `supporting_documents/` working-tree directory, which is outside transform scope.
@@ -49,21 +50,24 @@ No executable projection at repository root is produced. The target README and e
 2. Create the root uv project using Python 3.14 and the approved dependency boundaries.
 3. Implement only liveness, database readiness, settings, pool lifecycle, and transaction-boundary scaffolding.
 4. Create a non-root API image build from the locked uv environment.
-5. Create Flyway configuration without product DDL.
-6. Create Compose services `postgres`, `migrate`, and `api` with the approved health and completion dependencies.
-7. Shadow the database image's baked initialization scripts and override its AGE preload.
-8. Verify the Python project and then the isolated Compose runtime.
-9. Record evidence and update the source checklist only for demonstrated results.
+5. Create Flyway configuration and retain the verified empty-migration scaffold as a baseline.
+6. Derive a realization manifest from the exact `CAT-LOG` revision and author versioned PostgreSQL migration SQL as executable physical authority.
+7. Create Compose services `postgres`, `migrate`, and `api` with the approved health and completion dependencies.
+8. Shadow the database image's baked initialization scripts and override its AGE preload.
+9. Verify the Python project, isolated Compose runtime, migration replay, deployed inventory, and representative logical round trips.
+10. Record evidence and update the source checklist only for demonstrated results.
 
 ## Expected Outputs
 
 - `layers/domain-data-dictionary-postgresql-runtime/README.md`
 - runnable subproject under `layers/domain-data-dictionary-postgresql-runtime/artifacts/`
+- a derived PostgreSQL realization manifest and versioned SQL migrations under the runnable subproject
 - `layers/domain-data-dictionary-postgresql-runtime/evidence/scaffold-verification.md`
 
 ## Preservation Constraints
 
-- Create no catalog product table, column, constraint, index, extension, or seed data before accepted `CAT-PHY` authority exists.
+- Trace every catalog product table, column, constraint, index, function, extension, and seed datum to `CAT-LOG` or a documented operational requirement through the derived realization manifest.
+- Escalate choices only under the architectural review triggers recorded in the source design.
 - Create no product capability endpoint beyond operational liveness and readiness.
 - Keep migrations SQL-authored and outside the API lifecycle.
 - Preserve PostgreSQL named volumes during normal execution.
@@ -81,8 +85,10 @@ No executable projection at repository root is produced. The target README and e
 - [x] API liveness is database-independent and readiness reflects database and migration state.
 - [x] A normal recreate and a normal shutdown preserve named-volume data.
 - [x] A failed transactional migration blocks API startup and leaves no partial table.
-- [x] No product DDL or product API behavior exists.
+- [x] The verified scaffold baseline contains no product DDL or product API behavior.
+- [ ] Migration SQL and the derived realization manifest cover all six logical authorities and `CATLOG-001` through `CATLOG-024`.
+- [ ] Fresh and repeat migration execution, deployed-inventory comparison, and representative logical round trips pass.
 
 ## Retry Guidance
 
-Runtime packaging, Compose, Flyway, health, or connection-pool failures return to this transform or its source design. A missing catalog concept or database representation returns to the logical model or the future `CAT-PHY` transform. Regenerate the target artifact set from the corrected source rather than repairing an unexplained downstream divergence.
+Runtime packaging, Compose, Flyway, health, connection-pool, or PostgreSQL representation failures return to this transform or its source design. A missing or incoherent catalog concept returns to the logical model. Regenerate the target artifact set from the corrected source rather than repairing an unexplained downstream divergence.

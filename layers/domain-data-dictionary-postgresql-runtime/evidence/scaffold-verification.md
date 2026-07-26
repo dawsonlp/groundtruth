@@ -47,7 +47,7 @@ Observed startup order:
 2. Flyway 13.0.0 validated zero migrations, created `public.flyway_schema_history`, and exited zero.
 3. The API started and became healthy.
 
-Flyway rerun and explicit `validate` both passed with no migration necessary. The empty migration warning is expected and preserves the physical-model gate.
+Flyway rerun and explicit `validate` both passed with no migration necessary. The empty migration warning records the scaffold baseline; it is not an approval gate on subsequent `CAT-LOG`-driven realization work.
 
 ## Failure and Recovery Results
 
@@ -92,10 +92,10 @@ The password used for this local verification was supplied only to process envir
 
 ## Deferred Validation
 
-The following cannot pass until their owning artifacts exist:
+The following remain to be produced and tested by the continued runtime transform:
 
-- `CAT-PHY` comparison and product migration replay;
+- product migration replay, realization-manifest coverage, and deployed-inventory comparison;
 - round-trip reconstruction of the six logical authorities; and
 - product capability API verification.
 
-These omissions do not invalidate the operational scaffold, but they keep the runtime layer non-effective.
+The first two omissions do not invalidate the operational scaffold, but they keep the PostgreSQL realization incomplete. The API verification remains separately blocked on its future capability contract. This evidence applies only to the scaffold revision and is not evidence that a product schema exists.
