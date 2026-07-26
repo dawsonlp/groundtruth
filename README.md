@@ -2,6 +2,10 @@
 
 This project is the first test case for the flat product-refinement layout proposed in [ADR 0001](../../adr/0001-organize-product-refinement-as-flat-layer-graph.md).
 
+## Project Decisions
+
+- [Domain Catalog ADR 0001](adr/0001-require-mof-conformance-for-the-governing-model-definition.md): require the governing model definition to conform to MOF. Whether CMOF is used directly is the next decision.
+
 ## Current Product Layer
 
 The current source layer is `product-conception`.
