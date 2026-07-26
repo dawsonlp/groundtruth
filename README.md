@@ -18,6 +18,8 @@ The draft target artifact is [data-modeling-language.md](layers/data-modeling-de
 
 Use the target artifact's **Canonical Model and Artifact Registry** when referring to the model stack. In particular, distinguish the MOF specification (`MOF-SPEC`) from its Complete MOF governing model (`CMOF-GOV`), the data-modeling definition (`DML-*`) from particular business models (`BDM-*`), and the catalog repository (`CAT-*`) from subject-system deployment and data.
 
+A provisional child layer has been scaffolded for the first deployable component. Its [layer README](layers/domain-data-dictionary-component/README.md) reserves the target structure, while its source-colocated [transform](layers/data-modeling-definition/transforms/domain-data-dictionary-component/transform.md) records the design assignment and governing constraints. The transform has not been executed and no component design exists yet.
+
 ## Layout
 
 ```text
@@ -31,16 +33,22 @@ layers/
 │           ├── standards-assessment.md
 │           ├── cmof-fit-assessment.md
 │           └── worked-example.md
-└── data-modeling-definition/
-    └── artifacts/
-        └── data-modeling-language.md
+├── data-modeling-definition/
+│   ├── artifacts/
+│   │   └── data-modeling-language.md
+│   └── transforms/
+│       └── domain-data-dictionary-component/
+│           └── transform.md
+└── domain-data-dictionary-component/
+    ├── README.md
+    └── artifacts/                     # component-design.md is the next output
 ```
 
 - `artifacts/` contains the product as expressed at this refinement level.
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The next step is to review the expanded draft language; verify its terminology against exact pages in the user's 2010 DAMA-DMBOK edition and the identified standards; encode its constraints and derived properties in OCL; define the model-validation and subject-data OCL environments; test relational, NoSQL, API, schema-document, stored-asset, deployment, observation, and maintenance examples; inventory one RDBMS metadata surface completely; prototype lossless relational repository round-trip; validate a machine-readable CMOF/XMI representation; and decide whether direct CMOF use is accepted.
+The next component step is to execute the new transform by writing `layers/domain-data-dictionary-component/artifacts/component-design.md`. That design must remain provisional while its source is draft. In parallel, the source definition still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
 
 ## Working With This Project
 
@@ -71,7 +79,7 @@ To build or run the product:
 
 Do not invent a missing transform, silently select an implementation branch, or treat an unvalidated generated layer as effective. If no accepted path reaches a runnable layer, report that the product is not yet buildable and identify the missing transform or decision.
 
-This project is currently **not buildable**: neither layer is effective, the draft transform has unmet validation conditions, and no accepted path reaches a runnable layer.
+This project is currently **not buildable**: no layer is effective, both draft transforms have unmet validation conditions, and no accepted path reaches a runnable layer.
 
 ### Updating the product
 
