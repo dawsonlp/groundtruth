@@ -39,6 +39,13 @@ The source is still draft. All target design work is therefore provisional and m
 - Keep the component aligned with the architectural and modeling constraints already defined by the project.
 - Create the component structure now; write the component design as the next step.
 
+### Follow-up human decisions after the first design execution
+
+- Select Model C, Catalog Kernel with Capability Modules, as the component model.
+- Use the component's conceptual data model as the next refinement artifact and later refine it into a logical model.
+- Require PostgreSQL as the first physical deployment target while keeping that choice out of the conceptual and logical abstractions.
+- Design the later API around application capabilities shared by LLMs, other AI agents, automations, and human-oriented user interfaces so no client class receives a separate path to the underlying functionality or datastore.
+
 ## Upstream Meaning to Preserve
 
 The component design must preserve these distinctions and constraints from `DML-DEF`:
@@ -101,7 +108,7 @@ The target design can become effective only when all conditions below pass.
 - [ ] DAMA-informed terminology agrees with the verified source definitions and does not overstate unverified conformance.
 - [x] The design introduces no infrastructure or technology choice without a requirement that makes it necessary.
 - [x] Every design responsibility traces to the source definition or records a concrete upstream gap.
-- [ ] The product owner accepts the component boundary and first deployable scope.
+- [x] The product owner accepts Model C as the component boundary and directs the first deployable scope toward PostgreSQL and a shared capability API.
 
 The design execution exposed one concrete upstream gap: `DML-DEF` names `BDM-FAMILY` as the grouping object for related subject models but revision `19133fd` has no family class or explicit membership relationship. The target design records the required responsibility but does not silently infer or promote a missing construct into the source definition. The gap must be resolved before this target can be accepted, but it does not block creating further draft descendants that identify it and state any provisional assumption used.
 

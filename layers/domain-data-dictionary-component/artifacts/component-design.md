@@ -10,9 +10,11 @@
 - Owning transform: [`transform.md`](../../data-modeling-definition/transforms/domain-data-dictionary-component/transform.md)
 - DAMA verification baseline: user's 2010 DAMA-DMBOK edition
 - DAMA page verification: inherited as pending from `DML-DEF`
-- Product owner acceptance: pending
+- Product owner component-model decision: Model C accepted 2026-07-26
+- First physical deployment constraint: PostgreSQL; version and physical design deferred
+- Interface direction: one capability-oriented application surface for human and machine clients; API design deferred
 
-This artifact is a component model, not a technical design. It defines responsibility, authority, data ownership, collaboration, and change boundaries for the first deployable Domain Catalog capability. It does not select a database, programming language, framework, user interface, deployment topology, or physical target product.
+This artifact is a component model, not a technical design. It defines responsibility, authority, data ownership, collaboration, and change boundaries for the first deployable Domain Catalog capability. It records PostgreSQL as the required first physical deployment target and a common capability surface as the interface direction, but does not select the PostgreSQL version, repository schema, programming language, framework, user interface, API protocol, or deployment topology.
 
 ## 1. Purpose
 
@@ -247,9 +249,9 @@ These are logical component boundaries. They do not imply separately deployed se
 | B. Undivided Data Dictionary | Low | High externally, low internally | High initially | Medium | Simplest deployment but permits unrelated capabilities to couple internally |
 | C. Catalog Kernel with Capability Modules | High | High | Medium | High | Requires disciplined internal boundaries while retaining one deployable unit |
 
-## 8. Recommended Component Model
+## 8. Selected Component Model
 
-Adopt **Model C: Catalog Kernel with Capability Modules**.
+The product owner selected **Model C: Catalog Kernel with Capability Modules** on 2026-07-26.
 
 It preserves KISS by keeping one deployable component and one catalog authority for the first increment. It preserves DRY by centralizing identity, revision, provenance, and lossless representation instead of reimplementing them for conceptual, logical, and physical artifacts. It gives volatile target-specific behavior its own boundary without pretending that every adapter should be an independent service.
 
@@ -379,7 +381,7 @@ The first increment should prove the entire meaning-preservation loop with narro
 - semantic, conceptual, logical, optional relational-logical, and physical-design authoring;
 - explicit realization and affected-descendant queries;
 - validation against one identified `DML-DEF` revision;
-- one selected physical target profile, chosen in the next refinement rather than here;
+- one PostgreSQL physical target profile whose version and metadata inventory are selected in the physical refinement;
 - immutable deployment-package production for that target;
 - external execution-result recording;
 - observed metadata intake for the same target and declared coverage;
@@ -437,6 +439,9 @@ No other component responsibility currently demonstrates a new governing-model p
 - Deployment execution and metadata collection remain external effects surrounded by durable catalog evidence.
 - Accepted revisions, deployment packages, and observations are immutable evidence.
 - The first increment proves one complete target loop before adding broad target coverage.
+- PostgreSQL is the required first physical deployment target; that constraint does not introduce tables, columns, SQL types, or PostgreSQL-native metadata into conceptual or logical models.
+- The future API is capability-oriented. LLMs, other AI agents, automations, and human-oriented interfaces invoke the same application capabilities rather than receiving separate privileged paths to the catalog store.
+- Common capability access does not imply identical authorization. Identity and policy may limit which callers can invoke a capability, but client type does not create a separate functional implementation.
 
 ## 16. Architecture Constraints Implied
 
@@ -451,13 +456,15 @@ No other component responsibility currently demonstrates a new governing-model p
 - Make export/import fidelity independently testable before claiming lossless repository realization.
 - Keep read projections disposable and derivable from authoritative `CAT-DATA`.
 - Do not split logical modules into services until observed scaling, failure isolation, release cadence, or ownership evidence justifies it.
+- Keep PostgreSQL choices in the physical repository model and infrastructure design; upstream models express meaning and technology-neutral structure.
+- Expose component behavior through one capability boundary used by machine and human-facing clients; no client may acquire semantic authority by bypassing that boundary and editing repository structures directly.
 
 ## 17. Decisions Explicitly Deferred
 
 - Repository database product and the `CAT-PHY` relational schema
 - Programming language, frameworks, process topology, and hosting platform
 - User interface and transport protocols for offered interfaces
-- Selected first physical target and its metadata inventory
+- PostgreSQL version, extensions, metadata inventory, repository schema, and physical tuning
 - Transformation language and the division between automatic generation and human decisions
 - OCL engine and classifier/property mapping for subject-data evaluation
 - Deployment executor and metadata collector implementations
@@ -470,7 +477,7 @@ No other component responsibility currently demonstrates a new governing-model p
 
 ## 18. Open Questions
 
-1. Which physical target best tests the first end-to-end deployment and observation loop?
+1. Which PostgreSQL version, extension policy, and catalog inventory should govern the first physical target profile?
 2. Which transformations must be executable in the first increment, and which should initially be recorded human decisions?
 3. What human acceptance process is required around the draft/accepted/superseded/retired artifact statuses already defined?
 4. How will a target capability prove the completeness of its metadata inventory and collector coverage?
@@ -479,6 +486,7 @@ No other component responsibility currently demonstrates a new governing-model p
 7. Which actor and decision provenance is minimally required before collaboration and access-control semantics are designed?
 8. Does the first increment need to deploy changes itself, or is package production plus externally supplied execution evidence sufficient?
 9. How will `DML-DEF` represent the identity, boundary, and membership of `BDM-FAMILY` without inferring it from realization links?
+10. What is the smallest stable capability vocabulary that supports LLMs, agents, automations, and human-facing interfaces without exposing repository-specific operations?
 
 ## 19. Validation Result
 

@@ -18,7 +18,7 @@ The draft target artifact is [data-modeling-language.md](layers/data-modeling-de
 
 Use the target artifact's **Canonical Model and Artifact Registry** when referring to the model stack. In particular, distinguish the MOF specification (`MOF-SPEC`) from its Complete MOF governing model (`CMOF-GOV`), the data-modeling definition (`DML-*`) from particular business models (`BDM-*`), and the catalog repository (`CAT-*`) from subject-system deployment and data.
 
-A provisional child layer now contains the draft [Domain Data Dictionary component design](layers/domain-data-dictionary-component/artifacts/component-design.md). Its source-colocated [transform](layers/data-modeling-definition/transforms/domain-data-dictionary-component/transform.md) records the design assignment, governing constraints, and incomplete validation state. The design remains non-effective because its source is draft, upstream evidence is incomplete, and product-owner acceptance is pending.
+A provisional child layer now contains the draft [Domain Data Dictionary component design](layers/domain-data-dictionary-component/artifacts/component-design.md). The product owner selected Model C, required PostgreSQL as the first physical deployment target, and directed a common capability API for machine and human-facing clients. Its source-colocated [transform](layers/data-modeling-definition/transforms/domain-data-dictionary-component/transform.md) records the design assignment, governing constraints, and incomplete validation state. The design remains non-effective because its source and upstream evidence are incomplete.
 
 ## Layout
 
