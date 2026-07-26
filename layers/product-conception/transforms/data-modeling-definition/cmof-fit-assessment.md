@@ -14,19 +14,25 @@ This supports continuing with direct CMOF use as the working presumption. It doe
 | Data-modeling types | `Class`, `DataType`, `Enumeration`, `Generalization` | Directly expressible | Data semantics come from this definition, not CMOF |
 | Attributes, roles, multiplicity, containment | `Property` and multiplicity; composite aggregation | Native CMOF | CMOF constraints on defaults and composition apply |
 | Model identity, purpose, scope, and boundary | `DataModel` class and properties | Directly expressible | These are project semantics |
-| Conceptual, logical, relational-logical, and physical model kinds | Subclasses of `DataModel` | Directly expressible | The abstraction order is a definition constraint |
+| Conceptual, logical, relational-logical, and physical model kinds | Subclasses of `DataModel` | Directly expressible | The conventional abstractions do not impose one mandatory refinement sequence |
 | Binary entity relationship | Reified relationship class with two end objects | Directly expressible | A CMOF `Association` is optional, not required |
 | N-ary entity relationship | Reified relationship class with two or more end objects | Directly expressible | Required because CMOF associations have exactly two member ends |
 | Relationship-associated properties or rules | Properties referencing the reified relationship as their subject | Directly expressible | Preserves relationship semantics without encoding tricks |
 | Governing-model constraints | CMOF `Constraint` with OCL `OpaqueExpression` | Native CMOF | ISO/IEC 19507:2012 OCL 2.3.1 is selected; equivalent expressions and an evaluator remain to be supplied |
 | Subject-model business, logical, and physical constraints | Instances of definition classes such as `BusinessConstraint` and `ForeignKeyConstraint` | Directly expressible | Business and logical predicates default to OCL over a subject-data environment; target SQL remains distinct from CMOF constraints |
 | Semantic data concepts and value domains | Definition classes and properties | Directly expressible | ISO/IEC 11179 alignment requires normative-text verification |
+| Scalar, record, collection, map, choice, opaque, and recursive logical datatypes | Datatype-definition classes, contained fields, and typed references | Directly expressible | These are subject-language concepts, not CMOF datatypes; cycle-safe serialization remains an implementation obligation |
 | Relation, key, and foreign-key structure | Definition classes, ordered multivalued properties, and OCL constraints | Directly expressible | OCL expresses model-level compatibility; physical enforcement remains target-specific |
-| Table, view, column, physical type, constraint, and index | Definition classes and properties | Directly expressible | Vendor-specific semantics remain in later target profiles |
-| Cross-model many-to-many realization | Reified `Realization` class and multivalued source/target properties | Directly expressible | This semantic is not native CMOF |
+| Portable and target-native physical metadata | Physical classes plus profile-defined native kinds, properties, relationships, and lexical values | Directly expressible | Coverage remains target/version-relative and must be checked against an external source inventory |
+| Relational, document, key-value, wide-column, graph, API, schema-document, and stored-asset structures | Definition subclasses, references, containment, datatypes, and profile metadata | Directly expressible | Shared structure does not replace native target semantics |
+| Deployment packages and immutable executable artifacts | `RefinementArtifact`, `DeploymentPackage`, and `DeploymentArtifact` classes | Directly expressible | Executable content is referenced, not executed by CMOF |
+| Intended and observed physical state | `PhysicalModelRole`, environment and observation properties | Directly expressible | Collection is external behavior; the resulting observation is a conforming model |
+| Maintenance comparison and disposition | `PhysicalComparison`, `PhysicalDifference`, and enumerations | Directly expressible | Comparison execution is external behavior; comparison records are modeled evidence |
+| Cross-artifact many-to-many realization | Reified `Realization` class and multivalued source/target properties | Directly expressible | This semantic is not native CMOF |
 | Introduced or omitted realization detail | Realization disposition plus constraints | Directly expressible | This semantic is a project choice |
-| Stable model-element identity | Inherited `identifier` property, eligible for `isID = true` | Directly expressible | CMOF permits only one ID property per class; catalog-wide lifecycle semantics are additional |
-| Provenance | A future CMOF-conforming provenance class | Directly expressible | Not yet included because no concrete minimum has been established |
+| Stable object identity and revision lineage | Inherited `identifier`, lineage and revision properties, eligible ID selection, and supersession links | Directly expressible | CMOF permits only one ID property per class; lifecycle semantics are project rules |
+| Minimum deployment and observation provenance | Artifact, environment, time, execution, evidence, and source-reference properties | Directly expressible | W3C PROV-DM alignment remains to be demonstrated; the complete PROV surface is not imported |
+| Lossless relational repository realization | A downstream physical model and explicit realization records for the CMOF classes and their instances | Directly expressible | CMOF does not choose the relational mapping or prove round-trip fidelity |
 | Definition composition and extension | Package import plus generalization | Native CMOF | Package merge is available but not selected by default |
 
 No inventory item currently falls into `semantically distorted` or `not expressible`. The n-ary relationship and realization cases are reified domain concepts, not workarounds: both have identity, properties, and rules independent of a bare link.

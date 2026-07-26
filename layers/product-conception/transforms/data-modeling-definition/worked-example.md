@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This example tests whether the draft language can preserve one subject's meaning from business concepts through a relational logical model to physical SQL structures. It is evidence for the transform, not part of the language definition.
+This example tests whether the draft language can preserve one subject's meaning from business concepts through alternative physical designs, deployment, observation, and maintenance. It is evidence for the transform, not part of the language definition.
 
 It deliberately tests:
 
@@ -10,6 +10,10 @@ It deliberately tests:
 - a relationship that becomes an associative relation;
 - logical and relational identifiers;
 - tables, a view, columns, primary keys, foreign keys, and indexes;
+- target-native relational metadata;
+- a document collection, JSON shape, API message, and metadata-bearing object collection;
+- alternative branches that do not pass through a relational-logical model;
+- deployment material, observed state, drift, and maintenance revision;
 - split and many-to-many realization;
 - physical detail introduced without an upstream counterpart; and
 - the distinction between an integrity constraint and an index.
@@ -110,6 +114,8 @@ Model: `Commerce PostgreSQL Physical Model`
 
 Target: PostgreSQL 17 for this example only. This illustrates a well-formed physical target and does not select a project implementation branch.
 
+Role: `design`
+
 Namespace: `commerce`
 
 | Table | Columns | Integrity constraints | Indexes |
@@ -126,6 +132,57 @@ View:
 The physical surrogate identifiers `customer_id`, `order_id`, and `product_id` are introduced physical decisions. The business identifiers remain as unique constraints. The foreign-key indexes are introduced access-path decisions and remain separate from the foreign-key constraints.
 
 The `order_line` check uses a physical-target expression specification: language `PostgreSQL 17 SQL`, scope `physicalTarget`, body `quantity > 0`. It realizes the logical OCL constraint; the SQL text does not replace the logical rule as its source of meaning.
+
+The target has separate portable SQL and PostgreSQL 17 metadata profiles. The PostgreSQL profile identifies an authoritative catalog inventory and can attach native facts such as relation persistence, generated-column state, access method, statistics, privileges, storage parameters, and product-specific object kinds. A coverage assessment cannot say `complete` merely because the four tables above were read; it must account for every accessible kind, property, and relationship in the declared inventory scope.
+
+## Alternative Heterogeneous Physical Branches
+
+These designs refine the same logical meaning without being descendants of the relational-logical model.
+
+### Document-store branch
+
+Physical model: `Commerce Document Physical Model`, role `design`
+
+- `orders` is a `DocumentCollection`.
+- Its `DataShape` contains order number, ordered time, a customer reference, and repeated line nodes with product code and positive quantity.
+- The declared shape is represented by a JSON Schema Draft 2020-12 `SchemaDocument`; native keywords and references remain recoverable through the JSON Schema profile.
+- Partition key, consistency, validation, indexing, and product-specific collection settings come from the named document-store profile, not from relational table classes.
+
+### API branch
+
+Physical model: `Commerce Order API Physical Model`, role `design`
+
+- `Commerce Orders API` is an `ApiService`.
+- `POST /orders` is an `ApiOperation` with request and response `ApiMessage` elements.
+- The request message references the same order `DataShape`, with media type `application/json`.
+- The OpenAPI 3.2.0 document is an `InterfaceDescription` in the design and is emitted as a distinct deployment artifact related by realization; the shared shape is a navigation projection, not a replacement for OpenAPI semantics.
+
+### Stored-asset branch
+
+Physical model: `Commerce Invoice Image Physical Model`, role `design`
+
+- `invoice-images` is an unstructured `StoredAssetCollection` in object storage.
+- Its content has no invented tabular or document shape.
+- Location, media type, naming convention, retention, encryption, object tags, and provider-native properties are physical metadata.
+- A separate metadata `DataShape` may describe the object tags and sidecar manifest without claiming that the image bytes have that structure.
+
+These branches demonstrate that relational-logical refinement is useful for a relational target but is not a mandatory stage for document, interface, or stored-asset realization.
+
+## Deployment, Observation, and Maintenance
+
+The PostgreSQL physical design produces deployment package revision `commerce-pg-deploy/1` containing immutable DDL and migration artifacts with PostgreSQL SQL language identifiers, content references, and digests. Realization records connect each artifact to the physical design elements it creates or alters.
+
+A successful deployment record for the production environment reports that revision 1 executed successfully. It does not prove that the resulting catalog matches the design.
+
+A later introspection produces `Commerce PostgreSQL Observation 2026-07-26`, a physical model with `role = observed`, the production environment, capture time, collector identity, active PostgreSQL metadata profile, and native catalog facts. A comparison finds:
+
+| Expected state | Observed state | Difference | Initial disposition |
+| --- | --- | --- | --- |
+| index `ix_order_line_product_id` | absent | `missing` | `correctDeployment` |
+| no `order_line.fulfillment_note` column | column exists | `unexpected` | `pending` |
+| check `quantity > 0` | check `quantity >= 0` | `changed` | `correctDeployment` |
+
+If `fulfillment_note` is a legitimate new business fact, maintenance does not edit the observed model into the design. It starts a new revision at the conceptual or logical artifact that owns that meaning, then produces new physical and deployment revisions. If it is unauthorized drift, the intended design remains unchanged and corrective deployment material is generated. Either disposition preserves the evidence of what was observed.
 
 ## Realization Records
 
@@ -145,6 +202,9 @@ The complete example realization set covers every element as required by `DM-405
 | Logical constraint `Positive quantity` | Physical check `order_line.quantity > 0` | realized | Preserve the logical rule while translating it into target SQL |
 | No upstream element | Index `ix_sales_order_customer_id` | introduced | Physical access path chosen for expected joins |
 | No upstream element | View `customer_order_summary` | introduced | Physical read model for an anticipated query; not yet an upstream requirement |
+| Logical `SalesOrder` structure | Document collection `orders` and JSON shape | realized | Alternative document realization without a relational-logical intermediary |
+| Logical order-create interaction data | API request and response messages | realized | Expose the subject through a typed HTTP data interface |
+| Physical PostgreSQL design elements | DDL and migration artifacts | realized | Deploy target-specific design material |
 
 The relational foreign key to a business-key attribute and the physical foreign key to a surrogate column do not correspond by name or direct column identity. Their realization record preserves the semantic relationship while also recording the introduced surrogate-key decision.
 
@@ -155,7 +215,11 @@ The draft language represents every exercised construct without adding a new gov
 - logical-to-physical generation needs human or target-profile decisions for names, datatypes, and surrogate keys;
 - OCL can express the logical constraint, but subject-data evaluation requires an explicit classifier and property mapping;
 - readback must distinguish declared constraints from implementation indexes;
+- metadata completeness is meaningful only against a named target/profile inventory and collection evidence;
+- shared shapes enable cross-technology navigation but cannot replace native JSON Schema, XML Schema, OpenAPI, or vendor metadata;
+- successful deployment, intended design, and observed state are different facts;
+- maintenance needs revision lineage and explicit drift disposition rather than in-place mutation;
 - a physical view may be introduced without a current upstream requirement and should therefore be visible as an introduced realization; and
 - datatype compatibility and expression semantics require a selected physical target profile.
 
-This result is structural evidence only. It is not DAMA verification, executable SQL, or proof that the model passes CMOF production constraints.
+This result is structural evidence only. It is not DAMA verification, executable SQL, proof of complete PostgreSQL catalog coverage, proof that the non-relational profiles round-trip native specifications, proof of repository round-trip, or proof that the model passes CMOF production constraints.

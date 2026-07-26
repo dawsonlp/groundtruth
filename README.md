@@ -38,7 +38,7 @@ layers/
 - `transforms/` will contain specifications for producing more concrete sibling layers under `layers/`.
 - Alternative implementations will be separate sibling layers rather than nested descendants or version directories.
 
-The next step is to review the draft language, verify its terminology against exact pages in the user's 2010 DAMA-DMBOK edition and the identified ISO texts, encode its constraints and derived properties in OCL, define the model-validation and subject-data OCL environments, validate a machine-readable CMOF/XMI representation, and decide whether direct CMOF use is accepted.
+The next step is to review the expanded draft language; verify its terminology against exact pages in the user's 2010 DAMA-DMBOK edition and the identified standards; encode its constraints and derived properties in OCL; define the model-validation and subject-data OCL environments; test relational, NoSQL, API, schema-document, stored-asset, deployment, observation, and maintenance examples; inventory one RDBMS metadata surface completely; prototype lossless relational repository round-trip; validate a machine-readable CMOF/XMI representation; and decide whether direct CMOF use is accepted.
 
 ## Working With This Project
 

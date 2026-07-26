@@ -8,10 +8,12 @@
 - Standards profile: incorporated in section 2
 - DAMA verification baseline: user's 2010 DAMA-DMBOK edition
 - DAMA page verification: pending
-- ISO normative-text verification: pending where identified below
+- External normative-text verification: pending where identified below
 - Machine-readable CMOF validation: pending
 
-This artifact defines the modeling language for the first application of Domain Catalog. It is intended to become a CMOF-conforming model that acts as the governing model for particular data models. It is not a product requirements document, validator design, database schema, or user-interface design.
+This artifact defines the modeling language for the first application of Domain Catalog. It is intended to become a CMOF-conforming model that acts as the governing model for particular data models. Those models may progress from conceptual meaning through logical and technology-specific physical design, deployment, observation, and maintenance.
+
+The language is technology-neutral at its core but must have a lossless physical repository realization in a relational database. That repository is the deployed representation of the language and its instances; it is distinct from the subject databases, APIs, schemas, and stored assets described by the catalog. This artifact constrains that future repository realization but is not itself its database schema, validator design, or user-interface design.
 
 ## 1. Governing Relationships
 
@@ -20,12 +22,14 @@ CMOF 2.5.1
     governs the valid form of
 this data-modeling language definition
     governs the valid form of
-particular conceptual, logical, relational-logical, and physical data models
+particular conceptual, logical, relational-logical, and heterogeneous physical data models
+    whose elements may be realized by
+deployment artifacts and observed deployed resources
 ```
 
 `Conforms to` means that a model uses permitted element types and satisfies this definition's rules. It does not mean that the model was generated from its governing model.
 
-`Realizes` relates a more concrete model to meaning in an upstream model. Realization does not imply equivalence, automation, or absence of added decisions.
+`Realizes` relates a more concrete model or deployment artifact to meaning in an upstream artifact. Realization does not imply equivalence, automation, or absence of added decisions. Observation records what is found in a deployed environment; it is not silently treated as the authoritative design.
 
 ## 2. Standards Profile and Authority
 
@@ -48,9 +52,15 @@ The status terms mean:
 | [ISO/IEC 11179-31:2023](https://www.iso.org/standard/78925.html) | Adopted semantic vocabulary; multiplicity verification pending | Object classes, properties, data-element concepts, conceptual domains, value domains, datatypes, and data elements | Registry administration is not imported into the modeling language |
 | [ISO/IEC 11404:2007](https://www.iso.org/standard/39479.html) | Adopted datatype framework; type catalogue pending | Separation of conceptual, structural, and implementation datatype notions and explicit datatype mappings | Does not define business meaning or target-product types |
 | [ISO/IEC 9075-2:2023, SQL/Foundation](https://www.iso.org/standard/76584.html) | Adopted portable physical baseline; normative-text verification pending | Tables, views, columns, physical datatypes, and SQL integrity constraints | Target products govern extensions and physical access structures such as indexes |
+| [ISO/IEC 9075-11:2023, SQL/Schemata](https://www.iso.org/standard/76586.html) | Adopted relational metadata baseline; normative-text verification pending | Information and definition schemas used to describe SQL implementations | Vendor catalogs and product extensions remain governed by the named target profile |
+| [JSON Schema Draft 2020-12](https://json-schema.org/specification) | Alignment required | JSON structure, validation vocabulary, dialect identification, and references | A JSON Schema document is a physical schema artifact; it does not replace conceptual or logical meaning |
+| [W3C XML Schema Definition Language 1.1](https://www.w3.org/TR/xmlschema11-1/) | Alignment required | XML element, attribute, type, occurrence, identity, and validation metadata | XML Schema structures are represented through a target profile rather than generalized into all data models |
+| [OpenAPI Specification 3.2.0](https://spec.openapis.org/oas/v3.2.0.html) | Alignment required | HTTP API services, operations, messages, media types, and schema references | Describes an API contract and its data surfaces, not the internal data model or implementation of the service |
+| [W3C Data Catalog Vocabulary 3](https://www.w3.org/TR/vocab-dcat-3/) | Alignment required | Dataset, distribution, data service, and catalog interchange concepts | Does not define detailed physical schemas or product-specific operational metadata |
+| [W3C PROV-DM](https://www.w3.org/TR/prov-dm/) | Alignment required | Provenance of artifacts, observations, transformations, and responsible agents | This draft adopts only the provenance boundary needed for traceability; it does not import the complete PROV model |
 | [ISO/IEC 11179-35:2023](https://www.iso.org/standard/81727.html) | Alignment required | Registration of models, metamodels, concepts, and mappings | Does not define the models' internal semantics or physical instantiation |
 | [ISO/IEC 19763-12:2015 with Amendment 1:2023](https://www.iso.org/standard/61559.html) | Alignment required | Registration of information-requirement and database-structure models | A registry metamodel, not the data-modeling language |
-| [ISO/IEC 19509:2014, XMI](https://www.iso.org/standard/61845.html) | Selected validation representation; production pending | The XMI 2.4.2 representation referenced by MOF 2.5.1 | Does not select product persistence or require XMI as the eventual runtime interchange format |
+| [ISO/IEC 19509:2014, XMI](https://www.iso.org/standard/61845.html) | Selected validation representation; production pending | The XMI 2.4.2 representation referenced by MOF 2.5.1 | Does not define the runtime relational repository schema or require XMI as the runtime persistence format |
 | [OMG UML 2.5.1](https://www.omg.org/spec/UML/2.5.1) and [ISO/IEC 19505-1:2012](https://www.iso.org/standard/32624.html) | Alignment required for notation and interchange; version delta pending | Shared structural kernel and standard class-diagram presentation | A data model governed here is not thereby a UML model, and the ISO publication predates OMG UML 2.5.1 |
 | [OMG CWM 1.1](https://www.omg.org/spec/CWM/1.1) | Informative | Relational, datatype, key/index, expression, transformation, and warehouse-model coverage precedent | Warehouse-oriented, MOF 1.3/XMI 1.1-era, and not imported as this language's metamodel |
 | User's 2010 DAMA-DMBOK edition | Verification baseline | Conceptual, logical, and physical abstraction; DAMA nomenclature and practice | Not a formal metamodel or substitute for the standards assigned above |
@@ -60,10 +70,11 @@ The status terms mean:
 1. A standard governs only the concern assigned to it in the table.
 2. CMOF governs whether this definition is a valid metamodel; the adopted data standards govern the meanings expressed by CMOF classes and properties.
 3. DAMA 2010 governs the intended data-modeling abstraction and approach. It does not override a formal standard silently; any conflict must be recorded and resolved explicitly.
-4. A target-platform specification may specialize the physical package but must preserve portable SQL meaning and identify every extension.
+4. A target-platform or format specification may specialize the physical package. It must preserve any applicable portable meaning and identify the profile, version, and native extensions under which each physical fact is interpreted.
 5. OCL is the default for every constraint, derivation, query, guard, or pre/postcondition expressible over modeled state. A non-OCL expression must identify the owning language and either be intrinsic target syntax or state why OCL is insufficient.
 6. `Project choice` is used only where the adopted sources leave a gap or where this language deliberately composes them.
-7. A pending verification item prevents a detailed conformance claim but does not move the standards decision back into transform evidence.
+7. There is no assumed universal NoSQL, API, or storage metamodel. Shared constructs belong in the physical core; technology-specific kinds, properties, and links belong in explicit metadata profiles.
+8. A pending verification item prevents a detailed conformance claim but does not move the standards decision back into transform evidence.
 
 ### 2.2 OCL usage profile
 
@@ -74,7 +85,7 @@ OCL is applied at two distinct evaluation planes:
 
 OCL may also provide queries, guards, and pre/postconditions to a later transformation language. Because OCL is side-effect free, it does not by itself specify how a target model is created or mutated.
 
-SQL view definitions, column defaults, and check expressions retain the language of their `PhysicalTarget`. OCL can validate their surrounding model and can be the upstream logical constraint they realize, but translating OCL into target SQL is a separate, explicit realization decision.
+SQL view definitions, column defaults, checks, JSON/XML schema constraints, API-description expressions, and other target-owned rules retain the language of their `PhysicalTarget`. OCL can validate their surrounding model and can be the upstream logical constraint they realize, but translating OCL into target syntax is a separate, explicit realization decision.
 
 Rules requiring external observations, event history, or time not represented in the model are not falsely declared OCL-executable. They carry a non-OCL rationale until their required state is modeled or another governing rule language is selected.
 
@@ -88,38 +99,65 @@ Rules requiring external observations, event history, or time not represented in
 | `ObjectClass`, `PropertyConcept`, `DataElementConcept`, `ConceptualDomain`, `ValueDomain`, `DataElement` | ISO/IEC 11179-31 | Domain ownership and imports connect the standard vocabulary to particular models |
 | Business entity types, properties, relationships, ends, cardinality, and identifiers | DAMA 2010 and ISO/IEC/IEEE 31320-2 | Separate conceptual and logical model kinds; reified n-ary relationships |
 | Logical, structural, and physical datatype separation | ISO/IEC 11404 and ISO/IEC 11179-31 | Explicit realization between value domains and target datatypes remains to be completed |
+| Record, collection, map, choice, and opaque logical structures | ISO/IEC 11404 structural datatype direction; exact mapping pending | Technology-neutral composition supports structured, semi-structured, and deliberately opaque content without importing target schema languages |
 | Relations, relation attributes, candidate keys, and relational foreign keys | DAMA 2010 and IDEF1X where applicable | A relational-logical model is explicitly separate from a physical database model |
-| Tables, views, columns, primary/unique/foreign-key/check constraints | ISO/IEC 9075-2 | Physical target and version make implementation semantics explicit |
+| Tables, views, columns, primary/unique/foreign-key/check constraints | ISO/IEC 9075-2 | The relational physical profile preserves the distinction between portable SQL and target extensions |
+| Relational catalog and implementation metadata | ISO/IEC 9075-11 and the named product catalog | Coverage is assessed against a target/version inventory; unstandardized kinds, properties, and links remain explicit profile metadata |
+| JSON and XML schema documents and shapes | JSON Schema 2020-12 and W3C XML Schema 1.1 | A shared shape kernel supports navigation while the native schema profile remains authoritative for exact semantics |
+| HTTP API data surfaces | OpenAPI 3.2.0 | Services, operations, messages, media types, and schema references are physical data interfaces |
+| Datasets, distributions, data services, and stored assets | DCAT 3 plus named storage profiles | Object, file, blob, or block-storage metadata is target-relative; unstructured content is described by metadata rather than falsely given tabular structure |
+| Provenance and operational observations | PROV-DM alignment | Design authority, generated artifacts, external observation, collection time, and maintenance disposition remain distinct |
 | Indexes | Target-platform specification; CWM as informative precedent | Core `Index` preserves the distinction between access path and integrity constraint |
-| Cross-model realization and registration mapping | ISO/IEC 11179-35 and ISO/IEC 19763-12 alignment | Many-to-many realization, introduction, omission, rationale, and coverage rules are project semantics |
+| Cross-artifact realization and registration mapping | ISO/IEC 11179-35 and ISO/IEC 19763-12 alignment | Many-to-many realization across models and deployment artifacts, introduction, omission, rationale, and coverage rules are project semantics |
 
-## 3. Abstraction Boundaries
+## 3. Abstraction and Lifecycle Boundaries
 
-The abstraction belongs to a model. An element belongs to exactly one model and acquires its permitted vocabulary from that model's kind.
+The abstraction belongs to a model. An element belongs to exactly one model and acquires its permitted vocabulary from that model's kind. Physical design, deployment material, and observation are separate artifacts because intended state, executable material, and actual state can differ.
 
 | Model kind | Purpose | Includes | Excludes |
 | --- | --- | --- | --- |
 | `ConceptualDataModel` | State business meaning and scope | Business entity types, business properties, relationships, cardinality, and business constraints | Relations, foreign keys, tables, columns, platform types, indexes |
-| `LogicalDataModel` | State technology-neutral data structure and integrity | Logical entity types, attributes, identifiers, value domains, relationships, and logical constraints | Database products, storage objects, platform types, indexes |
+| `LogicalDataModel` | State technology-neutral data structure and integrity | Logical entity types, attributes, identifiers, relationships, constraints, and scalar, record, collection, map, choice, or opaque value structures | Database products, storage objects, platform types, indexes |
 | `RelationalLogicalDataModel` | State a logical model using the relational model | Relations, relation attributes, candidate keys, and relational foreign keys | Tables, storage options, platform data types, indexes |
-| `PhysicalDataModel` | State realization in a named target environment | Namespaces, tables, views, columns, physical types, integrity constraints, and indexes | Unresolved business meaning or unnamed implementation targets |
+| `PhysicalDataModel` with `role = design` | State technology-specific detailed design for one named target | Relational structures; NoSQL structures; API contracts; JSON or XML schemas; data files, objects, blobs, or block-storage descriptions; physical constraints and access structures; target-native metadata | Unresolved business meaning, unnamed implementation targets, deployment execution, or claims about observed state |
+| `DeploymentPackage` | Hold executable or publishable material that realizes a physical design | DDL, migrations, schema documents, API descriptions, configuration, and other target-owned artifacts plus integrity digests | Conceptual or logical authority and unverified claims about deployed state |
+| `PhysicalDataModel` with `role = observed` | Record a point-in-time inventory read from a deployed environment | Discovered resources, structures, native metadata, collection provenance, and unresolved target extensions | Intended design authority or an implicit declaration that drift is acceptable |
+| `PhysicalComparison` | Compare intended and observed physical state for maintenance | Missing, unexpected, changed, and equivalent correspondences with dispositions | Mutation of either source model or replacement of upstream design decisions |
 
 A relation and a table are not synonyms. A relation is a logical value with a heading and relational constraints. A table is a physical database object in a target environment. A table may realize one relation, several relations, or part of a relation, and that correspondence is explicit.
 
-## 4. CMOF Representation
+Nor is a logical entity necessarily realized as a table. It may be realized as a document collection, key-value entry, column family, graph structure, API message, JSON or XML shape, file set, object collection, or several such artifacts. Refinement is a directed acyclic graph rather than a fixed four-step pipeline: a branch may omit the relational-logical stage or produce several alternative physical designs.
 
-The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`, `Logical`, `Relational`, `Physical`, and `Realization`.
+Maintenance creates new revisioned artifacts. It does not overwrite the historical design or reinterpret an observation as intent. A material change begins at the earliest model that owns the changed meaning and produces new downstream realizations, deployment material, observations, and comparisons.
+
+## 4. CMOF and Repository Representation
+
+The definition consists of CMOF packages named `Core`, `Semantics`, `Conceptual`, `Logical`, `Relational`, `Physical`, `Deployment`, `Observation`, and `Realization`.
 
 - Every type below is a CMOF `Class`, `DataType`, or `Enumeration`.
 - Every field or role is a CMOF `Property` with the stated multiplicity.
 - `owns` denotes a composite CMOF property.
 - `extends` denotes CMOF `Generalization`.
+- `redefines` denotes CMOF property redefinition that narrows an inherited role without creating a second authority.
 - `{derived}` denotes a read-only navigation calculated from the named authoritative reverse reference, not separately stored membership.
-- Each rule in section 12 is a CMOF `Constraint` whose specification is an OCL `OpaqueExpression`.
+- Each structural rule in section 14 is a CMOF `Constraint` whose specification is an OCL `OpaqueExpression`; rules that compare the catalog to an external metadata surface also require identified collection or validation evidence.
 - Every derived property has an OCL derivation in the machine-readable definition.
 - Subject-model constraints such as a foreign key are instances of language classes; they are not CMOF constraints governing the form of the language.
 
 This Markdown is a review projection, not the machine-readable CMOF representation required for acceptance.
+
+### 4.1 Required relational repository realization
+
+The production catalog is expected to deploy this language and its instances as a physical relational database artifact. The later repository design must provide a lossless, bidirectional representation of:
+
+- every CMOF package, class, datatype, enumeration, property, generalization, constraint, and expression in this definition;
+- every domain, semantic element, model, model element, physical metadata profile, deployment artifact, observation, comparison, and realization record;
+- stable identity, revision lineage, artifact status, provenance, ordered collections, multiplicity, and explicit cross-artifact correspondence; and
+- both portable typed constructs and target-native metadata whose exact semantics are owned by a named product, standard, dialect, or format version.
+
+The machine-readable CMOF model remains the semantic authority. The relational repository schema realizes it and must support round-trip reconstruction without inventing, dropping, or changing meaning. The repository schema is itself a subject physical model governed by this language, so its tables, constraints, indexes, deployment artifacts, and observed runtime state can be cataloged and related back to the CMOF definition.
+
+XMI remains a validation and interchange representation. It is not a competing source of truth and does not preclude a relational runtime repository. Selecting the database product, repository schema pattern, migration mechanism, and executable DDL belongs to a later refinement.
 
 ## 5. Core Package
 
@@ -128,6 +166,26 @@ This Markdown is a review projection, not the machine-readable CMOF representati
 - `identifier: String [1]` — stable identity within the catalog
 - `name: String [1]`
 - `definition: String [1]`
+
+### `RefinementArtifact` (abstract) extends `IdentifiedElement`
+
+- `lineageIdentifier: String [1]`
+- `revisionIdentifier: String [1]`
+- `status: ArtifactStatus [1]`
+- `supersedes: RefinementArtifact [0..*] {unique}`
+
+A revisioned unit that can participate as the source or target of refinement. `identifier` identifies the particular catalog object; `lineageIdentifier` connects revisions of the same evolving artifact. Revisions remain distinct catalog objects, and supersession does not mutate historical content.
+
+### `ArtifactStatus` enumeration
+
+- `draft`
+- `accepted`
+- `superseded`
+- `retired`
+
+### `RealizableElement` (abstract) extends `IdentifiedElement`
+
+An element that can participate in explicit many-to-many realization. `ModelElement` and `DeploymentArtifact` are its concrete families.
 
 ### `ExpressionSpecification` (DataType)
 
@@ -152,7 +210,7 @@ An expression declares its governing language and evaluation plane. `nonOclRatio
 
 A bounded area of business meaning and responsibility in which data models and shared semantic definitions are interpreted.
 
-### `DataModel` (abstract) extends `IdentifiedElement`
+### `DataModel` (abstract) extends `RefinementArtifact`
 
 - `domain: DataDomain [1]`
 - owns `elements: ModelElement [0..*]`
@@ -164,12 +222,10 @@ A bounded area of business meaning and responsibility in which data models and s
 - `ConceptualDataModel` extends `DataModel`
 - `LogicalDataModel` extends `DataModel`
 - `RelationalLogicalDataModel` extends `LogicalDataModel`
-- `PhysicalDataModel` extends `DataModel`
-  - owns `target: PhysicalTarget [1]`
 
-The subclass is the single authority for abstraction. There is no separately editable `level` property.
+`PhysicalDataModel` is declared in section 10 because its properties belong to the Physical package. The subclass is the single authority for abstraction. There is no separately editable `level` property.
 
-### `ModelElement` (abstract) extends `IdentifiedElement`
+### `ModelElement` (abstract) extends `RealizableElement`
 
 - `model: DataModel [1]`, opposite `DataModel::elements`
 
@@ -258,9 +314,46 @@ A business rule that limits valid states or events in the modeled domain. It use
 
 ## 8. Logical Package
 
-### `LogicalDatatype` extends `SemanticElement`
+### `LogicalDatatype` (abstract) extends `SemanticElement`
 
 A technology-neutral datatype using the ISO/IEC 11404 distinction between conceptual, structural, and implementation datatype notions. The exact standard type inventory remains pending.
+
+### `LogicalScalarDatatype` extends `LogicalDatatype`
+
+A scalar value category such as text, number, boolean, date/time, or identifier, independent of a target declaration.
+
+### `LogicalRecordDatatype` extends `LogicalDatatype`
+
+- owns `fields: LogicalField [1..*]`
+
+### `LogicalField` extends `IdentifiedElement`
+
+- `record: LogicalRecordDatatype [1]`
+- `dataElement: DataElement [1]`
+- `required: Boolean [1]`
+
+### `LogicalCollectionDatatype` extends `LogicalDatatype`
+
+- `elementType: LogicalDatatype [1]`
+- `ordered: Boolean [1]`
+- `unique: Boolean [1]`
+
+### `LogicalMapDatatype` extends `LogicalDatatype`
+
+- `keyType: LogicalDatatype [1]`
+- `valueType: LogicalDatatype [1]`
+
+### `LogicalChoiceDatatype` extends `LogicalDatatype`
+
+- `alternatives: LogicalDatatype [2..*] {ordered, unique}`
+
+### `LogicalOpaqueDatatype` extends `LogicalDatatype`
+
+- `mediaType: String [0..1]`
+
+An opaque value whose internal content is not structurally modeled at the logical level. Its surrounding entity and metadata remain modelable; opacity is explicit rather than treated as missing tabular structure.
+
+These structural datatypes allow logical models to express nested records, repeated values, dictionaries, alternatives, and opaque content without importing JSON Schema, XML Schema, API, or storage-product vocabulary. Recursive structures are permitted through datatype references and require cycle-safe validation and serialization.
 
 ### `LogicalEntityType` extends `ModelElement`
 
@@ -340,28 +433,148 @@ A logical relation schema. Its possible values are relations; duplicate tuples a
 
 ## 10. Physical Package
 
-This package adopts ISO/IEC 9075-2 as the portable SQL baseline for tables, views, columns, datatypes, and integrity constraints. Every target-specific extension is interpreted under the named `PhysicalTarget` rather than attributed to portable SQL.
+This package describes technology-specific data designs and observations. Its core is not relational: relational databases, document and other NoSQL stores, APIs, schema documents, and stored structured, semi-structured, or unstructured assets are physical profiles of the same language.
+
+Portable typed classes are used where semantics are stable across targets. A named metadata profile supplies native element kinds, properties, and links where a standard or product exposes additional metadata. Consequently, “complete physical metadata” is a testable claim only for a stated target, version, profile, and source inventory; it is not a claim that one fixed class list contains every present and future platform feature.
+
+### `PhysicalDataModel` extends `DataModel`
+
+- `target: PhysicalTarget [1]`
+- `role: PhysicalModelRole [1]`
+- `environment: DeploymentEnvironment [0..1]`
+
+### `PhysicalModelRole` enumeration
+
+- `design` — intended target-specific structure
+- `observed` — point-in-time description collected from an environment
 
 ### `PhysicalTarget` extends `IdentifiedElement`
 
 - `product: String [1]`
 - `version: String [1]`
+- `technologyFamily: String [1]`
 - owns `datatypes: PhysicalDatatype [0..*]`
+- owns `metadataProfiles: PhysicalMetadataProfile [1..*]`
 
-The platform and version against which physical meaning is interpreted.
+The platform, protocol, format, or storage technology and version against which physical meaning is interpreted.
+
+### `DeploymentEnvironment` extends `IdentifiedElement`
+
+- `target: PhysicalTarget [1]`
+- `locator: String [1]`
+- `environmentKind: String [1]`
+
+### `PhysicalMetadataProfile` extends `IdentifiedElement`
+
+- `target: PhysicalTarget [1]`, opposite `PhysicalTarget::metadataProfiles`
+- `authority: String [1]`
+- `authorityVersion: String [1]`
+- `coverageScope: String [1]`
+- `sourceInventoryReference: String [1]`
+- owns `elementKinds: NativeElementKindDefinition [0..*]`
+- owns `propertyDefinitions: NativePropertyDefinition [0..*]`
+- owns `relationshipKinds: NativeRelationshipKindDefinition [0..*]`
+
+A versioned interpretation profile for a standard, vendor catalog, API-description language, schema language, or storage service. `sourceInventoryReference` identifies the authoritative metadata surface against which coverage can be checked.
+
+### `NativeElementKindDefinition` extends `IdentifiedElement`
+
+- `profile: PhysicalMetadataProfile [1]`
+- `nativeName: String [1]`
+- `portableBaseType: String [0..1]`
+
+### `NativePropertyDefinition` extends `IdentifiedElement`
+
+- `profile: PhysicalMetadataProfile [1]`
+- `appliesTo: NativeElementKindDefinition [1]`
+- `nativeName: String [1]`
+- `valueType: String [1]`
+- `sourcePath: String [1]`
+
+### `NativeRelationshipKindDefinition` extends `IdentifiedElement`
+
+- `profile: PhysicalMetadataProfile [1]`
+- `nativeName: String [1]`
+- `sourceKind: NativeElementKindDefinition [1]`
+- `targetKind: NativeElementKindDefinition [1]`
 
 ### `PhysicalElement` (abstract) extends `ModelElement`
 
 - `physicalName: String [1]`
+- `qualifiedName: String [1]`
+- `nativeKind: NativeElementKindDefinition [0..1]`
+- owns `metadataValues: NativeMetadataValue [0..*]`
 
-### `DatabaseNamespace` extends `PhysicalElement`
+### `NativeMetadataValue` extends `IdentifiedElement`
 
-- `tabularObjects: PhysicalTabularObject [0..*] {derived from PhysicalTabularObject::namespace}`
+- `element: PhysicalElement [1]`
+- `definition: NativePropertyDefinition [1]`
+- `lexicalValue: String [1]`
+- `datatypeName: String [1]`
 
-### `PhysicalTabularObject` (abstract) extends `PhysicalElement`
+The lexical value preserves the target's representation. Its profile definition supplies the source path and semantics; consumers must not infer meaning from the property name alone.
 
-- `namespace: DatabaseNamespace [1]`
+### `NativePhysicalElement` extends `PhysicalElement`
+
+- `container: PhysicalElement [0..1]`
+
+Represents a target-native metadata object for which the portable physical vocabulary has no honest equivalent.
+
+### `NativeMetadataRelationship` extends `PhysicalElement`
+
+- `kind: NativeRelationshipKindDefinition [1]`
+- `source: PhysicalElement [1]`
+- `target: PhysicalElement [1]`
+
+### `PhysicalContainer` (abstract) extends `PhysicalElement`
+
+- `parent: PhysicalContainer [0..1]`
+
+### `PhysicalDataAsset` (abstract) extends `PhysicalElement`
+
+- `container: PhysicalContainer [0..1]`
+- `location: String [0..1]`
+- `mediaType: String [0..1]`
+- `format: String [0..1]`
+- `shape: DataShape [0..1]`
+
+A resource that exposes or stores data. Its content may be structured, semi-structured, or unstructured; absence of a data shape is meaningful and does not imply tabular structure.
+
+### `DataShape` extends `PhysicalElement`
+
+- `language: String [1]`
+- `languageVersion: String [1]`
+- `nodes: ShapeNode [1..*] {derived from ShapeNode::shape}`
+
+### `ShapeNode` extends `PhysicalElement`
+
+- `shape: DataShape [1]`
+- `parent: ShapeNode [0..1]`
+- `path: String [1]`
+- `nodeKind: String [1]`
+- `datatype: PhysicalDatatype [0..1]`
+- `minimumOccurrences: Integer [1]`
+- `maximumOccurrences: UnlimitedNatural [1]`
+- owns `constraints: ExpressionSpecification [0..*]`
+
+`DataShape` and `ShapeNode` provide common navigation across JSON Schema, XML Schema, API messages, and inferred document/file structures. Their native metadata profile remains authoritative for keywords and semantics that the shared shape does not preserve directly.
+
+### Relational physical profile
+
+The relational profile adopts ISO/IEC 9075-2 for portable SQL structures and ISO/IEC 9075-11 for information and definition metadata. A product profile adds every vendor catalog kind, property, relationship, access structure, storage option, statistic, privilege, and operational fact in its declared coverage scope.
+
+### `DatabaseCatalog` extends `PhysicalContainer`
+
+### `DatabaseNamespace` extends `PhysicalContainer`
+
+- `catalog: DatabaseCatalog [0..1]`
+- `tabularObjects: PhysicalTabularObject [0..*] {derived from PhysicalTabularObject::container}`
+
+### `PhysicalTabularObject` (abstract) extends `PhysicalDataAsset`
+
 - `columns: Column [1..*] {derived from Column::tabularObject}`
+
+Its `container` is a `DatabaseNamespace`.
 
 ### `Table` extends `PhysicalTabularObject`
 
@@ -371,6 +584,11 @@ The platform and version against which physical meaning is interpreted.
 ### `View` extends `PhysicalTabularObject`
 
 - `definition: ExpressionSpecification [1]`
+
+### `MaterializedView` extends `PhysicalTabularObject`
+
+- `definition: ExpressionSpecification [1]`
+- `refreshSpecification: ExpressionSpecification [0..1]`
 
 ### `PhysicalDatatype` extends `IdentifiedElement`
 
@@ -432,23 +650,204 @@ An index is an access structure. `unique = true` describes the index behavior in
 - `ascending`
 - `descending`
 
-Expression indexes, included columns, partitions, file placement, and vendor-specific options are deferred until a physical target requires them.
+### `Sequence`, `Routine`, `RoutineParameter`, `Trigger`, and `Partition`
 
-## 11. Realization Package
+These are concrete `PhysicalElement` classes in the relational profile. Their portable properties and exact containment remain pending ISO SQL normative-text verification. Target-only metadata attaches through the active metadata profile rather than being discarded or falsely standardized.
+
+### Document and NoSQL physical profiles
+
+The following are concrete `PhysicalDataAsset` classes:
+
+- `DocumentCollection`
+- `KeyValueCollection`
+- `ColumnFamily`
+- `GraphStore`
+
+They use `DataShape` when a declared or inferred structure is available. Keys, partitioning, indexes, consistency settings, graph labels, edge kinds, validation rules, and other target features are represented by typed constructs when standardized here and otherwise by the named metadata profile. “NoSQL” is not treated as one data model.
+
+### Schema-document physical profile
+
+### `SchemaDocument` extends `PhysicalDataAsset`
+
+- `schemaLanguage: String [1]`
+- `schemaVersion: String [1]`
+- `documentReference: String [1]`
+
+JSON Schema and XML Schema documents are first-class physical artifacts. Their definitions and references can be retained natively while a `DataShape` provides common cross-technology navigation. Other schema languages may use the same boundary through their own profiles.
+
+### API physical profile
+
+### `ApiService` extends `PhysicalContainer`
+
+- `baseAddress: String [1]`
+- `operations: ApiOperation [0..*] {derived from ApiOperation::service}`
+
+### `InterfaceDescription` extends `PhysicalDataAsset`
+
+- `service: ApiService [1]`, redefines `PhysicalDataAsset::container`
+- `descriptionLanguage: String [1]`
+- `descriptionVersion: String [1]`
+- `documentReference: String [1]`
+
+### `ApiOperation` extends `PhysicalDataAsset`
+
+- `service: ApiService [1]`, redefines `PhysicalDataAsset::container`
+- `method: String [1]`
+- `pathTemplate: String [1]`
+- `messages: ApiMessage [0..*] {derived from ApiMessage::operation}`
+
+### `ApiMessage` extends `PhysicalElement`
+
+- `operation: ApiOperation [1]`
+- `direction: MessageDirection [1]`
+- `statusCode: String [0..1]`
+- `mediaType: String [1]`
+- `shape: DataShape [0..1]`
+
+### `MessageDirection` enumeration
+
+- `request`
+- `response`
+- `event`
+
+OpenAPI is the first aligned HTTP API profile. Other interface-description or event-schema languages can be added as named profiles without changing conceptual or logical constructs.
+
+### Stored-asset physical profile
+
+### `StoredAssetCollection` extends `PhysicalDataAsset`
+
+- `storageKind: String [1]`
+- `contentKind: ContentKind [1]`
+- `compression: String [0..1]`
+- `encoding: String [0..1]`
+
+### `ContentKind` enumeration
+
+- `structured`
+- `semiStructured`
+- `unstructured`
+
+This class covers collections in file, object, blob, or block-backed storage. A structured or semi-structured collection may reference a declared or inferred `DataShape`. An unstructured collection is described through location, media type, format, operational metadata, and any separately modeled metadata shape; the language does not invent structure in the content itself.
+
+## 11. Deployment Package
+
+Deployment is not another model abstraction. It packages target-owned material produced from an intended physical design and records attempts to apply that material to an environment.
+
+### `DeploymentPackage` extends `RefinementArtifact`
+
+- `sourceModel: PhysicalDataModel [1]`
+- `targetEnvironment: DeploymentEnvironment [1]`
+- owns `artifacts: DeploymentArtifact [1..*]`
+
+### `DeploymentArtifact` extends `RealizableElement`
+
+- `package: DeploymentPackage [1]`, opposite `DeploymentPackage::artifacts`
+- `artifactKind: String [1]`
+- `language: String [1]`
+- `contentReference: String [1]`
+- `contentDigest: String [1]`
+
+An executable or publishable artifact such as DDL, a migration, a JSON or XML schema, an OpenAPI description, a storage definition, or target configuration. The content remains target-owned syntax and is related explicitly to the physical design elements it realizes.
+
+### `DeploymentRecord` extends `IdentifiedElement`
+
+- `package: DeploymentPackage [1]`
+- `environment: DeploymentEnvironment [1]`
+- `attemptedAt: String [1]`
+- `status: DeploymentStatus [1]`
+- `executionReference: String [1]`
+
+### `DeploymentStatus` enumeration
+
+- `planned`
+- `running`
+- `succeeded`
+- `failed`
+- `rolledBack`
+
+## 12. Observation Package
+
+Observation records external state without granting it design authority. An introspection, schema import, API-description import, or storage inventory produces a new `PhysicalDataModel` with `role = observed` and collection provenance.
+
+### `ObservationRecord` extends `IdentifiedElement`
+
+- `observedModel: PhysicalDataModel [1]`
+- `environment: DeploymentEnvironment [1]`
+- `capturedAt: String [1]`
+- `collector: String [1]`
+- `collectorVersion: String [1]`
+- `sourceReference: String [1]`
+- `evidenceDigest: String [1]`
+
+The record describes how external state was collected. It establishes provenance for the observation but does not assert completeness; that is the separate responsibility of a metadata coverage assessment.
+
+### `MetadataCoverageAssessment` extends `IdentifiedElement`
+
+- `observedModel: PhysicalDataModel [1]`
+- `profile: PhysicalMetadataProfile [1]`
+- `assessedAt: String [1]`
+- `status: CoverageStatus [1]`
+- `uncoveredItems: String [0..*]`
+- `evidenceReference: String [1]`
+
+### `CoverageStatus` enumeration
+
+- `complete`
+- `incomplete`
+- `unknown`
+
+`complete` means complete only for the profile's declared `coverageScope` and `sourceInventoryReference`. It requires evidence that every metadata kind, property, and relationship in that inventory is represented by a portable construct or native profile definition and that collection accounts for every accessible value in scope.
+
+### `PhysicalComparison` extends `IdentifiedElement`
+
+- `expectedModel: PhysicalDataModel [1]`
+- `observedModel: PhysicalDataModel [1]`
+- `assessedAt: String [1]`
+- owns `differences: PhysicalDifference [0..*]`
+
+### `PhysicalDifference` extends `IdentifiedElement`
+
+- `comparison: PhysicalComparison [1]`
+- `kind: DifferenceKind [1]`
+- `expectedElements: PhysicalElement [0..*] {unique}`
+- `observedElements: PhysicalElement [0..*] {unique}`
+- `disposition: DifferenceDisposition [1]`
+- `rationale: String [0..1]`
+- `resolutionReference: String [0..1]`
+
+### `DifferenceKind` enumeration
+
+- `equivalent`
+- `missing`
+- `unexpected`
+- `changed`
+- `unresolved`
+
+### `DifferenceDisposition` enumeration
+
+- `pending`
+- `acceptIntoDesign`
+- `correctDeployment`
+- `ignoreWithRationale`
+- `resolved`
+
+An accepted production difference does not mutate the old design. It triggers a new revision beginning at the earliest artifact that owns the intended change, followed by new realizations and deployment material.
+
+## 13. Realization Package
 
 This package must remain mappable to the model and mapping registration concepts of ISO/IEC 11179-35 and ISO/IEC 19763-12. Its many-to-many disposition and coverage semantics are project extensions, not claims that either registration standard defines realization this way.
 
 ### `RealizationSet` extends `IdentifiedElement`
 
-- `sourceModel: DataModel [1]`
-- `targetModel: DataModel [1]`
+- `sourceArtifact: RefinementArtifact [1]`
+- `targetArtifact: RefinementArtifact [1]`
 - owns `realizations: Realization [1..*]`
 
 ### `Realization` extends `IdentifiedElement`
 
 - `disposition: RealizationDisposition [1]`
-- `sourceElements: ModelElement [0..*] {unique}`
-- `targetElements: ModelElement [0..*] {unique}`
+- `sourceElements: RealizableElement [0..*] {unique}`
+- `targetElements: RealizableElement [0..*] {unique}`
 - `rationale: String [0..1]`
 - `transformationReference: String [0..1]`
 
@@ -460,9 +859,9 @@ This package must remain mappable to the model and mapping registration concepts
 - `introduced` — target detail is introduced at this abstraction
 - `omitted` — source meaning is deliberately not represented in the target
 
-`Realization` is a class rather than a CMOF association because the correspondence is many-to-many and has disposition, rationale, and rule semantics of its own.
+`Realization` is a class rather than a CMOF association because the correspondence is many-to-many and has disposition, rationale, and rule semantics of its own. A realization graph may branch, converge, or skip a conventional stage, but it must remain acyclic.
 
-## 12. Well-Formedness Rules
+## 14. Well-Formedness Rules
 
 The rules below are normative prose in this draft. Their machine-readable form shall use ISO/IEC 19507:2012 OCL 2.3.1 wherever the required state is modeled and shall be equivalent to the prose before the layer can become effective. Every exception is identified below rather than left implicit.
 
@@ -470,12 +869,13 @@ The rules below are normative prose in this draft. Their machine-readable form s
 
 - `DM-001`: Every `ModelElement` is owned by exactly one `DataModel`.
 - `DM-002`: A model owns only model elements permitted by its exact model kind and references semantic elements only from its domain or imported domains.
-- `DM-003`: A physical model has exactly one named `PhysicalTarget`.
+- `DM-003`: A physical model has exactly one named `PhysicalTarget` with at least one metadata profile.
 - `DM-004`: A conceptual or logical model contains no `PhysicalElement`, `PhysicalDatatype`, or `Index`.
 - `DM-005`: Definitions and names are non-empty; model-element identifiers are unique within their containing model and semantic-element identifiers within their domain.
 - `DM-006`: Every expression specification has a non-empty language and body and declares exactly one evaluation scope.
-- `DM-007`: Every `DM-*` constraint and derived property is expressed in OCL with `scope = definitionModel` in the machine-readable definition.
+- `DM-007`: Every `DM-*` constraint and derived property whose required state is represented in the definition model is expressed in OCL with `scope = definitionModel` in the machine-readable definition. A rule requiring comparison with an external metadata inventory identifies the validation procedure and evidence instead of claiming false OCL executability.
 - `DM-008`: A non-OCL expression either occupies syntax intrinsically owned by a physical target or supplies a non-empty `nonOclRationale`.
+- `DM-009`: Refinement-artifact revision identifiers are unique within a lineage; every superseded revision has the same lineage identifier, while each revision retains a unique catalog-object identifier. `supersedes` and realization relationships are acyclic and never mutate superseded content.
 
 ### Conceptual and logical rules
 
@@ -488,6 +888,7 @@ The rules below are normative prose in this draft. Their machine-readable form s
 - `DM-107`: A business entity type's properties use data-element concepts for its object class. A relationship with properties names an object class, and its properties use concepts for that object class.
 - `DM-108`: A logical attribute's data-element concept uses the object class named by its logical entity type.
 - `DM-109`: A business or logical constraint uses OCL with `scope = subjectData` when its required state is modeled. Its context and referenced properties resolve through the subject model's defined OCL evaluation environment; otherwise it records why OCL is insufficient.
+- `DM-110`: A logical record has uniquely named fields; a collection has one element type; a map has one key and value type; a choice has at least two distinct alternatives; and recursive datatype graphs are explicit and serializable without infinite containment.
 
 ### Relational rules
 
@@ -499,8 +900,8 @@ The rules below are normative prose in this draft. Their machine-readable form s
 
 ### Physical rules
 
-- `DM-301`: Physical names are unique among like-kind elements in the target namespace required by the platform.
-- `DM-302`: Every physical tabular object belongs to its referenced namespace, and every column belongs to its referenced tabular object.
+- `DM-301`: Qualified physical names are unique among like-kind elements in the naming scope defined by the active target profile.
+- `DM-302`: Every contained physical element belongs to a valid container in the same physical model; every relational tabular object belongs to a database namespace and every column to its tabular object.
 - `DM-303`: Every constraint column belongs to the constraint's table.
 - `DM-304`: A table has at most one primary-key constraint.
 - `DM-305`: A foreign key references a primary-key or unique constraint and maps once, in order, to every referenced column.
@@ -510,33 +911,51 @@ The rules below are normative prose in this draft. Their machine-readable form s
 - `DM-309`: A unique index does not satisfy a required logical uniqueness realization unless a corresponding primary-key or unique constraint is also modeled.
 - `DM-310`: A view definition, column default, or physical check constraint has `scope = physicalTarget` and names the expression language or dialect governed by its physical target.
 - `DM-311`: When a physical expression implements an upstream business or logical constraint, their realization record identifies that correspondence; target syntax does not silently replace upstream meaning.
+- `DM-312`: Every native kind, property, relationship, and value resolves to a definition in a metadata profile owned by the physical model's target; its source and target element kinds conform to that definition.
+- `DM-313`: An observed physical model names exactly one deployment environment and observation record, and both identify the same model and environment. A design physical model has neither an observation record nor a claim about observed state.
+- `DM-314`: A portable typed property and a native metadata value describing the same target fact have one declared authority and do not silently carry contradictory values.
+- `DM-315`: Every data-shape node belongs to its shape and physical model, has a unique path within that shape, and has a non-negative minimum and maximum not less than its minimum.
+- `DM-316`: A schema document and interface description identify their exact language and version. API messages and structured or semi-structured assets reference only shapes in the same model; cross-model reuse is represented by realizing a local shape from the external shape rather than by an untracked reference.
+- `DM-317`: An unstructured stored-asset collection may have a metadata shape but must not claim a content shape unless that structure is evidenced.
+- `DM-318`: A metadata coverage assessment may be `complete` only when `uncoveredItems` is empty and its evidence checks the exact target, profile version, coverage scope, source inventory, access limitations, and collection result. The external inventory comparison is a validation procedure rather than an OCL-only claim.
+
+### Deployment and observation rules
+
+- `DM-501`: A deployment package's source is a physical design model for the same target as its environment, and every deployment artifact is covered by a realization from that design or has an introduced rationale.
+- `DM-502`: Every deployment artifact identifies target-owned language, content reference, and integrity digest; a deployment record identifies the exact immutable package revision attempted.
+- `DM-503`: A successful deployment record is evidence that execution reported success, not proof that observed state equals intended state.
+- `DM-601`: A physical comparison uses a design model as expected state and an observed model as actual state for compatible targets and the same deployment environment.
+- `DM-602`: Every expected and observed physical element in the comparison scope is covered by an `equivalent`, `missing`, `unexpected`, `changed`, or `unresolved` difference record.
+- `DM-603`: `acceptIntoDesign` requires a resolution reference to a new revision at the earliest artifact that owns the accepted meaning; `ignoreWithRationale` requires a rationale.
 
 ### Realization rules
 
-- `DM-401`: A realization set's target is strictly later in the order `ConceptualDataModel`, non-relational `LogicalDataModel`, `RelationalLogicalDataModel`, `PhysicalDataModel`. A realization may skip an intermediate kind deliberately.
+- `DM-401`: A realization set's source and target are distinct artifact revisions, and adding the edge from source to target does not create a cycle. The transform or human decision states why the target is more concrete for its purpose; no fixed universal stage sequence is assumed.
 - `DM-402`: `realized` has at least one source and one target; `introduced` has no source and at least one target; `omitted` has at least one source and no target.
-- `DM-403`: Every source element belongs to the realization set's source model and every target element belongs to its target model.
+- `DM-403`: Every source element belongs to the realization set's source artifact and every target element belongs to its target artifact.
 - `DM-404`: Introduced and omitted realizations require a rationale.
 - `DM-405`: Every target element is covered by a realized or introduced record, and every source element is covered by a realized or omitted record.
-- `DM-406`: Realization never transfers identity implicitly; each model element retains its own identifier and correspondence remains explicit.
+- `DM-406`: Realization never transfers identity implicitly; each model or deployment element retains its own identifier and correspondence remains explicit.
 - `DM-407`: A transformation reference identifies a transformation or human procedure rather than containing an OCL mutation body. OCL may specify its model queries, guards, and pre/postconditions.
 
-## 13. Definition Boundary
+## 15. Definition Boundary
 
-This layer owns the vocabulary and well-formedness of data models. It does not yet define:
+This layer owns the vocabulary and well-formedness needed to describe conceptual, logical, heterogeneous physical, deployment, and observed data artifacts. It also owns the semantic requirements that make a lossless relational repository realization possible.
+
+It defines what an import, deployment, observation, coverage assessment, and maintenance comparison must represent. It does not yet define the software behavior or executable mechanisms that perform them:
 
 - modeling workflow, approval, collaboration, or user roles;
 - diagnostics or validator behavior;
 - automatic conceptual-to-logical or logical-to-physical generation;
-- database introspection or readback behavior;
+- database, API, schema, or storage introspection connectors and readback algorithms;
 - external rule languages, target expression grammars, and transformation languages beyond the adopted OCL usage profile;
-- product persistence and runtime interchange beyond the XMI validation representation;
+- the concrete relational repository schema, database product, migration mechanism, runtime API, or operational topology;
 - a product API or user interface; or
-- vendor-specific physical options.
+- exhaustive portable classes for every vendor option when the option is more honestly preserved through a named metadata profile.
 
-Those are decisions for later refinements after this language and its governing CMOF choice are accepted.
+Those are decisions for later refinements after this language and its governing CMOF choice are accepted. A later implementation may specialize the language, but it may not narrow the supported subject technologies to relational databases or discard target-native metadata without revising this layer explicitly.
 
-## 14. Verification State
+## 16. Verification State
 
 The standards are part of this language definition now; the outstanding work is verification, not selection by implication.
 
@@ -547,8 +966,14 @@ The standards are part of this language definition now; the outstanding work is 
 - IDEF1X compatibility is required for overlapping constructs, while its conceptual-schema terminology must be mapped rather than copied onto DAMA model levels.
 - ISO/IEC 11404 governs datatype separation, while the standard type catalogue and datatype mappings remain incomplete.
 - ISO/IEC 9075-2 governs the portable physical SQL subset, while detailed construct mapping remains incomplete.
+- ISO/IEC 9075-11 governs the portable relational metadata baseline, while a target/version coverage inventory and vendor-catalog mappings remain to be demonstrated.
+- JSON Schema 2020-12, XML Schema 1.1, and OpenAPI 3.2.0 alignment mappings remain to be constructed and tested with representative recursive, polymorphic, and referenced schemas.
+- DCAT 3 and PROV-DM alignment is selected for catalog interchange and provenance boundaries, but no conformance claim is made.
+- Document, key-value, wide-column, graph, schema-document, API, and stored-asset profiles are structural commitments whose exact portable inventories remain incomplete.
+- A complete-metadata claim must be demonstrated independently for each target, version, profile, coverage scope, and accessible source inventory; no universal completeness claim is made.
 - ISO/IEC 11179-35 and ISO/IEC 19763-12 mappings remain to be demonstrated.
 - The OMG MOF 2.5.1 to ISO/IEC 19508:2014 version delta has not been assessed, so ISO MOF conformance is not claimed.
-- ISO/IEC 19509 XMI output has not been produced, so representation conformance is not claimed; XMI is not yet a product runtime requirement.
+- ISO/IEC 19509 XMI output has not been produced, so representation conformance is not claimed; XMI is a validation/interchange form rather than the selected runtime repository.
+- The required relational repository realization has not been designed or round-trip tested. Its future acceptance requires reconstructing the CMOF definition and representative instances without semantic loss.
 - DAMA alignment remains a hypothesis until checked against exact pages in the user's 2010 edition.
-- Realization coverage rules, the explicit relational-logical stage, and the relation/table separation are project composition decisions subject to product-owner review.
+- Realization coverage rules, optional relational-logical refinement, relation/table separation, lifecycle artifacts, and heterogeneous physical profiles are project composition decisions subject to product-owner review.
