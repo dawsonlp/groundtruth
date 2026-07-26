@@ -2,7 +2,9 @@
 
 ## Status
 
-- Transform status: approved for exploratory execution
+- Transform status: approved
+- Transform execution: complete
+- Validation status: operational scaffold passed; product-model validations remain deferred to their owning artifacts
 - Source layer: `domain-data-dictionary-postgresql-design`
 - Source revision: `ba65ccf`
 - Source effectiveness: draft and not effective

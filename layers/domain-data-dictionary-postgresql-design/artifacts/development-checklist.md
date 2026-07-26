@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Status: active pre-implementation checklist
+- Status: active development checklist; operational scaffold complete
 - Execution status: operational scaffold implemented and verified; physical-model and capability work deferred
 - Last updated: 2026-07-26
 - Source technical design: `technical-design.md`, product-owner decisions approved 2026-07-26
