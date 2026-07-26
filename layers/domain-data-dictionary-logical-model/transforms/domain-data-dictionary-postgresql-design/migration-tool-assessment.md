@@ -3,7 +3,7 @@
 ## Status and Decision
 
 - Assessment date: 2026-07-26
-- Source logical revision: `f71a279`
+- Source logical revision: `5728636`
 - Decision: use Flyway Open Source `13.0.0` for the first implementation
 - Serious alternative: Sqitch
 - Reconsider when: cross-project database-change dependencies or mandatory per-change deploy/revert/verify scripts outweigh Flyway's simpler versioned flow

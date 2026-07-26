@@ -3,24 +3,24 @@
 ## Document Status
 
 - Status: active development checklist; operational scaffold complete
-- Execution status: operational scaffold implemented and verified; physical-model and capability work deferred
+- Execution status: operational scaffold implemented and verified; PostgreSQL realization and capability work pending
 - Last updated: 2026-07-26
 - Source technical design: `technical-design.md`, product-owner decisions approved 2026-07-26
-- Source logical revision: `f71a279`
+- Source logical revision: `5728636`
 - Intended audience: implementation engineers and reviewing agents
 
 ## 1. Purpose
 
-Translate the PostgreSQL technical design into ordered, verifiable implementation work without expanding the physical data model or API capability scope.
+Translate the PostgreSQL technical design into ordered, verifiable implementation work, including a PostgreSQL realization that remains traceable to `CAT-LOG`, without expanding the API capability scope.
 
 ## 2. Scope
 
-This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, and a Python API with operational health behavior. It is the shared execution record: engineers check an item only after its completion evidence exists. It does not authorize product DDL or capability endpoints. Those enter the checklist only after their owning physical-model and API designs are accepted.
+This checklist covers a local Compose scaffold containing PostgreSQL, Flyway, and a Python API with operational health behavior, followed by the first PostgreSQL realization of `CAT-LOG`. It is the shared execution record: engineers check an item only after its completion evidence exists. Product DDL is authorized through the realization rules in the technical design; capability endpoints remain blocked until their owning API design is accepted.
 
 ## 3. Inputs Consulted
 
 - [PostgreSQL technical design](technical-design.md)
-- `CAT-LOG/domain-data-dictionary@1` at revision `f71a279`
+- `CAT-LOG/domain-data-dictionary@1` at revision `5728636`
 - Model C component design at revision `5a0993d`
 - source [migration-tool assessment](../../domain-data-dictionary-logical-model/transforms/domain-data-dictionary-postgresql-design/migration-tool-assessment.md)
 - local image inspection and current primary documentation recorded in the technical design
@@ -43,7 +43,7 @@ The product owner approved the technology, topology, organization, local-login, 
 - Make PostgreSQL health a prerequisite for migrations and successful migrations a prerequisite for API startup.
 - Establish the uv lock and container build before application behavior grows.
 - Test migration failure and empty-database replay before trusting a persistent developer volume.
-- Do not activate included PostgreSQL extensions until the physical model requires them.
+- Do not activate included PostgreSQL extensions until a demonstrated realization requirement justifies them.
 - Do not add product endpoints before the capability API design owns their semantics.
 
 ## 7. Phase 0 — Approval Gates
@@ -57,6 +57,7 @@ The product owner approved the technology, topology, organization, local-login, 
 - [x] Architect approval is recorded in `technical-design.md`.
 - [x] Senior implementation engineer review is recorded in `technical-design.md`.
 - [x] All blocking review findings are resolved at the owning layer; `IR-001` was resolved by the architect.
+- [x] Architect approved `CAT-LOG` as the direct semantic source for migration SQL and delegated ordinary PostgreSQL physical choices to the realization transform.
 
 Completion evidence:
 
@@ -151,15 +152,18 @@ Verification:
 - [x] Supply JDBC connection settings through environment variables using the internal PostgreSQL address.
 - [x] Set restart behavior to `no` and depend on PostgreSQL health.
 - [x] Establish the UTC timestamp migration naming convention in contributor instructions.
-- [x] Leave the product migration directory empty until the PostgreSQL physical model is approved.
+- [x] Preserve the empty migration directory as the verified scaffold baseline before product realization begins.
 
-Physical-model gate:
+PostgreSQL realization work:
 
-- [ ] A reviewed `CAT-PHY` artifact maps all six logical authorities.
-- [ ] Every planned extension, schema, table, identifier, reference, constraint, and index traces to that model.
-- [ ] Only after that gate, author the initial versioned SQL migration.
+- [ ] Create a derived realization manifest mapping all six logical authorities and `CATLOG-001` through `CATLOG-024` to PostgreSQL objects, enforcement mechanisms, and tests.
+- [ ] Author the initial versioned SQL migration directly from the selected `CAT-LOG` revision.
+- [ ] Trace every schema, table, type, identifier, reference, constraint, index, function, and extension to the logical source or a documented operational need.
+- [ ] Prefer appropriate PostgreSQL-native facilities; record the rationale for any extension and do not activate one merely because the image includes it.
+- [ ] Record every invariant not enforceable synchronously in PostgreSQL and identify the owning validation mechanism and evidence.
+- [ ] Escalate only choices that weaken or change logical meaning, create another writable authority, add a material external dependency, make a major operational commitment, or expose an upstream deficiency.
 
-Migration verification after the physical-model gate:
+Migration and realization verification:
 
 - [ ] A fresh database applies the entire sequence successfully.
 - [ ] A second migrate invocation is a no-op.
@@ -167,13 +171,15 @@ Migration verification after the physical-model gate:
 - [ ] An isolated test proves validation fails when an applied migration is altered.
 - [ ] An isolated transactional failure leaves no partial product objects.
 - [ ] No migration depends on `/docker-entrypoint-initdb.d` having run beyond standard database initialization.
+- [ ] Introspected deployed inventory agrees with both migration SQL and the derived realization manifest.
+- [ ] Representative logical content round-trips without semantic loss.
 
 ## 12. Phase 5 — Docker Compose Topology
 
 - [x] Define `postgres`, `migrate`, and `api` services without global `container_name` values.
 - [x] Pin all external images and the API build definition.
 - [x] Mount `postgres_data` at `/var/lib/postgresql`.
-- [x] Override the PostgreSQL command with plain `postgres` so AGE is not preloaded without a physical-model requirement.
+- [x] Override the PostgreSQL command with plain `postgres` so AGE is not preloaded without a demonstrated realization requirement.
 - [x] Mount the documentation-only `infra/postgres/initdb/` directory over the image's initialization directory to suppress baked extensions and demonstration objects.
 - [x] Verify the shadow directory contains no executable `.sql` or `.sh` bootstrap content.
 - [x] Configure PostgreSQL health for the selected database and user.
@@ -203,14 +209,14 @@ Verification:
 - [x] Run locked dependency sync, static checks, unit tests, integration tests, Compose validation, image build, migrations, and health checks.
 - [x] Capture exact image tags and resolved digests.
 - [x] Inventory the resulting PostgreSQL schemas and objects.
-- [ ] Compare that inventory with the accepted `CAT-PHY`; fail on undocumented objects other than PostgreSQL and Flyway operational metadata.
+- [ ] Compare that inventory with the migration authority and derived realization manifest; fail on undocumented objects other than PostgreSQL and Flyway operational metadata.
 - [ ] Round-trip representative `CMOF-GOV`, `DML-DEF`, `CAT-CON`, and `CAT-LOG` content when the schema implementation exists.
 - [x] Confirm no `BDM-DATA` was introduced into catalog storage by tests or fixtures.
 - [ ] Remove only the explicitly disposable test volume after recording results.
 
-## 14. Completion Criteria
+## 14. Runtime Completion Criteria
 
-The scaffold is complete when:
+The runtime realization is complete when:
 
 - [x] all approved Phase 0 decisions are recorded;
 - [x] the committed uv project reproduces under Python 3.14 from `uv.lock`;
@@ -219,12 +225,12 @@ The scaffold is complete when:
 - [x] the empty scaffold migration history validates and replays from empty state;
 - [x] persistent data survives normal recreation;
 - [x] failures are visible and block dependent startup;
-- [x] no product DDL exists without an accepted physical-model source; and
+- [ ] every product DDL object traces to `CAT-LOG` through the derived realization manifest; and
 - [x] no product API behavior exists without an accepted capability source.
 
 ## 15. Decisions Explicitly Deferred
 
-- Physical schema and extension activation
+- Production-scale schema or extension choices not required by the first realization
 - Product API contract and authorization
 - Production credentials, roles, TLS, secrets, backup, and high availability
 - Additional services and uv workspace conversion
@@ -237,11 +243,11 @@ The remaining open questions in technical-design section 8 remain authoritative.
 
 ## 17. Recommended Next Step
 
-Execute the source-colocated outbound transform for the named runnable sibling layer through the operational scaffold while the physical-model transform is designed separately.
+Continue the source-colocated runtime transform by deriving the realization manifest, authoring migration SQL from `CAT-LOG`, and validating deployed inventory and round-trip behavior.
 
 ## 18. Approval Status
 
-Operational scaffold complete and verified. Physical-model, product migration, logical round-trip, and capability API work remain deferred to their owning artifacts.
+Operational scaffold complete and verified. PostgreSQL realization, product migration, logical round-trip, and capability API work remain pending in their owning transforms.
 
 ## 19. Product Owner Review
 
@@ -280,4 +286,4 @@ Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose t
 
 ### Workflow Status
 
-- Current status: scaffold complete; deferred product gates remain open
+- Current status: scaffold complete; PostgreSQL realization is the next implementation phase

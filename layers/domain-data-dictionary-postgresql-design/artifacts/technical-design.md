@@ -4,14 +4,14 @@
 
 - Status: approved for exploratory runtime implementation
 - Effective: no
-- Source logical model: `CAT-LOG/domain-data-dictionary@1` at revision `f71a279`
+- Source logical model: `CAT-LOG/domain-data-dictionary@1` at revision `5728636`
 - Owning transform: `domain-data-dictionary-logical-model/transforms/domain-data-dictionary-postgresql-design`
 - Design date: 2026-07-26
 - Runtime creation: authorized through the source-colocated `domain-data-dictionary-postgresql-runtime` transform
 
 ## 1. Purpose
 
-Define the buildable local runtime structure for the first PostgreSQL realization of the Domain Data Dictionary: persistent PostgreSQL, independently executed SQL migrations, and a separately containerized Python API. Preserve the Model C authority boundary and create a stable base for later services without preempting the PostgreSQL physical data model or capability API contract.
+Define the buildable local runtime structure for the first PostgreSQL realization of the Domain Data Dictionary: persistent PostgreSQL, independently executed SQL migrations, and a separately containerized Python API. Preserve the Model C authority boundary, define how logical authority becomes executable PostgreSQL authority, and create a stable base for later services without preempting the capability API contract.
 
 ## 2. Scope
 
@@ -24,10 +24,10 @@ This design decides:
 - configuration and local-secret boundaries;
 - implementation verification and completion evidence.
 
-It does not decide:
+It does not enumerate:
 
-- PostgreSQL tables, columns, constraints, indexes, partitions, or enabled extensions;
-- the physical realization of the six `CAT-LOG` authoritative entities;
+- the particular PostgreSQL tables, columns, constraints, indexes, partitions, or enabled extensions that the realization transform will select;
+- the object-by-object realization of the six `CAT-LOG` authoritative entities;
 - product API resources, commands, queries, messages, authorization, or error contracts;
 - production hosting, high availability, backups, TLS, secret management, or deployment automation; or
 - additional services beyond reserving a Compose-compatible boundary for them.
@@ -37,8 +37,8 @@ It does not decide:
 ### Governing project inputs
 
 - Model C component design at revision `5a0993d`
-- conceptual data model at revision `f311eac`
-- logical design and logical data model at revision `f71a279`
+- conceptual data model at revision `73ed9df`
+- logical design and logical data model at revision `5728636`
 - root build/update instructions and the flat-layer ADR
 - product-owner technology directions recorded by the owning transform
 
@@ -116,7 +116,7 @@ Database reachability and schema readiness are different facts. Compose health p
 - Mount a Compose named volume at `/var/lib/postgresql`, the required PostgreSQL 18 image boundary.
 - Override the image command with plain `postgres`; the image's default AGE preload is not justified by the current physical model.
 - Bind-mount `infra/postgres/initdb/` read-only over `/docker-entrypoint-initdb.d`. That committed directory contains documentation only and no executable `.sql` or `.sh` file. The mount deliberately shadows the image's demonstration initialization scripts.
-- Enable extensions only through reviewed versioned migrations and only when `CAT-PHY` requires them.
+- Enable extensions only through versioned migrations and only when a demonstrated logical or operational requirement justifies them.
 - Do not put product bootstrap or evolving migrations into the shadow directory; the entrypoint directory is a first-volume mechanism, not a repeatable migration history.
 - Use the image's `pg_isready` health mechanism, parameterized for the selected database and user.
 - Normal shutdown and recreation preserve the named volume. No normal build, test, or update command removes it.
@@ -152,7 +152,11 @@ Migration rules:
 - Run Flyway validation before release and against every persistent development database.
 - Do not use `repair` as routine drift suppression, and keep `clean` unavailable outside deliberately disposable test databases.
 
-The first product migration is blocked until the PostgreSQL physical data model assigns tables, types, identifiers, references, constraints, and indexes to all six logical authorities. This design authorizes migration infrastructure, not speculative DDL.
+`CAT-LOG` is the semantic source for the PostgreSQL realization. Versioned migration SQL is the executable physical authority. The realization transform selects appropriate PostgreSQL tables, types, identifiers, references, constraints, indexes, functions, and other native facilities needed to preserve that source.
+
+The transform must also derive a traceability manifest from the same work, mapping every logical entity, relationship, and invariant to PostgreSQL objects, enforcement, and tests. After deployment, introspected inventory is compared with both the migration authority and the manifest. Neither the manifest nor the inventory is a second writable model.
+
+Ordinary physical choices do not require table-by-table architectural approval. Review is required only when a choice weakens or changes logical meaning, creates another writable authority, adds a material external dependency, makes a major operational commitment, or exposes an upstream deficiency. An included extension is not activated without a demonstrated requirement.
 
 ### 4.5 Recovery
 
@@ -275,11 +279,11 @@ The implementation is not complete until it proves:
 9. database data survives normal container recreation;
 10. `uv lock --check`, locked sync, lint, types, and tests pass under Python 3.14;
 11. the API image runs unprivileged and contains no development or secret files; and
-12. later schema tests reconstruct all six `CAT-LOG` authorities without an undocumented escape field.
+12. schema tests trace and reconstruct all six `CAT-LOG` authorities without an undocumented escape field, and the deployed inventory agrees with the derived realization manifest.
 
 ## 7. Decisions Explicitly Deferred
 
-- PostgreSQL physical schema and activated extensions
+- Production-scale PostgreSQL topology and extension choices not required by the first realization
 - Separate migration-owner and API-login provisioning outside local development
 - FastAPI capability resources and authorization
 - Production Compose or orchestrator topology
@@ -292,7 +296,7 @@ The implementation is not complete until it proves:
 ## 8. Open Questions
 
 1. Should provenance be able to target typed `ModelFamily` and `ResponsibleAgent` records, requiring a logical-model revision before physical design?
-2. Does the first `CAT-PHY` need any included extension, or should it begin with PostgreSQL core only?
+2. Does any first-realization requirement justify an included extension, or can PostgreSQL core preserve the selected logical revision?
 3. Should the API subproject become a uv workspace if a second Python service arrives?
 
 ## 9. Accepted Product-Owner Decisions
@@ -304,11 +308,13 @@ On 2026-07-26, the product owner accepted:
 - FastAPI/Uvicorn with async Psycopg pooling for the scaffold;
 - a uv project rooted at the runnable subproject;
 - the local-only shared database login concession; and
-- the recognizable `2xxxx` local port block: PostgreSQL `25432` and API `28000`.
+- the recognizable `2xxxx` local port block: PostgreSQL `25432` and API `28000`;
+- `CAT-LOG` as the direct semantic source for migration SQL, with no separately approved PostgreSQL physical-model gate; and
+- ordinary PostgreSQL physical choices delegated to the realization transform under the review triggers in section 4.4.
 
 ## 10. Recommended Next Step
 
-Execute the source-colocated `domain-data-dictionary-postgresql-runtime` transform and the development checklist only through the infrastructure and health scaffold. In parallel, create the source-owned PostgreSQL physical-model transform; do not author the first product migration until that model is accepted sufficiently to drive DDL.
+Continue the source-colocated `domain-data-dictionary-postgresql-runtime` transform by authoring the PostgreSQL realization manifest and initial versioned migration SQL directly from `CAT-LOG`. Validate the deployed inventory and round-trip behavior; route any semantic deficiency to the earliest owning layer.
 
 ## 11. Approval Status
 
@@ -316,7 +322,7 @@ Approved for exploratory implementation. This approval does not make the design 
 
 ## 12. Architect Review
 
-Approved by the human architect on 2026-07-26. The approval applies to the technical design as written, including the accepted product-owner decisions in section 9. It does not make the draft upstream product layers effective.
+Approved by the human architect on 2026-07-26. The approval includes the realization authority and review boundary recorded in sections 4.4 and 9. It does not make the draft upstream product layers effective.
 
 ## 13. Senior Implementation Engineer Review
 

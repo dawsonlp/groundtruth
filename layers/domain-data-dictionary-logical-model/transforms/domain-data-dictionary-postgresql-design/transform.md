@@ -6,19 +6,19 @@
 - Transform execution: complete
 - Validation status: incomplete
 - Source layer: `domain-data-dictionary-logical-model`
-- Source revision: `f71a279`
+- Source revision: `5728636`
 - Source status: draft and not effective
 - Target layer: `domain-data-dictionary-postgresql-design`
 - Target status: draft and not effective
 
 ## Purpose
 
-Refine the technology-neutral Domain Data Dictionary logical model into an engineer-reviewable design for a local PostgreSQL implementation and its first API process without yet producing database DDL, application code, or a running environment.
+Refine the technology-neutral Domain Data Dictionary logical model into an engineer-reviewable design for its local PostgreSQL realization and first API process without producing database DDL, application code, or a running environment in this transform.
 
 ## Inputs
 
-- `layers/domain-data-dictionary-logical-model/artifacts/logical-design.md` at revision `f71a279`
-- `layers/domain-data-dictionary-logical-model/artifacts/logical-data-model.md` at revision `f71a279`
+- `layers/domain-data-dictionary-logical-model/artifacts/logical-design.md` at revision `5728636`
+- `layers/domain-data-dictionary-logical-model/artifacts/logical-data-model.md` at revision `5728636`
 - Model C component design at revision `5a0993d`
 - Local image `dawsonlp/postgres-batteries-inc:18.4`, inspected 2026-07-26
 - The image source README, Dockerfile, and Compose example under `/Users/dawsonlp/repos/docker_images/postgres-batteries-inc`
@@ -32,6 +32,8 @@ Refine the technology-neutral Domain Data Dictionary logical model into an engin
 - Use SQL-authored database migrations, with Flyway as the initial candidate and at least one alternative assessed.
 - Use Python 3.14, Psycopg 3, uv, and `pyproject.toml` for the API.
 - Conduct and review a design session before implementation.
+- Treat `CAT-LOG` as the semantic source for PostgreSQL migration SQL; do not require a separately approved physical-model artifact.
+- Delegate ordinary PostgreSQL physical choices to the realization transform, with architectural review only for semantic weakening, competing authority, material external dependencies, major operational commitments, or upstream deficiencies.
 
 ## Decisions Made by This Transform
 
@@ -62,15 +64,17 @@ Refine the technology-neutral Domain Data Dictionary logical model into an engin
 - [x] No runtime files, migration SQL, schema objects, API behavior, or containers were created.
 - [x] The product owner accepted Flyway Open Source as the migration-tool decision on 2026-07-26.
 - [x] The product owner accepted the Compose and Python service design, root uv project, local shared login, and `2xxxx` port block on 2026-07-26.
-- [ ] The PostgreSQL physical data model maps all six authoritative logical entities and passes architectural review.
+- [x] The architect approved the PostgreSQL realization authority and review boundary on 2026-07-26.
+- [ ] Migration SQL and its derived traceability manifest map all six authoritative logical entities and pass realization validation.
 - [ ] The API capability contract is designed before business endpoints are implemented.
 
 ## Retry Guidance
 
-If implementation exposes a database or service-design failure, assign it to the earliest owning layer. Repository shape and datatype failures return to `CAT-LOG` or its PostgreSQL physical-model transform; Compose, migration-runner, or API-runtime failures return to this design transform. Do not repair a missing logical concept with an undocumented SQL column or API-only field.
+If implementation exposes a database or service-design failure, assign it to the earliest owning layer. Semantic or datatype deficiencies return to `CAT-LOG`; PostgreSQL object and enforcement failures return to the realization transform; Compose, migration-runner, or API-runtime failures return to this design transform. Do not repair a missing logical concept with an undocumented SQL column or API-only field.
 
 ## Review Evidence
 
 - The human architect approved the target technical design on 2026-07-26.
-- Senior implementation-engineering review found the runtime behavior buildable but recorded blocking finding `IR-001`: the accepted repository-root uv layout does not yet identify a named runnable sibling layer, source-colocated outbound transform, or unambiguous artifact and regeneration boundary.
-- No runtime files may be created until the owning design resolves that boundary.
+- Senior implementation-engineering review found the runtime behavior buildable and originally recorded blocking finding `IR-001` about the uv-project boundary.
+- The architect resolved `IR-001` by locating the uv root at the runnable runtime subproject; the runtime scaffold was then implemented and verified.
+- The human architect approved the PostgreSQL realization authority and review boundary on 2026-07-26.
