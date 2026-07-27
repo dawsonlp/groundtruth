@@ -81,7 +81,8 @@ layers/
     │   ├── tests/
     │   └── infra/
     └── evidence/
-        └── scaffold-verification.md
+        ├── scaffold-verification.md
+        └── postgresql-realization-verification.md
 ```
 
 - `artifacts/` contains the product as expressed at this refinement level.
@@ -90,7 +91,7 @@ layers/
 
 The Model C design now has a conceptual refinement and a draft logical refinement in [logical-design.md](layers/domain-data-dictionary-logical-model/artifacts/logical-design.md) and [logical-data-model.md](layers/domain-data-dictionary-logical-model/artifacts/logical-data-model.md). The logical model selects a hybrid catalog kernel: typed authority for catalog-specific governance records, reflective authority for CMOF/DML model objects, and derived typed projections over those objects.
 
-The PostgreSQL implementation branch now has an architect-approved [technical design](layers/domain-data-dictionary-postgresql-design/artifacts/technical-design.md) and an active [engineer development checklist](layers/domain-data-dictionary-postgresql-design/artifacts/development-checklist.md). They select the pinned local PostgreSQL 18.4 image, a three-service Compose topology, Flyway-managed SQL migrations, and a separately built Python 3.14/FastAPI service using uv and Psycopg 3. The architect resolved the runtime artifact boundary: the uv root is `layers/domain-data-dictionary-postgresql-runtime/artifacts/`, owned by a named runnable sibling layer and a source-colocated transform. `CAT-LOG` is the semantic source for the PostgreSQL realization; migration SQL is executable physical authority, with a derived traceability manifest and deployed inventory as evidence rather than a separately approved physical model. The operational scaffold is verified, and product migrations are the next runtime-transform work. The runtime remains an exploratory descendant because no upstream layer is effective.
+The PostgreSQL implementation branch now has an architect-approved [technical design](layers/domain-data-dictionary-postgresql-design/artifacts/technical-design.md) and an active [engineer development checklist](layers/domain-data-dictionary-postgresql-design/artifacts/development-checklist.md). They select the pinned local PostgreSQL 18.4 image, a three-service Compose topology, Flyway-managed SQL migrations, and a separately built Python 3.14/FastAPI service using uv and Psycopg 3. The architect resolved the runtime artifact boundary: the uv root is `layers/domain-data-dictionary-postgresql-runtime/artifacts/`, owned by a named runnable sibling layer and a source-colocated transform. `CAT-LOG` is the semantic source for the PostgreSQL realization; migration SQL is executable physical authority, with a derived traceability manifest and deployed inventory as evidence rather than a separately approved physical model. The operational scaffold and first structural catalog-kernel migration are verified. Definition-aware CMOF/DML validation, normative-model round trips, and the capability API remain incomplete. The runtime remains an exploratory descendant because no upstream layer is effective.
 
 Conceptual refinement places explicit model-family membership, responsible agents, and provenance records in `CAT-CON` as catalog business concepts governed by `DML-CON`; it does not promote them into the general language without evidence that they are general concerns. The canonical registry still requires provisional `CAT-FAMILY`, `CAT-CON`, and `CAT-LOG` role names to be accepted or replaced. Draft refinement may continue, but affected descendants require regeneration after an upstream naming or semantic correction. The source definition also still requires DAMA and normative-standard verification, OCL encoding and evaluation boundaries, representative physical-model tests, a complete RDBMS metadata inventory, a lossless repository round-trip prototype, machine-readable CMOF/XMI validation, and the follow-up decision on direct CMOF use.
 
@@ -138,7 +139,7 @@ Do not invent a missing transform, silently select an implementation branch, or 
 
 An exploratory build may instead follow a deliberately selected draft branch. Execute its recorded draft transforms, identify every exact source revision, validate what can be validated, and carry unresolved gaps and provisional assumptions into the runnable descendant. The result remains a draft experiment rather than an effective product build, but creating and running it is permitted and is expected to provide evidence for upstream revision.
 
-This project is currently **not buildable as an effective product**: no layer is effective and the draft transforms have unmet validation conditions. A recorded exploratory branch does reach a runnable PostgreSQL/API scaffold; follow the runtime-layer instructions to build it, while retaining its draft and non-effective status. PostgreSQL product migrations and logical round-trip validation remain incomplete.
+This project is currently **not buildable as an effective product**: no layer is effective and the draft transforms have unmet validation conditions. A recorded exploratory branch reaches a runnable PostgreSQL catalog kernel and operational API scaffold; follow the runtime-layer instructions to build it, while retaining its draft and non-effective status. Definition-aware conformance, normative-model round trips, and product capability behavior remain incomplete.
 
 ### Updating the product
 

@@ -3,8 +3,8 @@
 ## Status
 
 - Transform status: approved
-- Transform execution: operational scaffold complete; PostgreSQL realization pending
-- Validation status: operational scaffold passed; migration, traceability, inventory, and round-trip validations pending
+- Transform execution: PostgreSQL structural realization complete
+- Validation status: migration, traceability, deployed inventory, and representative structural round-trip passed; definition-aware and normative-model validations remain incomplete
 - Source layer: `domain-data-dictionary-postgresql-design`
 - Source revision: `f10afc7`
 - Source effectiveness: draft and not effective
@@ -86,8 +86,10 @@ No executable projection at repository root is produced. The target README and e
 - [x] A normal recreate and a normal shutdown preserve named-volume data.
 - [x] A failed transactional migration blocks API startup and leaves no partial table.
 - [x] The verified scaffold baseline contains no product DDL or product API behavior.
-- [ ] Migration SQL and the derived realization manifest cover all six logical authorities and `CATLOG-001` through `CATLOG-024`.
-- [ ] Fresh and repeat migration execution, deployed-inventory comparison, and representative logical round trips pass.
+- [x] Migration SQL and the derived realization manifest cover all six logical authorities and classify enforcement for `CATLOG-001` through `CATLOG-024`.
+- [x] Fresh and repeat migration execution, deployed-inventory comparison, and representative structural logical round trips pass.
+- [ ] Machine-loaded `CMOF-GOV` and `DML-DEF` drive definition-aware validation of applicability, multiplicity, governed type, composition, and datatype shape.
+- [ ] Normative representative `CMOF-GOV`, `DML-DEF`, `CAT-CON`, and subject-model artifacts complete a lossless import/export round trip.
 
 ## Retry Guidance
 

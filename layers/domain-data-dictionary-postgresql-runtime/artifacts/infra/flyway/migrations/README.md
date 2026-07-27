@@ -1,6 +1,6 @@
 # Product Migrations
 
-This directory currently contains no SQL migrations and records the verified scaffold baseline. The owning runtime transform may now add `V*.sql` files derived from the selected `CAT-LOG` revision; no separately approved PostgreSQL physical-model artifact is required.
+This directory contains versioned SQL migrations derived from the selected `CAT-LOG` revision; no separately approved PostgreSQL physical-model artifact is required.
 
 Versioned SQL uses:
 

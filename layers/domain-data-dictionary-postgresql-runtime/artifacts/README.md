@@ -33,6 +33,6 @@ docker compose down
 
 Do not add `--volumes` unless deliberately destroying this subproject's database state.
 
-## Current Product Boundary and Next Work
+## Current Product Boundary
 
-Only `/health/live` and `/health/ready` are implemented. The Flyway migration directory currently contains no SQL because this artifact set records the verified scaffold baseline. The next runtime-transform execution will author PostgreSQL migrations directly from the selected `CAT-LOG` revision and add derived traceability and deployed-inventory evidence. Capability endpoints still require their own accepted upstream contract.
+The PostgreSQL catalog kernel is implemented through Flyway SQL and covers the six `CAT-LOG` authorities. Its [realization manifest](infra/postgres/realization-manifest.md) records exact mapping, database enforcement, and validation gaps. Only `/health/live` and `/health/ready` are implemented in the API; capability endpoints still require their own accepted upstream contract. Definition-aware CMOF/DML validation also remains pending upstream machine-readable definitions.

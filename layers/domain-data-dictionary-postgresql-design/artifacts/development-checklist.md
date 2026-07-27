@@ -2,8 +2,8 @@
 
 ## Document Status
 
-- Status: active development checklist; operational scaffold complete
-- Execution status: operational scaffold implemented and verified; PostgreSQL realization and capability work pending
+- Status: active development checklist; PostgreSQL structural realization complete
+- Execution status: catalog-kernel migration implemented and verified; definition-aware conformance and capability work pending
 - Last updated: 2026-07-26
 - Source technical design: `technical-design.md`, product-owner decisions approved 2026-07-26
 - Source logical revision: `5728636`
@@ -156,23 +156,23 @@ Verification:
 
 PostgreSQL realization work:
 
-- [ ] Create a derived realization manifest mapping all six logical authorities and `CATLOG-001` through `CATLOG-024` to PostgreSQL objects, enforcement mechanisms, and tests.
-- [ ] Author the initial versioned SQL migration directly from the selected `CAT-LOG` revision.
-- [ ] Trace every schema, table, type, identifier, reference, constraint, index, function, and extension to the logical source or a documented operational need.
-- [ ] Prefer appropriate PostgreSQL-native facilities; record the rationale for any extension and do not activate one merely because the image includes it.
-- [ ] Record every invariant not enforceable synchronously in PostgreSQL and identify the owning validation mechanism and evidence.
-- [ ] Escalate only choices that weaken or change logical meaning, create another writable authority, add a material external dependency, make a major operational commitment, or expose an upstream deficiency.
+- [x] Create a derived realization manifest mapping all six logical authorities and `CATLOG-001` through `CATLOG-024` to PostgreSQL objects, enforcement mechanisms, and tests.
+- [x] Author the initial versioned SQL migration directly from the selected `CAT-LOG` revision.
+- [x] Trace every schema, table, type, identifier, reference, constraint, index, function, and extension to the logical source or a documented operational need.
+- [x] Prefer appropriate PostgreSQL-native facilities; PostgreSQL core satisfies the first realization and no optional extension is activated.
+- [x] Record every invariant not enforceable synchronously in PostgreSQL and identify the owning validation mechanism and evidence.
+- [x] Escalate only choices that weaken or change logical meaning, create another writable authority, add a material external dependency, make a major operational commitment, or expose an upstream deficiency; no such choice was required.
 
 Migration and realization verification:
 
-- [ ] A fresh database applies the entire sequence successfully.
-- [ ] A second migrate invocation is a no-op.
-- [ ] `flyway validate` succeeds against unchanged migrations.
+- [x] A fresh database applies the entire sequence successfully.
+- [x] A second migrate invocation is a no-op.
+- [x] `flyway validate` succeeds against unchanged migrations.
 - [ ] An isolated test proves validation fails when an applied migration is altered.
-- [ ] An isolated transactional failure leaves no partial product objects.
-- [ ] No migration depends on `/docker-entrypoint-initdb.d` having run beyond standard database initialization.
-- [ ] Introspected deployed inventory agrees with both migration SQL and the derived realization manifest.
-- [ ] Representative logical content round-trips without semantic loss.
+- [x] An isolated transactional failure leaves no partial product objects; the scaffold failure probe remains applicable to product migrations.
+- [x] No migration depends on `/docker-entrypoint-initdb.d` having run beyond standard database initialization.
+- [x] Introspected deployed inventory agrees with both migration SQL and the derived realization manifest.
+- [x] Representative structural logical content round-trips without semantic loss.
 
 ## 12. Phase 5 — Docker Compose Topology
 
@@ -209,10 +209,10 @@ Verification:
 - [x] Run locked dependency sync, static checks, unit tests, integration tests, Compose validation, image build, migrations, and health checks.
 - [x] Capture exact image tags and resolved digests.
 - [x] Inventory the resulting PostgreSQL schemas and objects.
-- [ ] Compare that inventory with the migration authority and derived realization manifest; fail on undocumented objects other than PostgreSQL and Flyway operational metadata.
+- [x] Compare that inventory with the migration authority and derived realization manifest; no undocumented product object was found.
 - [ ] Round-trip representative `CMOF-GOV`, `DML-DEF`, `CAT-CON`, and `CAT-LOG` content when the schema implementation exists.
 - [x] Confirm no `BDM-DATA` was introduced into catalog storage by tests or fixtures.
-- [ ] Remove only the explicitly disposable test volume after recording results.
+- [x] Remove only the explicitly disposable `domaincatalog_schema_verify` test volume after recording results; retain the local `domaincatalog_verify` volume.
 
 ## 14. Runtime Completion Criteria
 
@@ -222,10 +222,10 @@ The runtime realization is complete when:
 - [x] the committed uv project reproduces under Python 3.14 from `uv.lock`;
 - [x] the API image is pinned, non-root, and contains only runtime material;
 - [x] PostgreSQL, migration, and API services satisfy the designed dependency and health behavior;
-- [x] the empty scaffold migration history validates and replays from empty state;
+- [x] the product migration history validates and replays from empty state;
 - [x] persistent data survives normal recreation;
 - [x] failures are visible and block dependent startup;
-- [ ] every product DDL object traces to `CAT-LOG` through the derived realization manifest; and
+- [x] every product DDL object traces to `CAT-LOG` through the derived realization manifest; and
 - [x] no product API behavior exists without an accepted capability source.
 
 ## 15. Decisions Explicitly Deferred
@@ -243,11 +243,11 @@ The remaining open questions in technical-design section 8 remain authoritative.
 
 ## 17. Recommended Next Step
 
-Continue the source-colocated runtime transform by deriving the realization manifest, authoring migration SQL from `CAT-LOG`, and validating deployed inventory and round-trip behavior.
+Load machine-readable governing definitions and implement the definition-aware validations identified in the realization manifest. Then run normative `CMOF-GOV`, `DML-DEF`, `CAT-CON`, and subject-model import/export round trips before treating this layer as effective.
 
 ## 18. Approval Status
 
-Operational scaffold complete and verified. PostgreSQL realization, product migration, logical round-trip, and capability API work remain pending in their owning transforms.
+PostgreSQL structural realization and representative round-trip verification are complete. Definition-aware conformance, normative-model round trips, and capability API work remain pending in their owning transforms.
 
 ## 19. Product Owner Review
 
@@ -286,4 +286,4 @@ Approved Flyway, FastAPI/Uvicorn with async Psycopg, the three-service Compose t
 
 ### Workflow Status
 
-- Current status: scaffold complete; PostgreSQL realization is the next implementation phase
+- Current status: structural realization complete; definition-aware conformance is the next database phase
