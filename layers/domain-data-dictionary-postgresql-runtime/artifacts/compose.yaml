@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: domaincatalog
       POSTGRES_USER: domaincatalog
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the project-local .env}
     ports:
       - "${DOMAINCATALOG_POSTGRES_PORT:-25432}:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
     environment:
       FLYWAY_URL: jdbc:postgresql://postgres:5432/domaincatalog
       FLYWAY_USER: domaincatalog
-      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the project-local .env}
     volumes:
       - ./infra/flyway:/flyway/project:ro
     depends_on:
@@ -45,7 +45,7 @@ services:
       PGPORT: 5432
       PGDATABASE: domaincatalog
       PGUSER: domaincatalog
-      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the project-local .env}
       FLYWAY_HISTORY_RELATION: public.flyway_schema_history
     ports:
       - "${DOMAINCATALOG_API_PORT:-28000}:8000"

@@ -9,6 +9,7 @@
 - Runtime-transform specification revision: `a56b2c3`
 - Catalog-kernel implementation revision: `90d3dc9`
 - Complete-inventory implementation revision: `949d079`
+- Project-local credential-policy revision: `7d7c1e2`
 - Verification date: 2026-07-26
 - Target: PostgreSQL 18.4
 
@@ -126,5 +127,7 @@ These are upstream-dependent conformance work, not defects concealed by the phys
 ## Retained Local Runtime
 
 The pre-existing `domaincatalog_verify` local instance on PostgreSQL port `25432` and API port `28000` was migrated successfully to `202607260002`. All seven live integration tests also passed against it. Its named volume remains retained.
+
+The local `domaincatalog` role was subsequently rotated from the temporary verification credential to a 256-bit cryptographically generated password stored only in `artifacts/.env`. The file is ignored by Git and has mode `0600`. PostgreSQL, Flyway, and the API were force-recreated from the project-local file; the complete 13-test suite passed, API readiness remained healthy, and an external TCP attempt using the prior password was rejected. The generated password was not printed or recorded in this evidence.
 
 The disposable `domaincatalog_schema_verify` containers, network, and named volume were removed after evidence capture. They contained only the clean-room schema and rollback-only test activity; they are not recoverable and held no user data.

@@ -13,7 +13,9 @@ uv run pytest
 
 ## Local Compose Runtime
 
-Copy `.env.example` to `.env` and set a local password. `.env` is ignored by Git.
+The project-local `.env` beside `compose.yaml` supplies the local credential and port settings. It is ignored by Git, must be mode `0600`, and must contain a cryptographically random password rather than a memorable development phrase. Do not use an account-level `.env` from the home directory.
+
+For a new checkout, copy `.env.example` to `.env`, set a password generated with at least 256 bits of secure randomness (for example, 32 random bytes encoded as hex), and restrict the file to its owner before starting Compose.
 
 ```sh
 docker compose config -q

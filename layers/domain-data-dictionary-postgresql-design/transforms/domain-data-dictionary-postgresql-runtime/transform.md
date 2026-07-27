@@ -6,7 +6,7 @@
 - Transform execution: PostgreSQL structural realization complete
 - Validation status: migration, traceability, deployed inventory, and representative structural round-trip passed; definition-aware and normative-model validations remain incomplete
 - Source layer: `domain-data-dictionary-postgresql-design`
-- Source revision: `f10afc7`
+- Source revision: `7d7c1e2`
 - Source effectiveness: draft and not effective
 - Target layer: `domain-data-dictionary-postgresql-runtime`
 - Target effectiveness: must remain draft and not effective
@@ -23,6 +23,7 @@ Produce and evolve the runnable local infrastructure, PostgreSQL realization, an
 - One local shared database login is acceptable.
 - Default host ports are PostgreSQL `25432` and API `28000`.
 - `CAT-LOG` directly governs the PostgreSQL realization; migration SQL is executable physical authority and does not wait on a separately approved physical model.
+- The local database credential is a cryptographically strong generated value stored only in the ignored project-local `artifacts/.env`; no account-level environment file supplies it.
 
 ## Artifact Boundary
 
@@ -68,6 +69,7 @@ No executable projection at repository root is produced. The target README and e
 
 - Trace every catalog product table, column, constraint, index, function, extension, and seed datum to `CAT-LOG` or a documented operational requirement through the derived realization manifest.
 - Escalate choices only under the architectural review triggers recorded in the source design.
+- Never commit or print the local database password; keep `artifacts/.env` owner-readable only and use production secret delivery outside local development.
 - Create no product capability endpoint beyond operational liveness and readiness.
 - Keep migrations SQL-authored and outside the API lifecycle.
 - Preserve PostgreSQL named volumes during normal execution.
@@ -88,6 +90,7 @@ No executable projection at repository root is produced. The target README and e
 - [x] The verified scaffold baseline contains no product DDL or product API behavior.
 - [x] Migration SQL and the derived realization manifest cover all six logical authorities and classify enforcement for `CATLOG-001` through `CATLOG-024`.
 - [x] Fresh and repeat migration execution, deployed-inventory comparison, and representative structural logical round trips pass.
+- [x] Project-local `.env` contains a generated 256-bit password, is ignored, has mode `0600`, and successfully authenticates the recreated local stack; the prior temporary password is rejected over external TCP authentication.
 - [ ] Machine-loaded `CMOF-GOV` and `DML-DEF` drive definition-aware validation of applicability, multiplicity, governed type, composition, and datatype shape.
 - [ ] Normative representative `CMOF-GOV`, `DML-DEF`, `CAT-CON`, and subject-model artifacts complete a lossless import/export round trip.
 

@@ -5,7 +5,7 @@
 - Status: exploratory PostgreSQL structural realization implemented and verified
 - Effective: no
 - Source layer: `domain-data-dictionary-postgresql-design`
-- Source revision: `f10afc7`
+- Source revision: `7d7c1e2`
 - Owning transform: [domain-data-dictionary-postgresql-runtime](../domain-data-dictionary-postgresql-design/transforms/domain-data-dictionary-postgresql-runtime/transform.md)
 - Runnable subproject root: `artifacts/`
 
