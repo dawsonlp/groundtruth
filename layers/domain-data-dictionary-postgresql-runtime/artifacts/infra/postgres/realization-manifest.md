@@ -6,7 +6,9 @@
 - Effective: no
 - Semantic source: `CAT-LOG/domain-data-dictionary@1` at revision `5728636`
 - Owning design revision: `f10afc7`
-- Executable physical authority: `infra/flyway/migrations/V202607260001__create_catalog_kernel.sql`
+- Executable physical authority:
+  - `infra/flyway/migrations/V202607260001__create_catalog_kernel.sql`
+  - `infra/flyway/migrations/V202607260002__complete_catalog_inventory.sql`
 - Target: PostgreSQL 18.4
 - Extension policy: PostgreSQL core only; no optional extension is required or activated
 
@@ -85,6 +87,7 @@ Enforcement classifications:
 - `catalog.value_node_with_path` derives paths recursively; paths are not stored and therefore cannot drift from parentage or order.
 - No materialized typed projection is created. This avoids a second writable authority before workload evidence justifies caching.
 - No partitioning is introduced. There is no volume or retention evidence that justifies it yet.
+- `catalog.deployed_object_inventory` is the named metadata profile for schema, relation, column, constraint, index, type, function, and trigger inventory.
 
 ## Construction Protocols
 

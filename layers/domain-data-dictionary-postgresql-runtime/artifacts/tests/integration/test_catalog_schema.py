@@ -266,6 +266,10 @@ async def test_catalog_inventory_is_complete_and_uses_core_postgresql(
             "SELECT extname FROM pg_catalog.pg_extension ORDER BY extname"
         )
         extensions = [row[0] async for row in extension_cursor]
+        kind_cursor = await connection.execute(
+            "SELECT DISTINCT object_kind FROM catalog.deployed_object_inventory"
+        )
+        inventory_kinds = {row[0] async for row in kind_cursor}
 
     assert {
         "catalog_object",
@@ -275,6 +279,16 @@ async def test_catalog_inventory_is_complete_and_uses_core_postgresql(
         "property_occurrence",
         "value_node",
     } <= relations
+    assert inventory_kinds == {
+        "column",
+        "constraint",
+        "function",
+        "index",
+        "relation",
+        "schema",
+        "trigger",
+        "type",
+    }
     assert extensions == ["plpgsql"]
 
 
