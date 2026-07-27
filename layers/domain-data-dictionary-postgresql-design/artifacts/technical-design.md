@@ -227,7 +227,7 @@ Product endpoints remain blocked on the capability API design.
 
 ### 4.9 Configuration and local secrets
 
-Commit `.env.example`, never `.env`. Compose must fail clearly when the database password is absent. Use the standard local values:
+Commit `.env.example`, never `.env`. The runtime uses only the project-local `.env` beside `compose.yaml`, not an account-level environment file. Generate the local password with a cryptographically secure random generator using at least 256 bits of entropy, create `.env` with owner-only permissions, and never print the value in build or verification output. Compose must fail clearly when the file or password is absent. Use the standard local values:
 
 - `POSTGRES_DB` default `domaincatalog`
 - `POSTGRES_USER` default `domaincatalog`
@@ -310,7 +310,8 @@ On 2026-07-26, the product owner accepted:
 - the local-only shared database login concession; and
 - the recognizable `2xxxx` local port block: PostgreSQL `25432` and API `28000`;
 - `CAT-LOG` as the direct semantic source for migration SQL, with no separately approved PostgreSQL physical-model gate; and
-- ordinary PostgreSQL physical choices delegated to the realization transform under the review triggers in section 4.4.
+- ordinary PostgreSQL physical choices delegated to the realization transform under the review triggers in section 4.4; and
+- an ignored, owner-readable project-local `.env` containing a cryptographically strong generated local password, with production secret delivery explicitly deferred.
 
 ## 10. Recommended Next Step
 

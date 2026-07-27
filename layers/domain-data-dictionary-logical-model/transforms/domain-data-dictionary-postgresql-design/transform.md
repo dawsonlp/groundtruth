@@ -34,6 +34,7 @@ Refine the technology-neutral Domain Data Dictionary logical model into an engin
 - Conduct and review a design session before implementation.
 - Treat `CAT-LOG` as the semantic source for PostgreSQL migration SQL; do not require a separately approved physical-model artifact.
 - Delegate ordinary PostgreSQL physical choices to the realization transform, with architectural review only for semantic weakening, competing authority, material external dependencies, major operational commitments, or upstream deficiencies.
+- Store the local development credential only in the ignored project-local `.env` beside `compose.yaml`, generated with high entropy and protected from group or world access; do not use an account-level environment file. Production will use a real secret-delivery mechanism.
 
 ## Decisions Made by This Transform
 
@@ -65,6 +66,7 @@ Refine the technology-neutral Domain Data Dictionary logical model into an engin
 - [x] The product owner accepted Flyway Open Source as the migration-tool decision on 2026-07-26.
 - [x] The product owner accepted the Compose and Python service design, root uv project, local shared login, and `2xxxx` port block on 2026-07-26.
 - [x] The architect approved the PostgreSQL realization authority and review boundary on 2026-07-26.
+- [x] The product owner required an ignored project-local `.env` and a cryptographically strong generated local password on 2026-07-26.
 - [ ] Migration SQL and its derived traceability manifest map all six authoritative logical entities and pass realization validation.
 - [ ] The API capability contract is designed before business endpoints are implemented.
 

@@ -95,7 +95,7 @@ Tasks:
 - [x] Add pytest, pytest-asyncio, HTTPX, Ruff, and mypy to a development dependency group.
 - [x] Generate and commit `uv.lock`; do not create a second manually maintained dependency lock.
 - [x] Configure `src/` package discovery and one API entry point.
-- [x] Ignore `.venv`, `.env`, Python caches, test caches, build artifacts, and local Compose overrides.
+- [x] Ignore `.venv`, project-local `.env`, Python caches, test caches, build artifacts, and local Compose overrides.
 - [x] Add `.dockerignore` exclusions for the same local artifacts plus `.git`, tests where not needed at runtime, project support material, and secrets.
 
 Verification:
@@ -188,12 +188,14 @@ Migration and realization verification:
 - [x] Publish configurable defaults in the accepted `2xxxx` block: PostgreSQL `25432` and API `28000`.
 - [x] Keep internal connections on `postgres:5432`; never use the host-mapped port between services.
 - [x] Add `.env.example` with names and explanations but no working password.
+- [ ] Generate the project-local `.env` beside `compose.yaml` with at least 256 bits of cryptographic randomness and owner-only file permissions; never print or commit the password.
+- [ ] Confirm Compose loads that project-local `.env`, not an account-level environment file.
 - [x] Require the local password rather than supplying a committed default.
 - [x] Preserve the named volume during normal down, rebuild, and recreate operations.
 
 Verification:
 
-- [x] `docker compose config -q` passes with a supplied local environment.
+- [ ] `docker compose config -q` passes using the project-local `.env` without exposing the password.
 - [x] No secret is present in committed Compose or configuration files.
 - [x] Startup order is observable: healthy PostgreSQL, successful migration, then healthy API.
 - [x] A fresh volume contains none of the image's sample tables, sample AGE graph, TIGER helper functions, or unrequested extensions.
