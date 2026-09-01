@@ -2,7 +2,7 @@
 
 ## Status
 
-- Status: draft
+- Status: product-owner accepted for continued exploratory refinement
 - Effective: no
 - Selected refinement branch: `product-conception` → `data-modeling-definition` → `domain-data-dictionary-component` → `domain-data-dictionary-conceptual-model` → `domain-data-dictionary-logical-model`
 - Source layer: `domain-data-dictionary-conceptual-model`
@@ -16,6 +16,8 @@
 
 This layer refines the conceptual Domain Data Dictionary into a technology-neutral repository model. It selects a hybrid catalog kernel: typed authoritative records for `ModelFamily`, `ResponsibleAgent`, and `ProvenanceRecord`; a reflective `CatalogObject`/`PropertyOccurrence`/`ValueNode` graph for CMOF and DML model objects; and typed capability projections derived from the exact governing-definition revision. Derived projections are readable interfaces to one authority, not independently writable copies.
 
-The draft PostgreSQL implementation-design refinement is [domain-data-dictionary-postgresql-design](../domain-data-dictionary-postgresql-design/README.md), produced by its source-colocated [transform](transforms/domain-data-dictionary-postgresql-design/transform.md). Its downstream runtime transform will produce migration SQL as executable physical authority plus a derived traceability manifest and deployed inventory. Those PostgreSQL structures are engineering realization artifacts, not a separately approved physical model and not part of this logical layer. API contracts also remain downstream.
+The draft PostgreSQL implementation-design refinement is [domain-data-dictionary-postgresql-design](../domain-data-dictionary-postgresql-design/README.md), produced by its source-colocated [transform](transforms/domain-data-dictionary-postgresql-design/transform.md). Its downstream runtime transform produces migration SQL as executable physical authority plus a derived traceability manifest and deployed inventory. Those PostgreSQL structures are engineering realization artifacts, not a separately approved physical model and not part of this logical layer.
+
+On 2026-07-28, the product owner accepted the hybrid kernel for continued exploratory refinement and directed the capability API as the next branch. The draft [capability API architecture](../domain-data-dictionary-capability-api-architecture/README.md) is produced by its source-colocated [transform](transforms/domain-data-dictionary-capability-api-architecture/transform.md). It preserves typed base/extension tables as a fallback physical realization while testing the selected approach through self-modeling, PostgreSQL observation, thin interfaces, and measured projection performance.
 
 This layer remains non-effective because its source is non-effective and its transform validation is incomplete. Downstream experimentation may continue from this exact revision, but any affected upstream correction makes the resulting descendants stale and requires regeneration in transform order.

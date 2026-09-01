@@ -2,7 +2,7 @@
 
 ## Document Status
 
-- Status: draft
+- Status: product-owner accepted for continued exploratory refinement
 - Effective: no
 - Provisional canonical reference: `CAT-LOG/domain-data-dictionary@1`
 - Source conceptual model: `CAT-CON/domain-data-dictionary@1` at revision `73ed9df`
@@ -15,7 +15,7 @@
 - `DML-DEF` at revision `19133fd`, principally `DML-LOG`, `DML-SEM`, and `DML-REA`
 - source-colocated conceptual-to-logical transform at this source revision
 
-No input layer is effective. This document is an exploratory refinement, not an approved implementation design. The selected component boundary and PostgreSQL target are product-owner decisions; the hybrid-kernel design remains submitted for review.
+No input layer is effective. This document remains an exploratory refinement, not an effective product layer. The selected component boundary, PostgreSQL target, and hybrid-kernel authority model are product-owner decisions. Acceptance of the hybrid approach authorizes continued draft refinement; it does not close the upstream definition, conformance, performance, or round-trip gaps.
 
 ## 1. Decision
 
@@ -148,13 +148,27 @@ It may not make a projection table, JSON document, generated API model, or vendo
 - Content storage for large opaque or native artifacts
 - Bootstrap tooling and distribution format
 
-## 10. Decisions Requested
+## 10. Accepted Product-Owner Decision
 
-The product owner is asked to accept, revise, or reject the hybrid catalog kernel before this layer becomes effective. Acceptance would confirm the semantic authority that the PostgreSQL realization must preserve; ordinary physical choices remain owned by the realization transform and do not require table-by-table approval.
+On 2026-07-28, the product owner accepted the hybrid catalog kernel as the approach to continue exploring. The decision preserves:
+
+- reflective authority for CMOF/DML-governed objects and properties;
+- typed authority for catalog-specific governance records;
+- derived typed projections as the readable boundary for capabilities and clients; and
+- the type-specific base/extension-table realization as a fallback alternative if measured performance, operability, or comprehensibility makes the reflective realization unsuitable.
+
+The acceptance is conditional on consequence-bearing tests rather than confidence in flexibility alone. The next refinements must demonstrate that:
+
+- capability implementers can work against typed semantic contracts without reconstructing kernel rows;
+- human-facing interfaces remain thin consumers of the same capability semantics used by machine clients;
+- representative projection and traversal workloads remain understandable and performant as object and occurrence counts grow; and
+- the catalog can model its own conceptual and ontological structure, refine that model through design, observe this PostgreSQL realization, and compare intended with observed state without bypassing the capability boundary.
+
+The product owner described the first modeling stage as "conceptual with anthological." This document provisionally interprets that phrase as conceptual and ontological modeling; the terminology remains subject to correction without changing the accepted hybrid authority decision.
 
 ## 11. Recommended Next Step
 
-Review this logical design for architectural fidelity and buildability. If it remains a useful working hypothesis, execute the source-colocated PostgreSQL realization transform: author migration SQL from this logical authority, derive a traceability manifest and deployed inventory, and test identity, recursive values, constraint enforcement, atomic artifact publication, projection performance, and lossless round-trip behavior. Route failures back to the earliest owning layer; do not introduce a separately approved physical-model authority.
+Execute the source-colocated capability-API architecture transform. Define a semantic capability boundary over typed projections, commands, validation, observation, and comparison without exposing the reflective kernel or assigning business logic to user interfaces. Use self-modeling and observation of the local PostgreSQL runtime as the first end-to-end test. Route semantic failures to the earliest owning layer; route ordinary projection and query-performance work to downstream technical design or the PostgreSQL realization transform.
 
 ## 12. Review and Sign-Off
 
@@ -168,8 +182,11 @@ Pending.
 
 ### Product Owner Review
 
-- Status: pending
-- Decision requested: hybrid typed/reflective kernel with derived projections
+- Status: accepted for continued exploratory refinement
+- Decision: continue the hybrid typed/reflective kernel with derived projections
+- Conditions: prove semantic API readability, thin-client fidelity, self-modeling, PostgreSQL reflection, and performance at increasing catalog scale
+- Alternative retained: type-specific base/extension tables as a fallback physical realization
+- Date: 2026-07-28
 
 ### Author
 
@@ -181,4 +198,4 @@ Pending.
 
 ### Workflow Status
 
-- Current status: draft and non-effective
+- Current status: product-owner accepted for continued exploratory refinement; draft and non-effective

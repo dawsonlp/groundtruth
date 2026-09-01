@@ -137,7 +137,11 @@ After the logical responsibilities are stable and the PostgreSQL realization has
 - make external deployment and collection attempts identifiable and reconcilable;
 - offer equivalent semantics across human and machine-oriented representations;
 - avoid UI-only or agent-only product behavior unless a concrete requirement justifies it; and
-- keep authorization policy separate from capability meaning.
+- keep authorization policy separate from capability meaning;
+- keep user interfaces thin: they may own presentation, interaction, and non-authoritative ergonomic checks, but they may not own model semantics, lifecycle rules, validation, projection, observation, comparison, or durable mutation behavior; and
+- use the Domain Catalog's own conceptual and provisionally interpreted ontological model, followed by observation of its PostgreSQL realization, as the first end-to-end capability test.
+
+On 2026-07-28, the product owner confirmed this capability boundary and directed capability-API refinement as the next branch. This clarification does not make this draft layer effective or change the conceptual authority model; it makes the previously deferred client boundary and first test scenario explicit.
 
 ## 10. Provisional Assumptions
 

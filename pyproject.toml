@@ -1,0 +1,48 @@
+[project]
+name = "groundtruth-data"
+version = "0.1.0"
+description = "GroundTruth: The Information & Data Authority for the Tripartite Semantic Federation"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Larry Dawson", email = "larry.dawson@gmail.com" },
+]
+license = { text = "Apache-2.0" }
+keywords = ["data-dictionary", "information-architecture", "cmof", "dama", "ontology", "tripartite", "codemesh", "northstar"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "jsonschema>=4.20.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dawsonlp/groundtruth"
+Repository = "https://github.com/dawsonlp/groundtruth"
+Documentation = "https://github.com/dawsonlp/groundtruth/blob/main/docs/README.md"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.3.0",
+    "mypy>=1.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "layers"]
+asyncio_mode = "auto"
