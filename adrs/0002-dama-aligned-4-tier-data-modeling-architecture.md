@@ -58,3 +58,4 @@ We establish that GroundTruth structures all enterprise data modeling into **4 d
 
 ### Negative Consequences / Trade-offs
 * Requires defining conceptual terms and logical entities before generating quick exploratory SQL prototypes.
+

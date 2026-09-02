@@ -46,3 +46,4 @@
 * **Task 5.1**: Implement `GroundTruthCatalog` facade unifying all 5 tiers.
 * **Task 5.2**: Register CodeMesh symbols into Northstar `.northstar/links.yaml` to satisfy all 7 capabilities.
 * **Task 5.3**: Pre-commit invariant validation via `NorthstarCatalog.validate_code()`.
+

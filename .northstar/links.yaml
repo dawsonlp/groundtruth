@@ -1,4 +1,5 @@
 links:
+  # Component Governance Links
   - source: component://groundtruth/conceptual
     verb: GOVERNED_BY
     target: decision://groundtruth/adr-0001-require-mof-conformance-for-the-governing-model-definition
@@ -50,6 +51,64 @@ links:
   - source: component://groundtruth/lineage
     verb: GOVERNED_BY
     target: decision://groundtruth/adr-0002-dama-aligned-4-tier-data-modeling-architecture
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+
+  # CodeMesh Symbol Implementation Links (SATISFIES)
+  - source: csi://groundtruth/conceptual/catalog.ConceptualCatalog.register_term
+    verb: SATISFIES
+    target: req://conceptual/register-business-term
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: csi://groundtruth/conceptual/catalog.ConceptualCatalog.define_property
+    verb: SATISFIES
+    target: req://conceptual/define-property-concept
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: csi://groundtruth/logical/engine.LogicalSchemaEngine.define_entity
+    verb: SATISFIES
+    target: req://logical/define-entity-schema
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: csi://groundtruth/logical/engine.LogicalSchemaEngine.verify_state_transition
+    verb: SATISFIES
+    target: req://logical/verify-state-transition
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: csi://groundtruth/physical/postgres.PostgresProjectionEngine.to_create_table_ddl
+    verb: SATISFIES
+    target: req://physical/generate-ddl-projection
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: csi://groundtruth/lineage/graph.LineageGraph.trace_column
+    verb: SATISFIES
+    target: req://lineage/trace-column-provenance
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: csi://groundtruth/governance/classifier.PrivacyClassifier.enforce_privacy_tagging
+    verb: SATISFIES
+    target: req://governance/enforce-privacy-tagging
     provenance:
       tier: DECLARED
       confidence: 1.0

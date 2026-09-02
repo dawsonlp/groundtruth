@@ -61,3 +61,4 @@ All operational methods map directly to Northstar `CapabilitySpec` contracts:
 | `verify_state_transition()` | State machine exists, state $\in$ states | Returns boolean transition validity | `IllegalStateTransitionError` (LOGICAL_003) |
 | `generate_ddl_projection()` | Entity lifecycle is ACTIVE | Deterministic, sorted DDL string | `UnsupportedTypeMappingError` (PHYSICAL_001) |
 | `enforce_privacy_tagging()` | Sensitive attributes classified | Generates compliance certificate | `UnclassifiedSensitiveDataError` (GOVERNANCE_001) |
+

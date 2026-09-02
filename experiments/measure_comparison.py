@@ -85,3 +85,4 @@ if __name__ == "__main__":
     print(f"Characters: {file_res['char_count']:,}")
     print(f"Estimated Tokens: {file_res['token_estimate']:,}")
     print(f"\nCompression Ratio: {file_res['char_count'] / max(1, ns_res['char_count']):.2f}x token reduction using Northstar Service!")
+

@@ -24,6 +24,10 @@ classifiers = [
 dependencies = [
     "pyyaml>=6.0",
     "jsonschema>=4.20.0",
+    "pydantic>=2.6.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "sqlglot>=23.0.0",
 ]
 
 [project.urls]
@@ -35,6 +39,7 @@ Documentation = "https://github.com/dawsonlp/groundtruth/blob/main/docs/README.m
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
     "ruff>=0.3.0",
     "mypy>=1.8.0",
 ]
@@ -43,6 +48,14 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/groundtruth"]
+
 [tool.pytest.ini_options]
-testpaths = ["tests", "layers"]
+testpaths = ["tests"]
+pythonpath = ["src"]
 asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

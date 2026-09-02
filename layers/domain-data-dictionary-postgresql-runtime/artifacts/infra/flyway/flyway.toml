@@ -1,6 +1,0 @@
-[flyway]
-locations = ["filesystem:migrations"]
-defaultSchema = "public"
-table = "flyway_schema_history"
-cleanDisabled = true
-validateMigrationNaming = true

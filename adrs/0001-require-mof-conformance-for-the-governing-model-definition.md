@@ -56,3 +56,4 @@ This ADR decides model conformance. It does not claim that a future software imp
 * Model definitions will be constrained by MOF's class-, property-, association-, and package-oriented formalism.
 * The project acquires a dependency on an external standard.
 * MOF conformance does not provide DAMA semantics, catalog authority, provenance, realization history, or transformation behavior; those still require explicit project models.
+
