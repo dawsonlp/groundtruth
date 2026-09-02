@@ -1,0 +1,9 @@
+uri: constraint://groundtruth/mandatory-pii-classification
+title: Mandatory PII Classification on Customer Entities
+rule_type: DATA_INTEGRITY
+description: All logical entity attributes storing customer personal information must carry explicit privacy classification metadata.
+target_scope: data://logical/customers/*
+executable_expression: "attribute.has_tag('PII') || attribute.has_tag('PUBLIC')"
+remediation_hint: Add privacy classification tag (e.g., tags=['PII', 'CONFIDENTIAL']) to the attribute definition.
+governing_adr: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+status: ACTIVE

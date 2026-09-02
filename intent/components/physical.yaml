@@ -1,0 +1,24 @@
+uri: component://groundtruth/physical
+name: GroundTruth Physical Projection Engine
+domain: groundtruth
+description: Deterministic physical DDL projection generators for PostgreSQL, Parquet, JSON Schema, and database migration scripts.
+exported_capabilities:
+  - req://physical/generate-ddl-projection
+  - req://physical/validate-schema-migration
+required_dependencies:
+  - target_component: component://groundtruth/logical
+    required_capability: req://logical/define-entity-schema
+    rationale: Physical schemas are generated directly from DAMA logical entity definitions.
+internal_capabilities: []
+owned_data_domains:
+  - data://physical/*
+owned_code_namespaces:
+  - csi://groundtruth/physical/*
+boundary_invariants:
+  - constraint://groundtruth/deterministic-ddl-purity
+governing_policies: []
+lifecycle: ACTIVE
+tags:
+  - physical
+  - ddl
+  - postgresql

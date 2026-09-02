@@ -1,0 +1,25 @@
+uri: req://physical/generate-ddl-projection
+title: Generate Deterministic Physical DDL Projection
+intent: Generates standard, zero-drift PostgreSQL CREATE TABLE and ALTER TABLE DDL statements from DAMA logical schemas.
+component: physical
+contract:
+  preconditions:
+    - description: Target logical entity must be validated and active
+      expression: entity.lifecycle == 'ACTIVE'
+  postconditions:
+    - description: Returns deterministic, idempotent DDL string with primary keys, foreign keys, and indexes
+      expression: len(ddl_output.strip()) > 0
+failure_modes:
+  - error_name: UnsupportedTypeMappingError
+    trigger_condition: Logical attribute data type cannot be mapped to PostgreSQL dialect
+    recovery_action: Declare explicit physical type override
+    domain_error_code: PHYSICAL_001
+governed_by:
+  - decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+constraints:
+  - constraint://groundtruth/deterministic-ddl-purity
+lifecycle: ACTIVE
+tags:
+  - physical
+  - ddl
+  - postgresql

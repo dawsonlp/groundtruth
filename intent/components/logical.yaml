@@ -1,0 +1,26 @@
+uri: component://groundtruth/logical
+name: GroundTruth Logical Data Model
+domain: groundtruth
+description: DAMA-compliant logical entity schemas, typed attribute definitions, primary/foreign key relations, and finite state transition machines.
+exported_capabilities:
+  - req://logical/define-entity-schema
+  - req://logical/verify-state-transition
+  - req://logical/validate-foreign-key-integrity
+required_dependencies:
+  - target_component: component://groundtruth/conceptual
+    required_capability: req://conceptual/register-business-term
+    rationale: Every logical entity must link to a governing conceptual business term.
+internal_capabilities: []
+owned_data_domains:
+  - data://logical/*
+owned_code_namespaces:
+  - csi://groundtruth/logical/*
+boundary_invariants:
+  - constraint://groundtruth/state-machine-validity
+governing_policies:
+  - policy://governance/dama-dmbok-compliance
+lifecycle: ACTIVE
+tags:
+  - logical
+  - entities
+  - schemas

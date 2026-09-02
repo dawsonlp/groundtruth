@@ -1,0 +1,33 @@
+links:
+  - source: component://groundtruth/conceptual
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: component://groundtruth/logical
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: component://groundtruth/physical
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: component://groundtruth/governance
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}

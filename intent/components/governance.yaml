@@ -1,0 +1,27 @@
+uri: component://groundtruth/governance
+name: GroundTruth Governance & Privacy Authority
+domain: groundtruth
+description: Data classification enforcement, PII/GDPR privacy tags, retention policies, and executable data quality validation rules.
+exported_capabilities:
+  - req://governance/enforce-privacy-tagging
+  - req://governance/evaluate-data-quality-rules
+required_dependencies:
+  - target_component: component://groundtruth/logical
+    required_capability: req://logical/define-entity-schema
+    rationale: Privacy classifications attach directly to logical entity attributes.
+internal_capabilities: []
+owned_data_domains:
+  - data://governance/*
+owned_code_namespaces:
+  - csi://groundtruth/governance/*
+boundary_invariants:
+  - constraint://groundtruth/mandatory-pii-classification
+governing_policies:
+  - policy://compliance/gdpr-article-30
+  - policy://compliance/pci-dss-v4
+lifecycle: ACTIVE
+tags:
+  - governance
+  - privacy
+  - pii
+  - quality

@@ -1,0 +1,9 @@
+uri: constraint://groundtruth/deterministic-ddl-purity
+title: Deterministic DDL Projection Purity
+rule_type: PURITY_BOUND
+description: Physical DDL generators must be pure functions without non-deterministic ordering or environment side effects.
+target_scope: csi://groundtruth/physical/*
+executable_expression: ""
+remediation_hint: Ensure column order, constraint naming, and index definitions are deterministically sorted.
+governing_adr: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+status: ACTIVE

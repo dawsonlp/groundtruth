@@ -1,0 +1,22 @@
+uri: component://groundtruth/lineage
+name: GroundTruth Lineage & Provenance Tracker
+domain: groundtruth
+description: Column-level data provenance graphs, pipeline transform tracking, and audit lineage traversal.
+exported_capabilities:
+  - req://lineage/trace-column-provenance
+  - req://lineage/register-transform-pipeline
+required_dependencies:
+  - target_component: component://groundtruth/logical
+    required_capability: req://logical/define-entity-schema
+    rationale: Lineage vertices bind to logical entity attributes.
+internal_capabilities: []
+owned_data_domains:
+  - data://lineage/*
+owned_code_namespaces:
+  - csi://groundtruth/lineage/*
+boundary_invariants: []
+governing_policies: []
+lifecycle: ACTIVE
+tags:
+  - lineage
+  - provenance

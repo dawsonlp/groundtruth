@@ -1,0 +1,26 @@
+uri: req://logical/verify-state-transition
+title: Verify Finite State Machine Transition
+intent: Verifies that a proposed entity state mutation obeys the finite state machine matrix declared for that logical entity.
+component: logical
+contract:
+  preconditions:
+    - description: Entity must declare a state machine on the target attribute
+      expression: entity.has_state_machine(attribute) == True
+    - description: Current state must be in the entity's declared legal state list
+      expression: from_state in entity.state_machine.states
+  postconditions:
+    - description: Returns True if transition (from_state -> to_state) is legal
+      expression: (from_state, to_state) in entity.state_machine.legal_transitions
+failure_modes:
+  - error_name: IllegalStateTransitionError
+    trigger_condition: Attempted transition is not present in legal_transitions matrix
+    recovery_action: Reject state change and return legal next states
+    domain_error_code: LOGICAL_003
+governed_by:
+  - decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+constraints:
+  - constraint://groundtruth/state-machine-validity
+lifecycle: ACTIVE
+tags:
+  - state-machine
+  - validation

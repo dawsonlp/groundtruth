@@ -1,0 +1,21 @@
+uri: component://groundtruth/conceptual
+name: GroundTruth Conceptual Catalog
+domain: groundtruth
+description: Enterprise business glossary, conceptual ontology, business definitions, and synonym taxonomy.
+exported_capabilities:
+  - req://conceptual/register-business-term
+  - req://conceptual/map-term-to-logical-entity
+required_dependencies: []
+internal_capabilities: []
+owned_data_domains:
+  - data://conceptual/*
+owned_code_namespaces:
+  - csi://groundtruth/conceptual/*
+boundary_invariants:
+  - constraint://groundtruth/mandatory-business-definition
+governing_policies:
+  - policy://governance/dama-dmbok-compliance
+lifecycle: ACTIVE
+tags:
+  - glossary
+  - conceptual

@@ -1,0 +1,26 @@
+uri: req://conceptual/register-business-term
+title: Register Conceptual Business Term
+intent: Authoritatively registers an enterprise business term with formal definitions, business context, synonyms, and governance stewardship.
+component: conceptual
+contract:
+  preconditions:
+    - description: Term slug must be lowercase alphanumeric with hyphens
+      expression: term.slug.matches("^[a-z0-9_-]+$")
+    - description: Business definition must not be empty
+      expression: len(term.definition.strip()) > 10
+  postconditions:
+    - description: Term is registered under data://conceptual/<slug>
+      expression: catalog.has_term(term.slug) == True
+failure_modes:
+  - error_name: DuplicateTermError
+    trigger_condition: Term slug is already registered in conceptual catalog
+    recovery_action: Prompt user for synonym alias or disambiguated namespace slug
+    domain_error_code: CONCEPTUAL_001
+governed_by:
+  - decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+constraints:
+  - constraint://groundtruth/mandatory-business-definition
+lifecycle: ACTIVE
+tags:
+  - glossary
+  - terms
