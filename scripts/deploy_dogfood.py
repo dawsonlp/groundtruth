@@ -45,12 +45,13 @@ def run_dogfood_deployment():
     cm_ddl = PostgresProjectionEngine.generate_schema_ddl(cm_entities, schema="codemesh")
     print(f"  ✓ Generated DDL for {len(cm_entities)} CodeMesh tables.")
 
-    # 4. Connect to PostgreSQL Container
+    # 4. Connect to Larnet PostgreSQL
     pg_host = os.getenv("POSTGRES_HOST", "localhost")
-    pg_port = int(os.getenv("POSTGRES_PORT", "9432"))
+    pg_port = int(os.getenv("POSTGRES_PORT", "15432"))
     pg_db = os.getenv("POSTGRES_DB", "groundtruth_catalog")
-    pg_user = os.getenv("POSTGRES_USER", "groundtruth")
-    pg_pass = os.getenv("POSTGRES_PASSWORD", "groundtruth_password")
+    pg_user = os.getenv("POSTGRES_USER", "postgres")
+    pg_pass = os.getenv("POSTGRES_PASSWORD", "larnet_dev")
+
 
     conn_str = f"host={pg_host} port={pg_port} dbname={pg_db} user={pg_user} password={pg_pass}"
 

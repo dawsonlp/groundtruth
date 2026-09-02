@@ -35,3 +35,4 @@ attributes:
     description: Tenant creation timestamp.
 relations: []
 lifecycle: ACTIVE
+

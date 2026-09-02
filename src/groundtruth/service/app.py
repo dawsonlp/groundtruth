@@ -224,10 +224,11 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
     def execute_query_capability(payload: SQLQueryPayload):
         """Capability: Execute validated read-only SQL query against PostgreSQL instance storage."""
         pg_host = os.getenv("POSTGRES_HOST", "localhost")
-        pg_port = int(os.getenv("POSTGRES_PORT", "9432"))
+        pg_port = int(os.getenv("POSTGRES_PORT", "15432"))
         pg_db = os.getenv("POSTGRES_DB", "groundtruth_catalog")
-        pg_user = os.getenv("POSTGRES_USER", "groundtruth")
-        pg_pass = os.getenv("POSTGRES_PASSWORD", "groundtruth_password")
+        pg_user = os.getenv("POSTGRES_USER", "postgres")
+        pg_pass = os.getenv("POSTGRES_PASSWORD", "larnet_dev")
+
 
         conn_str = f"host={pg_host} port={pg_port} dbname={pg_db} user={pg_user} password={pg_pass}"
         try:
@@ -330,7 +331,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
 
       <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium shadow-sm">
         <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        PostgreSQL: <strong>localhost:9432</strong>
+        PostgreSQL: <strong>localhost:15432</strong>
       </span>
     </div>
   </header>
@@ -673,7 +674,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
           <!-- Live Physical Table Preview -->
           <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
             <div class="flex justify-between items-center">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800">🐘 Live PostgreSQL Table Data (Port 9432)</h3>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800">🐘 Live PostgreSQL Table Data (Port 15432)</h3>
               <button onclick="loadLiveTablePreview('${{entity.domain}}', '${{entity.name}}')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded font-semibold transition shadow-sm">
                 Query Live Rows
               </button>
@@ -895,7 +896,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         <div class="space-y-6">
           <div class="border-b border-slate-200 pb-4">
             <h2 class="text-xl font-bold text-slate-900">⚡ Live PostgreSQL Query Sandbox</h2>
-            <p class="text-xs text-slate-500 mt-1">Execute live queries against the running PostgreSQL container (Port 9432)</p>
+            <p class="text-xs text-slate-500 mt-1">Execute live queries against the running PostgreSQL container (Port 15432)</p>
           </div>
 
           <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">

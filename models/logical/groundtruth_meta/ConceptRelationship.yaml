@@ -51,3 +51,4 @@ relations:
     relationship_type: MANY_TO_ONE
     is_required: true
 lifecycle: ACTIVE
+
