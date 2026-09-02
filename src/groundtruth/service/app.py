@@ -22,6 +22,9 @@ from groundtruth.logical.state_machine import FiniteStateMachine, StateTransitio
 from groundtruth.physical.postgres import PostgresProjectionEngine
 
 
+import re
+
+
 def generate_solution_erd(entities: List[LogicalEntity]) -> str:
     """Generate Mermaid ER diagram markup for a specific collection of entities."""
     if not entities:
@@ -32,26 +35,30 @@ def generate_solution_erd(entities: List[LogicalEntity]) -> str:
 
     # Add relations
     for entity in entities:
-        source_name = entity.name.upper()
+        source_name = re.sub(r'[^a-zA-Z0-9_]', '', entity.name).upper()
         for rel in entity.relations:
             target_raw = rel.target_entity_uri.split("/")[-1].lower()
             if target_raw in entity_names:
-                target_name = entity_names[target_raw].upper()
-                verb = rel.name.replace("-", "_").replace(" ", "_")
+                target_name = re.sub(r'[^a-zA-Z0-9_]', '', entity_names[target_raw]).upper()
+                verb = re.sub(r'[^a-zA-Z0-9_]', '_', rel.name)
                 lines.append(f"    {target_name} ||--o{{ {source_name} : {verb}")
 
     # Add entity definitions
     for entity in entities:
-        lines.append(f"    {entity.name.upper()} {{")
+        sanitized_entity = re.sub(r'[^a-zA-Z0-9_]', '', entity.name).upper()
+        lines.append(f"    {sanitized_entity} {{")
         for attr in entity.attributes:
-            type_str = attr.data_type.primitive.value.lower()
+            raw_type = attr.data_type.primitive.value.lower()
+            type_str = re.sub(r'[^a-zA-Z0-9_]', '', raw_type) or "string"
+            attr_name = re.sub(r'[^a-zA-Z0-9_]', '', attr.name)
             pk_str = " PK" if attr.is_primary_key else ""
             fk_str = " FK" if any(r.source_attribute == attr.name for r in entity.relations) else ""
             key_marker = pk_str or fk_str
-            lines.append(f"        {type_str} {attr.name}{key_marker}")
+            lines.append(f"        {type_str} {attr_name}{key_marker}")
         lines.append("    }")
 
     return "\n".join(lines)
+
 
 
 def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
@@ -375,12 +382,14 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         mermaid.initialize({{
           startOnLoad: false,
           theme: 'neutral',
-          securityLevel: 'loose'
+          securityLevel: 'loose',
+          suppressErrorRendering: true
         }});
       }}
     }} catch (e) {{
       console.warn('Mermaid init warning:', e);
     }}
+
 
     function onSolutionChange(solutionName) {{
       activeNodeId = 'erd';
@@ -532,19 +541,27 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
     async function renderChartSafely(targetElementId, chartDefinition) {{
       const el = document.getElementById(targetElementId);
       if (!el) return;
+      if (!chartDefinition || !chartDefinition.trim()) {{
+        el.innerHTML = '<div class="p-4 text-xs text-slate-400 text-center font-mono">No diagram declared for this view</div>';
+        return;
+      }}
+
 
       renderCounter++;
       const uniqueId = 'mermaid_svg_' + renderCounter;
 
       try {{
-        if (window.mermaid) {{
-          const {{ svg }} = await window.mermaid.render(uniqueId, chartDefinition);
+        if (window.mermaid && window.mermaid.render) {{
+          const cleanDef = chartDefinition.replace(/\\n/g, '\n').trim();
+          const {{ svg }} = await window.mermaid.render(uniqueId, cleanDef);
           el.innerHTML = svg;
         }} else {{
           el.innerHTML = `<pre class="text-xs font-mono text-slate-800">${{chartDefinition}}</pre>`;
         }}
       }} catch (err) {{
         console.warn('Mermaid render fallback:', err);
+        document.querySelectorAll('[id^="dmermaid"]').forEach(e => e.remove());
+        document.querySelectorAll('.error-icon').forEach(e => e.closest('div')?.remove());
         el.innerHTML = `
           <div class="w-full p-4 bg-white border border-slate-200 rounded-lg text-xs font-mono shadow-sm">
             <div class="text-[10px] text-slate-500 mb-2 uppercase font-bold tracking-wider">Topological Relationship Definition</div>
@@ -553,6 +570,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         `;
       }}
     }}
+
 
     // --- VIEW RENDERERS (LIGHT THEME) ---
 
