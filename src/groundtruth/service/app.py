@@ -1,5 +1,6 @@
-"""FastAPI REST Service and Interactive Web Model Explorer for GroundTruth."""
+"""FastAPI REST Service and Solution-Scoped Hierarchical Model Explorer for GroundTruth."""
 
+import json
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -12,13 +13,47 @@ from groundtruth.api import GroundTruthCatalog
 from groundtruth.conceptual.models import BusinessTerm, PropertyConcept
 from groundtruth.logical.entities import LogicalAttribute, LogicalEntity
 from groundtruth.logical.state_machine import FiniteStateMachine, StateTransition
+from groundtruth.physical.postgres import PostgresProjectionEngine
+
+
+def generate_solution_erd(entities: List[LogicalEntity]) -> str:
+    """Generate Mermaid ER diagram markup for a specific collection of entities."""
+    if not entities:
+        return "erDiagram\n    EMPTY_DOMAIN {\n        string notice \"No entities declared\"\n    }"
+
+    lines = ["erDiagram"]
+    entity_names = {e.name.lower(): e.name for e in entities}
+
+    # Add relations
+    for entity in entities:
+        source_name = entity.name.upper()
+        for rel in entity.relations:
+            target_raw = rel.target_entity_uri.split("/")[-1].lower()
+            if target_raw in entity_names:
+                target_name = entity_names[target_raw].upper()
+                verb = rel.name.replace("_", " ")
+                lines.append(f"    {target_name} ||--o{{ {source_name} : \"{verb}\"")
+
+    # Add entity definitions
+    for entity in entities:
+        lines.append(f"    {entity.name.upper()} {{")
+        for attr in entity.attributes:
+            type_str = attr.data_type.primitive.value.lower()
+            pk_str = " PK" if attr.is_primary_key else ""
+            fk_str = " FK" if any(r.source_attribute == attr.name for r in entity.relations) else ""
+            key_marker = pk_str or fk_str
+            tag_comment = f' "{", ".join(attr.tags)}"' if attr.tags else ""
+            lines.append(f"        {type_str} {attr.name}{key_marker}{tag_comment}")
+        lines.append("    }")
+
+    return "\n".join(lines)
 
 
 def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
     root_path = Path(workspace_root or os.getenv("GROUNDTRUTH_WORKSPACE_ROOT", "."))
     catalog = GroundTruthCatalog.load(root_path) if (root_path / "models").exists() else GroundTruthCatalog()
 
-    # Pre-register default FSMs
+    # Register default FSMs
     order_fsm = FiniteStateMachine(
         target_entity_uri="data://logical/ecommerce/Order",
         attribute_name="status",
@@ -27,8 +62,8 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         transitions=[
             StateTransition("DRAFT", "PENDING", trigger_action="Submit for Payment"),
             StateTransition("PENDING", "PAID", trigger_action="Capture Payment"),
-            StateTransition("PENDING", "CANCELLED", trigger_action="Cancel"),
-            StateTransition("PAID", "SHIPPED", trigger_action="Fulfill Order"),
+            StateTransition("PENDING", "CANCELLED", trigger_action="Cancel by Customer"),
+            StateTransition("PAID", "SHIPPED", trigger_action="Fulfill & Dispatch"),
             StateTransition("SHIPPED", "DELIVERED", trigger_action="Carrier Delivery"),
             StateTransition("PAID", "CANCELLED", trigger_action="Refund & Cancel"),
         ],
@@ -41,10 +76,10 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         states=["INITIATED", "AUTHORIZED", "CAPTURED", "REFUNDED", "FAILED"],
         initial_state="INITIATED",
         transitions=[
-            StateTransition("INITIATED", "AUTHORIZED", trigger_action="Auth Hold"),
-            StateTransition("AUTHORIZED", "CAPTURED", trigger_action="Settle Payment"),
+            StateTransition("INITIATED", "AUTHORIZED", trigger_action="Card Auth Hold"),
+            StateTransition("AUTHORIZED", "CAPTURED", trigger_action="Capture Settlement"),
             StateTransition("INITIATED", "FAILED", trigger_action="Decline"),
-            StateTransition("CAPTURED", "REFUNDED", trigger_action="Refund"),
+            StateTransition("CAPTURED", "REFUNDED", trigger_action="Issue Refund"),
         ],
     )
     catalog.register_state_machine(payment_fsm)
@@ -65,7 +100,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
 
     app = FastAPI(
         title="GroundTruth Data & Information Authority",
-        description="Authoritative DAMA & MOF data modeling catalog and interactive explorer",
+        description="Hierarchical solution-scoped model explorer and data catalog",
         version="0.1.0",
     )
     app.state.catalog = catalog
@@ -82,19 +117,62 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
             "entities_count": len(catalog.logical.list_entities()),
         }
 
-    @app.get("/api/v1/terms")
-    def list_terms():
-        return [t.to_dict() for t in catalog.conceptual.list_terms()]
+    @app.get("/api/v1/solutions")
+    def list_solutions():
+        """List all solutions / domains and their metadata counts."""
+        entities = catalog.logical.list_entities()
+        terms = catalog.conceptual.list_terms()
+        domains = sorted(list({e.domain for e in entities} | {t.domain for t in terms}))
+        
+        results = []
+        for d in domains:
+            d_entities = [e for e in entities if e.domain == d]
+            d_terms = [t for t in terms if t.domain == d]
+            results.append({
+                "solution_name": d,
+                "display_name": {
+                    "ecommerce": "🛒 E-Commerce & Payments Domain",
+                    "codemesh": "🕸️ CodeMesh Program Graph Engine",
+                    "groundtruth_meta": "🏛️ GroundTruth Information Metamodel",
+                }.get(d, f"📦 {d.capitalize()} Solution"),
+                "entity_count": len(d_entities),
+                "term_count": len(d_terms),
+            })
+        return results
+
+    @app.get("/api/v1/solutions/{solution_name}")
+    def get_solution_bundle(solution_name: str):
+        """Retrieve full conceptual, logical, and physical model bundle for a solution."""
+        all_entities = catalog.logical.list_entities()
+        all_terms = catalog.conceptual.list_terms()
+
+        d_entities = [e for e in all_entities if e.domain == solution_name]
+        d_terms = [t for t in all_terms if t.domain == solution_name]
+
+        # Extract state machines for this solution
+        d_fsms = []
+        for key, fsm in catalog.logical._state_machines.items():
+            if fsm.target_entity_uri.startswith(f"data://logical/{solution_name}/"):
+                d_fsms.append(fsm.to_dict())
+
+        # Generate DDL & ERD
+        ddl = PostgresProjectionEngine.generate_schema_ddl(d_entities, schema=solution_name) if d_entities else ""
+        erd_mermaid = generate_solution_erd(d_entities)
+
+        return {
+            "solution_name": solution_name,
+            "terms": [t.to_dict() for t in d_terms],
+            "entities": [e.to_dict() for e in d_entities],
+            "state_machines": d_fsms,
+            "ddl": ddl,
+            "erd_mermaid": erd_mermaid,
+        }
 
     @app.post("/api/v1/terms")
     def register_term(payload: Dict[str, Any]):
         term = BusinessTerm.from_dict(payload)
         registered = catalog.register_business_term(term)
         return registered.to_dict()
-
-    @app.get("/api/v1/entities")
-    def list_entities(domain: Optional[str] = None):
-        return [e.to_dict() for e in catalog.logical.list_entities(domain=domain)]
 
     @app.post("/api/v1/entities")
     def define_entity(payload: Dict[str, Any]):
@@ -111,15 +189,6 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
             return {"valid": valid, "from_state": payload["from_state"], "to_state": payload["to_state"]}
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
-
-    @app.get("/api/v1/projections/postgres/{domain}")
-    def get_postgres_ddl(domain: str, schema: Optional[str] = None):
-        target_schema = schema or domain
-        try:
-            ddl = catalog.generate_postgres_ddl(domain, schema=target_schema)
-            return {"domain": domain, "schema": target_schema, "ddl": ddl}
-        except Exception as e:
-            raise HTTPException(status_code=404, detail=str(e))
 
     @app.post("/api/v1/query")
     def run_sql_query(payload: SQLQueryPayload):
@@ -145,369 +214,657 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
 
     @app.get("/", response_class=HTMLResponse)
     def render_explorer():
-        """Render the rich interactive Web Model Explorer."""
-        terms = catalog.conceptual.list_terms()
-        entities = catalog.logical.list_entities()
-        meta_entities = [e for e in entities if e.domain == "groundtruth_meta"]
-        ecom_entities = [e for e in entities if e.domain == "ecommerce"]
-        cm_entities = [e for e in entities if e.domain == "codemesh"]
-
-        m2_ddl = catalog.generate_postgres_ddl("groundtruth_meta", schema="groundtruth_meta")
-        m1_ecom_ddl = catalog.generate_postgres_ddl("ecommerce", schema="ecommerce")
-        m1_cm_ddl = catalog.generate_postgres_ddl("codemesh", schema="codemesh")
-
-        html_content = f"""<!DOCTYPE html>
+        """Render the hierarchical, solution-scoped Web Model Explorer."""
+        html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GroundTruth Explorer | Information & Data Authority</title>
+  <title>GroundTruth | Hierarchical Model Explorer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({{ startOnLoad: true, theme: 'neutral' }});
+    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    window.mermaid = mermaid;
   </script>
+  <style>
+    .tree-node-active { background-color: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 600; border-left: 3px solid #10b981; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
 
   <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
       <div class="h-9 w-9 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-emerald-900/40">GT</div>
       <div>
-        <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-          GroundTruth <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Data & Information Authority</span>
+        <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+          GroundTruth <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Model Explorer</span>
         </h1>
-        <p class="text-xs text-slate-400">OMG MOF 2.5.1 & DAMA-DMBOK 4-Tier Semantic Modeling</p>
+        <p class="text-[11px] text-slate-400">OMG MOF 2.5.1 & DAMA-DMBOK Hierarchical Navigation</p>
       </div>
     </div>
+
+    <!-- Tenant & Solution Selector Bar -->
     <div class="flex items-center space-x-3 text-xs">
+      <div class="flex items-center gap-2 bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5">
+        <span class="text-slate-400 font-medium">Tenant:</span>
+        <select class="bg-transparent text-slate-200 font-semibold focus:outline-none cursor-pointer">
+          <option value="tripartite" selected>🏢 Tripartite Enterprise</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2 bg-slate-800/80 border border-emerald-500/40 rounded-lg px-3 py-1.5 shadow-sm">
+        <span class="text-emerald-400 font-semibold">Active Solution:</span>
+        <select id="solutionSelect" onchange="onSolutionChange(this.value)" class="bg-slate-900 text-white font-bold rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer">
+          <option value="ecommerce">🛒 E-Commerce & Payments Domain</option>
+          <option value="codemesh">🕸️ CodeMesh Program Graph Engine</option>
+          <option value="groundtruth_meta">🏛️ GroundTruth Metamodel</option>
+        </select>
+      </div>
+
       <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700 text-slate-300">
         <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        PostgreSQL Port: <strong class="text-white">9432</strong>
-      </span>
-      <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-800 border border-slate-700 text-slate-300">
-        Database: <strong class="text-white">groundtruth_catalog</strong>
+        PostgreSQL: <strong class="text-white">localhost:9432</strong>
       </span>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-8">
+  <!-- Workspace: Left Tree Sidebar + Right Main Viewport -->
+  <div class="flex-1 flex overflow-hidden">
     
-    <!-- Hero / Stats Bar -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 1: Conceptual Terms</div>
-        <div class="text-2xl font-bold text-white mt-1">{len(terms)} <span class="text-xs font-normal text-slate-400">Glossary Terms</span></div>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 2: M2 Metamodel</div>
-        <div class="text-2xl font-bold text-indigo-400 mt-1">{len(meta_entities)} <span class="text-xs font-normal text-slate-400">Catalog Entities</span></div>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 2: M1 Domain Entities</div>
-        <div class="text-2xl font-bold text-emerald-400 mt-1">{len(ecom_entities) + len(cm_entities)} <span class="text-xs font-normal text-slate-400">ECom ({len(ecom_entities)}) + CodeMesh ({len(cm_entities)})</span></div>
-      </div>
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 3: M0 Instance Data</div>
-        <div class="text-2xl font-bold text-amber-400 mt-1">Live <span class="text-xs font-normal text-slate-400">PostgreSQL (9432)</span></div>
-      </div>
-    </div>
-
-    <!-- Section: CodeMesh Program Graph Entity-Relationship Diagram (M1) -->
-    <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h2 class="text-base font-bold text-white flex items-center gap-2">
-            🕸️ CodeMesh Semantic Program Graph Data Model (M1)
-          </h2>
-          <p class="text-xs text-slate-400">GroundTruth logical modeling of CodeMesh symbols, contracts, call edges, slices, and AST mutations</p>
-        </div>
-        <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-1 rounded">CodeMesh Domain</span>
+    <!-- LEFT SIDEBAR: Solution Tree Navigation -->
+    <aside class="w-72 border-r border-slate-800 bg-slate-900/50 flex flex-col overflow-y-auto p-4 space-y-4">
+      <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-400 px-2">
+        <span id="treeSolutionHeader">Solution Tree</span>
+        <span id="treeStatsBadge" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">...</span>
       </div>
 
-      <div class="bg-slate-950 rounded-lg p-4 border border-slate-800/80 flex justify-center">
-        <pre class="mermaid text-xs">
-erDiagram
-    CODESYMBOL ||--|| SYMBOLCONTRACT : specifies
-    CODESYMBOL ||--o{{ CODEDEPENDENCYEDGE : calls_or_called_by
-    CODESYMBOL ||--o{{ CONTEXTSLICESESSION : targets
-    CODESYMBOL ||--o{{ SYMBOLMUTATION : undergoes
+      <!-- Tree Nodes Container -->
+      <nav id="treeContainer" class="space-y-1 text-xs font-medium">
+        <!-- Dynamically rendered tree -->
+      </nav>
+    </aside>
 
-    CODESYMBOL {{
-        uuid symbol_id PK
-        string csi_uri UK "csi://"
-        string name
-        string symbol_kind
-        string package_name
-        string file_path
-        int start_line
-        int end_line
-        bool is_exported
-    }}
-
-    SYMBOLCONTRACT {{
-        uuid contract_id PK
-        uuid symbol_id FK
-        string signature
-        string return_type
-        bool is_pure
-        bool is_idempotent
-        bool is_async
-    }}
-
-    CODEDEPENDENCYEDGE {{
-        uuid edge_id PK
-        uuid source_symbol_id FK
-        uuid target_symbol_id FK
-        string verb "CALLS | INHERITS"
-        int call_count
-        bool is_dynamic
-    }}
-
-    CONTEXTSLICESESSION {{
-        uuid session_id PK
-        uuid target_symbol_id FK
-        int hop_distance
-        int token_count
-        string prompt_stub_text
-    }}
-
-    SYMBOLMUTATION {{
-        uuid mutation_id PK
-        uuid symbol_id FK
-        string mutation_type
-        string status "FSM"
-        int blast_radius_count
-        string new_ast_hash
-    }}
-        </pre>
-      </div>
-    </section>
-
-    <!-- Section: E-Commerce Domain ER Diagram (M1) -->
-    <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h2 class="text-base font-bold text-white flex items-center gap-2">
-            🛒 E-Commerce Domain Entity-Relationship Diagram (M1)
-          </h2>
-          <p class="text-xs text-slate-400">Customer profiles, catalog items, orders, order items, and payment settlements</p>
-        </div>
-        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">E-Commerce Domain</span>
-      </div>
-
-      <div class="bg-slate-950 rounded-lg p-4 border border-slate-800/80 flex justify-center">
-        <pre class="mermaid text-xs">
-erDiagram
-    CUSTOMER ||--o{{ ORDER : places
-    ORDER ||--|{{ ORDERITEM : contains
-    PRODUCT ||--o{{ ORDERITEM : ordered_in
-    ORDER ||--|{{ PAYMENT : settled_by
-
-    CUSTOMER {{
-        uuid customer_id PK
-        string email UK "PII"
-        string full_name "PII"
-        string status
-        timestamp created_at
-    }}
-
-    PRODUCT {{
-        uuid product_id PK
-        string sku UK
-        string title
-        int price_cents
-        bool is_active
-    }}
-
-    ORDER {{
-        uuid order_id PK
-        uuid customer_id FK
-        string status "FSM"
-        int total_cents
-        timestamp created_at
-    }}
-
-    ORDERITEM {{
-        uuid item_id PK
-        uuid order_id FK
-        uuid product_id FK
-        int quantity
-        int unit_price_cents
-    }}
-
-    PAYMENT {{
-        uuid payment_id PK
-        uuid order_id FK
-        string idempotency_key UK
-        int amount_cents
-        string status "FSM"
-        timestamp created_at
-    }}
-        </pre>
-      </div>
-    </section>
-
-    <!-- Section: Lifecycle Finite State Machines -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div class="border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-white">🔄 Order Lifecycle (M1)</h3>
-          <p class="text-xs text-slate-400">Order status transitions</p>
-        </div>
-        <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 flex justify-center">
-          <pre class="mermaid text-xs">
-stateDiagram-v2
-    [*] --> DRAFT
-    DRAFT --> PENDING: Submit
-    PENDING --> PAID: Payment Captured
-    PENDING --> CANCELLED: Customer Cancel
-    PAID --> SHIPPED: Fulfill
-    SHIPPED --> DELIVERED: Delivery
-    PAID --> CANCELLED: Refund
-    CANCELLED --> [*]
-    DELIVERED --> [*]
-          </pre>
-        </div>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div class="border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-white">💳 Payment Lifecycle (M1)</h3>
-          <p class="text-xs text-slate-400">Idempotent charge flow</p>
-        </div>
-        <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 flex justify-center">
-          <pre class="mermaid text-xs">
-stateDiagram-v2
-    [*] --> INITIATED
-    INITIATED --> AUTHORIZED: Auth Hold
-    AUTHORIZED --> CAPTURED: Settle
-    INITIATED --> FAILED: Decline
-    CAPTURED --> REFUNDED: Refund
-    FAILED --> [*]
-    REFUNDED --> [*]
-          </pre>
-        </div>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-        <div class="border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-white">🧬 CodeMesh AST Mutation (M1)</h3>
-          <p class="text-xs text-slate-400">Zero-diff validation flow</p>
-        </div>
-        <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 flex justify-center">
-          <pre class="mermaid text-xs">
-stateDiagram-v2
-    [*] --> PROPOSED
-    PROPOSED --> VALIDATED: Invariant Pass
-    PROPOSED --> REJECTED: Violation
-    VALIDATED --> MATERIALIZED: Write to Disk
-    VALIDATED --> REJECTED: Abort
-    MATERIALIZED --> [*]
-    REJECTED --> [*]
-          </pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section: Live SQL Query Sandbox -->
-    <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div>
-          <h2 class="text-base font-bold text-white flex items-center gap-2">
-            ⚡ Live PostgreSQL SQL Query Sandbox (Port 9432)
-          </h2>
-          <p class="text-xs text-slate-400">Execute queries live against the running PostgreSQL container across all three domains</p>
-        </div>
-      </div>
-
-      <div class="space-y-3">
-        <div class="flex gap-2">
-          <input id="sqlInput" type="text" value="SELECT csi_uri, name, symbol_kind, file_path FROM codemesh.codesymbol LIMIT 10;" 
-                 class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500">
-          <button onclick="runQuery()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">Run Query</button>
-        </div>
-
-        <div class="flex gap-2 text-xs text-slate-400 flex-wrap">
-          <span>Quick queries:</span>
-          <button onclick="setQuery('SELECT csi_uri, symbol_kind, file_path FROM codemesh.codesymbol;')" class="underline hover:text-white">CodeMesh Symbols</button>
-          <span>•</span>
-          <button onclick="setQuery('SELECT e.verb, s1.name as caller, s2.name as callee FROM codemesh.codedependencyedge e JOIN codemesh.codesymbol s1 ON e.source_symbol_id = s1.symbol_id JOIN codemesh.codesymbol s2 ON e.target_symbol_id = s2.symbol_id;')" class="underline hover:text-white">CodeMesh Call Graph</button>
-          <span>•</span>
-          <button onclick="setQuery('SELECT customer_id, email, full_name, status FROM ecommerce.customer;')" class="underline hover:text-white">ECom Customers</button>
-          <span>•</span>
-          <button onclick="setQuery('SELECT domain, name, uri FROM groundtruth_meta.entity ORDER BY domain, name;')" class="underline hover:text-white">M2 Catalog Entities</button>
-        </div>
-
-        <div id="queryResult" class="bg-slate-950 border border-slate-800 rounded-lg p-3 overflow-x-auto min-h-[100px] text-xs font-mono">
-          <p class="text-slate-500 italic">Click "Run Query" to inspect live database records...</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section: Physical DDL Projections -->
-    <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <div class="border-b border-slate-800 pb-3">
-        <h2 class="text-base font-bold text-white">📜 Generated PostgreSQL DDL Projections for CodeMesh (M1)</h2>
-        <p class="text-xs text-slate-400">Idempotent, sorted DDL generated purely from GroundTruth logical schemas</p>
-      </div>
-      <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 overflow-x-auto max-h-96">
-        <pre class="text-xs font-mono text-indigo-300">{m1_cm_ddl}</pre>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="border-t border-slate-800 bg-slate-900 py-4 px-6 text-center text-xs text-slate-500">
-    GroundTruth Information Authority • Tripartite Semantic Federation • OMG MOF 2.5.1 Compliant
-  </footer>
+    <!-- RIGHT MAIN VIEWPORT: Solution-Scoped Focus Content -->
+    <main id="mainViewport" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-950">
+      <!-- Dynamically rendered detail view -->
+    </main>
+  </div>
 
   <script>
-    function setQuery(sql) {{
-      document.getElementById('sqlInput').value = sql;
-      runQuery();
-    }}
+    let currentSolution = 'ecommerce';
+    let currentBundle = null;
+    let activeNodeId = 'erd';
 
-    async function runQuery() {{
-      const sql = document.getElementById('sqlInput').value;
-      const resultDiv = document.getElementById('queryResult');
-      resultDiv.innerHTML = '<span class="text-slate-400">Executing...</span>';
+    async function loadSolution(solutionName) {
+      currentSolution = solutionName;
+      document.getElementById('solutionSelect').value = solutionName;
+      
+      try {
+        const resp = await fetch(`/api/v1/solutions/${solutionName}`);
+        currentBundle = await resp.json();
+        renderTree();
+        selectView(activeNodeId);
+      } catch (err) {
+        console.error('Failed to load solution:', err);
+      }
+    }
 
-      try {{
-        const resp = await fetch('/api/v1/query', {{
+    function onSolutionChange(solutionName) {
+      activeNodeId = 'erd';
+      loadSolution(solutionName);
+    }
+
+    function renderTree() {
+      if (!currentBundle) return;
+      document.getElementById('treeSolutionHeader').textContent = currentBundle.solution_name;
+      document.getElementById('treeStatsBadge').textContent = `${currentBundle.entities.length} Entities`;
+
+      const container = document.getElementById('treeContainer');
+      let html = '';
+
+      // 1. Solution ER Diagram
+      html += `
+        <div onclick="selectView('erd')" class="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/60 ${activeNodeId === 'erd' ? 'tree-node-active' : ''}">
+          <span>📊</span> <span>Entity Relationship Map</span>
+        </div>
+      `;
+
+      // 2. Conceptual Glossary
+      html += `
+        <div class="pt-2">
+          <div onclick="selectView('conceptual')" class="cursor-pointer flex items-center justify-between px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold">
+            <span class="flex items-center gap-2"><span>🧠</span> <span>Conceptual Glossary</span></span>
+            <span class="text-[10px] bg-slate-800 px-1.5 py-0.2 rounded">${currentBundle.terms.length}</span>
+          </div>
+          <div class="pl-6 space-y-0.5 mt-1 border-l border-slate-800/80 ml-4">
+            ${currentBundle.terms.map(t => `
+              <div onclick="selectTerm('${t.slug}')" class="cursor-pointer px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-slate-800/40 truncate ${activeNodeId === 'term_' + t.slug ? 'tree-node-active' : ''}">
+                ${t.name}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // 3. Logical Entities
+      html += `
+        <div class="pt-2">
+          <div onclick="selectView('entities_overview')" class="cursor-pointer flex items-center justify-between px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold">
+            <span class="flex items-center gap-2"><span>📐</span> <span>Logical Entities</span></span>
+            <span class="text-[10px] bg-slate-800 px-1.5 py-0.2 rounded">${currentBundle.entities.length}</span>
+          </div>
+          <div class="pl-6 space-y-0.5 mt-1 border-l border-slate-800/80 ml-4">
+            ${currentBundle.entities.map(e => `
+              <div onclick="selectEntity('${e.name}')" class="cursor-pointer px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-slate-800/40 truncate ${activeNodeId === 'entity_' + e.name ? 'tree-node-active' : ''}">
+                ${e.name}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // 4. State Machines
+      if (currentBundle.state_machines && currentBundle.state_machines.length > 0) {
+        html += `
+          <div class="pt-2">
+            <div onclick="selectView('fsm_overview')" class="cursor-pointer flex items-center justify-between px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold">
+              <span class="flex items-center gap-2"><span>🔄</span> <span>Lifecycle State Machines</span></span>
+              <span class="text-[10px] bg-slate-800 px-1.5 py-0.2 rounded">${currentBundle.state_machines.length}</span>
+            </div>
+            <div class="pl-6 space-y-0.5 mt-1 border-l border-slate-800/80 ml-4">
+              ${currentBundle.state_machines.map(f => {
+                const entName = f.target_entity_uri.split('/').pop();
+                return `
+                  <div onclick="selectFSM('${f.target_entity_uri}', '${f.attribute_name}')" class="cursor-pointer px-2 py-1 rounded text-slate-400 hover:text-white hover:bg-slate-800/40 truncate ${activeNodeId === 'fsm_' + entName ? 'tree-node-active' : ''}">
+                    ${entName}.${f.attribute_name}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // 5. Physical DDL Projection
+      html += `
+        <div class="pt-2">
+          <div onclick="selectView('ddl')" class="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/60 ${activeNodeId === 'ddl' ? 'tree-node-active' : ''}">
+            <span>📜</span> <span>PostgreSQL DDL</span>
+          </div>
+        </div>
+      `;
+
+      // 6. Live SQL Sandbox
+      html += `
+        <div class="pt-1">
+          <div onclick="selectView('sql')" class="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/60 ${activeNodeId === 'sql' ? 'tree-node-active' : ''}">
+            <span>⚡</span> <span>Live SQL Sandbox</span>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function selectView(viewId) {
+      activeNodeId = viewId;
+      renderTree();
+      const viewport = document.getElementById('mainViewport');
+
+      if (viewId === 'erd') {
+        renderERDView(viewport);
+      } else if (viewId === 'conceptual') {
+        renderConceptualView(viewport);
+      } else if (viewId === 'entities_overview') {
+        renderEntitiesOverview(viewport);
+      } else if (viewId === 'fsm_overview') {
+        renderFSMOverview(viewport);
+      } else if (viewId === 'ddl') {
+        renderDDLView(viewport);
+      } else if (viewId === 'sql') {
+        renderSQLView(viewport);
+      }
+    }
+
+    function selectEntity(entityName) {
+      activeNodeId = 'entity_' + entityName;
+      renderTree();
+      const entity = currentBundle.entities.find(e => e.name === entityName);
+      if (!entity) return;
+      renderEntityDetailView(entity);
+    }
+
+    function selectTerm(slug) {
+      activeNodeId = 'term_' + slug;
+      renderTree();
+      const term = currentBundle.terms.find(t => t.slug === slug);
+      if (!term) return;
+      renderTermDetailView(term);
+    }
+
+    function selectFSM(entityUri, attrName) {
+      const entName = entityUri.split('/').pop();
+      activeNodeId = 'fsm_' + entName;
+      renderTree();
+      const fsm = currentBundle.state_machines.find(f => f.target_entity_uri === entityUri && f.attribute_name === attrName);
+      if (!fsm) return;
+      renderFSMDetailView(fsm);
+    }
+
+    // --- VIEW RENDERERS ---
+
+    function renderERDView(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                📊 ${currentBundle.solution_name} Entity-Relationship Diagram (M1)
+              </h2>
+              <p class="text-xs text-slate-400 mt-1">Surgically scoped topological model for ${currentBundle.solution_name}</p>
+            </div>
+            <span class="text-xs px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+              ${currentBundle.entities.length} Normalized Entities
+            </span>
+          </div>
+
+          <!-- Mermaid ER Diagram Card -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <div id="mermaidDiagram" class="flex justify-center overflow-x-auto min-h-[300px]">
+              <pre class="mermaid text-xs">${currentBundle.erd_mermaid}</pre>
+            </div>
+          </div>
+
+          <!-- Entity Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            ${currentBundle.entities.map(e => `
+              <div onclick="selectEntity('${e.name}')" class="cursor-pointer bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 rounded-xl p-4 transition hover:bg-slate-900">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-bold text-white text-sm">${e.name}</h3>
+                  <span class="text-[10px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded">${e.attributes.length} attrs</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-2 line-clamp-2">${e.description || 'No description provided.'}</p>
+                <div class="mt-3 flex gap-1 flex-wrap">
+                  ${e.attributes.filter(a => a.is_primary_key).map(a => `<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded">PK: ${a.name}</span>`).join('')}
+                  ${e.attributes.filter(a => a.is_sensitive).map(a => `<span class="text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded">PII: ${a.name}</span>`).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      if (window.mermaid) {
+        window.mermaid.run();
+      }
+    }
+
+    function renderEntityDetailView(entity) {
+      const container = document.getElementById('mainViewport');
+      const attachedFSM = currentBundle.state_machines ? currentBundle.state_machines.find(f => f.target_entity_uri === entity.uri) : null;
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <!-- Entity Header -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-white">${entity.name}</h2>
+                <span class="text-xs px-2.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">${entity.uri}</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1.5">${entity.description || 'No description provided.'}</p>
+            </div>
+            <button onclick="selectView('erd')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+              ← Back to Solution Map
+            </button>
+          </div>
+
+          <!-- Columns & Attributes Table -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+            <div class="px-5 py-3 border-b border-slate-800 bg-slate-900/60 flex justify-between items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Attribute Specifications</h3>
+              <span class="text-xs text-slate-500">${entity.attributes.length} Columns</span>
+            </div>
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 bg-slate-950/40">
+                  <th class="py-2.5 px-4">Column Name</th>
+                  <th class="py-2.5 px-4">Data Type</th>
+                  <th class="py-2.5 px-4">Constraints</th>
+                  <th class="py-2.5 px-4">Privacy / Tags</th>
+                  <th class="py-2.5 px-4">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${entity.attributes.map(a => `
+                  <tr class="border-b border-slate-800/60 hover:bg-slate-800/30">
+                    <td class="py-2.5 px-4 font-mono font-bold text-white flex items-center gap-1.5">
+                      ${a.is_primary_key ? '🔑' : ''} ${a.name}
+                    </td>
+                    <td class="py-2.5 px-4 font-mono text-emerald-400">${a.data_type.primitive}${a.data_type.max_length ? `(${a.data_type.max_length})` : ''}</td>
+                    <td class="py-2.5 px-4 space-x-1">
+                      ${a.is_primary_key ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">PRIMARY KEY</span>' : ''}
+                      ${!a.is_nullable ? '<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">NOT NULL</span>' : '<span class="text-slate-500 text-[10px]">NULLABLE</span>'}
+                      ${a.is_unique ? '<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px]">UNIQUE</span>' : ''}
+                    </td>
+                    <td class="py-2.5 px-4">
+                      ${a.tags && a.tags.length > 0 ? a.tags.map(t => `<span class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px]">${t}</span>`).join(' ') : '<span class="text-slate-600">—</span>'}
+                    </td>
+                    <td class="py-2.5 px-4 text-slate-400">${a.description || ''}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Attached State Machine Diagram (if any) -->
+          ${attachedFSM ? `
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg space-y-3">
+              <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-white">🔄 Attached Lifecycle State Machine (${attachedFSM.attribute_name})</h3>
+                <span class="text-xs text-emerald-400 font-mono">${attachedFSM.states.length} States</span>
+              </div>
+              <div class="bg-slate-950 p-4 rounded-lg flex justify-center">
+                <pre class="mermaid text-xs">
+stateDiagram-v2
+    [*] --> ${attachedFSM.initial_state}
+    ${attachedFSM.transitions.map(t => `${t.from_state} --> ${t.to_state}: ${t.trigger_action || ''}`).join('\n    ')}
+                </pre>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Live Physical Table Preview -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg space-y-3">
+            <div class="flex justify-between items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">🐘 Live PostgreSQL Table Data (Port 9432)</h3>
+              <button onclick="loadLiveTablePreview('${entity.domain}', '${entity.name}')" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded font-semibold transition shadow">
+                Query Live Rows
+              </button>
+            </div>
+            <div id="liveTableResult" class="bg-slate-950 rounded-lg p-3 overflow-x-auto min-h-[60px] text-xs font-mono text-slate-400">
+              Click "Query Live Rows" to fetch instance data directly from PostgreSQL...
+            </div>
+          </div>
+        </div>
+      `;
+
+      if (attachedFSM && window.mermaid) {
+        window.mermaid.run();
+      }
+    }
+
+    async function loadLiveTablePreview(schema, tableName) {
+      const resultDiv = document.getElementById('liveTableResult');
+      resultDiv.innerHTML = '<span class="text-slate-400">Querying PostgreSQL...</span>';
+
+      try {
+        const sql = `SELECT * FROM ${schema}.${tableName.toLowerCase()} LIMIT 10;`;
+        const resp = await fetch('/api/v1/query', {
           method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ sql }})
-        }});
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql })
+        });
         const data = await resp.json();
-        if (!resp.ok) {{
-          resultDiv.innerHTML = `<span class="text-rose-400">Error: ${{data.detail}}</span>`;
+        if (!resp.ok) {
+          resultDiv.innerHTML = `<span class="text-rose-400">Error: ${data.detail}</span>`;
           return;
-        }}
+        }
 
-        if (!data.columns || data.columns.length === 0) {{
-          resultDiv.innerHTML = `<span class="text-emerald-400">Query executed successfully. Rows affected: ${{data.row_count}}</span>`;
+        if (!data.columns || data.columns.length === 0 || data.rows.length === 0) {
+          resultDiv.innerHTML = `<span class="text-slate-500 italic">Table ${schema}.${tableName.toLowerCase()} is currently empty (0 rows).</span>`;
           return;
-        }}
+        }
 
         let html = '<table class="w-full text-left border-collapse">';
         html += '<thead><tr class="border-b border-slate-800 text-slate-400">';
-        data.columns.forEach(c => html += `<th class="py-1.5 px-3">${{c}}</th>`);
+        data.columns.forEach(c => html += `<th class="py-1.5 px-3">${c}</th>`);
         html += '</tr></thead><tbody>';
-        data.rows.forEach(r => {{
+        data.rows.forEach(r => {
           html += '<tr class="border-b border-slate-900/60 hover:bg-slate-900/40 text-slate-200">';
-          r.forEach(val => html += `<td class="py-1.5 px-3">${{val}}</td>`);
+          r.forEach(val => html += `<td class="py-1.5 px-3">${val}</td>`);
           html += '</tr>';
-        }});
+        });
         html += '</tbody></table>';
-        html += `<div class="mt-2 text-slate-500 text-[10px]">Returned ${{data.row_count}} rows</div>`;
+        html += `<div class="mt-2 text-slate-500 text-[10px]">Displaying ${data.row_count} rows from PostgreSQL</div>`;
         resultDiv.innerHTML = html;
-      }} catch (err) {{
-        resultDiv.innerHTML = `<span class="text-rose-400">Network Error: ${{err.message}}</span>`;
-      }}
-    }}
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="text-rose-400">Network Error: ${err.message}</span>`;
+      }
+    }
+
+    function renderConceptualView(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="border-b border-slate-800 pb-4">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">🧠 Conceptual Glossary for ${currentBundle.solution_name}</h2>
+            <p class="text-xs text-slate-400 mt-1">Authoritative ISO/IEC 11179 & DAMA business definitions</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${currentBundle.terms.map(t => `
+              <div onclick="selectTerm('${t.slug}')" class="cursor-pointer bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-emerald-500/40 transition">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-bold text-white text-base">${t.name}</h3>
+                  <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${t.slug}</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-2">${t.definition}</p>
+                ${t.synonyms && t.synonyms.length > 0 ? `
+                  <div class="mt-3 text-xs text-slate-500">
+                    Synonyms: <span class="text-slate-400">${t.synonyms.join(', ')}</span>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTermDetailView(term) {
+      const container = document.getElementById('mainViewport');
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-white">${term.name}</h2>
+                <span class="text-xs px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">${term.uri}</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1.5">Conceptual Business Term Specification</p>
+            </div>
+            <button onclick="selectView('conceptual')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+              ← Back to Glossary
+            </button>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg space-y-4">
+            <div>
+              <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Formal Business Definition</div>
+              <p class="text-sm text-slate-100 mt-1 leading-relaxed bg-slate-950 p-4 rounded-lg border border-slate-800">${term.definition}</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 pt-2">
+              <div>
+                <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Domain Context</div>
+                <p class="text-xs font-mono text-emerald-400 mt-1">${term.domain}</p>
+              </div>
+              <div>
+                <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Synonyms</div>
+                <p class="text-xs text-slate-300 mt-1">${term.synonyms ? term.synonyms.join(', ') : 'None'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEntitiesOverview(container) {
+      selectView('erd');
+    }
+
+    function renderFSMOverview(container) {
+      if (!currentBundle.state_machines || currentBundle.state_machines.length === 0) {
+        container.innerHTML = `<div class="text-slate-400">No state machines declared for this solution.</div>`;
+        return;
+      }
+      selectFSM(currentBundle.state_machines[0].target_entity_uri, currentBundle.state_machines[0].attribute_name);
+    }
+
+    function renderFSMDetailView(fsm) {
+      const container = document.getElementById('mainViewport');
+      const entName = fsm.target_entity_uri.split('/').pop();
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-white">${entName}.${fsm.attribute_name} Lifecycle</h2>
+                <span class="text-xs px-2.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono">${fsm.target_entity_uri}</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1.5">Deterministic Finite State Machine Verification Matrix</p>
+            </div>
+          </div>
+
+          <!-- Mermaid State Diagram -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">State Transition Flowchart</h3>
+            <div class="bg-slate-950 p-6 rounded-lg flex justify-center">
+              <pre class="mermaid text-xs">
+stateDiagram-v2
+    [*] --> ${fsm.initial_state}
+    ${fsm.transitions.map(t => `${t.from_state} --> ${t.to_state}: ${t.trigger_action || ''}`).join('\n    ')}
+              </pre>
+            </div>
+          </div>
+
+          <!-- Legal Transitions Table -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+            <div class="px-5 py-3 border-b border-slate-800 bg-slate-900/60">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Transition Rule Matrix</h3>
+            </div>
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 bg-slate-950/40">
+                  <th class="py-2.5 px-4">From State</th>
+                  <th class="py-2.5 px-4"></th>
+                  <th class="py-2.5 px-4">To State</th>
+                  <th class="py-2.5 px-4">Trigger / Business Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fsm.transitions.map(t => `
+                  <tr class="border-b border-slate-800/60 hover:bg-slate-800/30 font-mono">
+                    <td class="py-2.5 px-4 font-bold text-amber-400">${t.from_state}</td>
+                    <td class="py-2.5 px-2 text-slate-500">➔</td>
+                    <td class="py-2.5 px-4 font-bold text-emerald-400">${t.to_state}</td>
+                    <td class="py-2.5 px-4 font-sans text-slate-300">${t.trigger_action || 'State Mutation'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      if (window.mermaid) {
+        window.mermaid.run();
+      }
+    }
+
+    function renderDDLView(container) {
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <h2 class="text-xl font-bold text-white">📜 PostgreSQL DDL Projection for ${currentBundle.solution_name}</h2>
+              <p class="text-xs text-slate-400 mt-1">Pure deterministic schema projection matching DAMA & MOF specifications</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
+            <pre class="bg-slate-950 p-4 rounded-lg overflow-x-auto text-xs font-mono text-emerald-300 border border-slate-800">${currentBundle.ddl || '-- No entities to project'}</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSQLView(container) {
+      const defaultSQL = currentSolution === 'ecommerce' 
+        ? 'SELECT customer_id, email, full_name, status FROM ecommerce.customer LIMIT 10;'
+        : currentSolution === 'codemesh'
+        ? 'SELECT csi_uri, name, symbol_kind, file_path FROM codemesh.codesymbol LIMIT 10;'
+        : 'SELECT domain, name, uri FROM groundtruth_meta.entity ORDER BY domain, name;';
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="border-b border-slate-800 pb-4">
+            <h2 class="text-xl font-bold text-white">⚡ Live PostgreSQL Query Sandbox</h2>
+            <p class="text-xs text-slate-400 mt-1">Execute live queries against the running PostgreSQL container (Port 9432)</p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+            <div class="flex gap-2">
+              <input id="sqlSandboxInput" type="text" value="${defaultSQL}" 
+                     class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500">
+              <button onclick="executeSandboxQuery()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">Run Query</button>
+            </div>
+
+            <div id="sandboxResult" class="bg-slate-950 border border-slate-800 rounded-lg p-4 overflow-x-auto min-h-[120px] text-xs font-mono">
+              <p class="text-slate-500 italic">Click "Run Query" to inspect records...</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function executeSandboxQuery() {
+      const sql = document.getElementById('sqlSandboxInput').value;
+      const resultDiv = document.getElementById('sandboxResult');
+      resultDiv.innerHTML = '<span class="text-slate-400">Executing...</span>';
+
+      try {
+        const resp = await fetch('/api/v1/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          resultDiv.innerHTML = `<span class="text-rose-400">Error: ${data.detail}</span>`;
+          return;
+        }
+
+        if (!data.columns || data.columns.length === 0) {
+          resultDiv.innerHTML = `<span class="text-emerald-400">Query executed successfully. Rows affected: ${data.row_count}</span>`;
+          return;
+        }
+
+        let html = '<table class="w-full text-left border-collapse">';
+        html += '<thead><tr class="border-b border-slate-800 text-slate-400">';
+        data.columns.forEach(c => html += `<th class="py-1.5 px-3">${c}</th>`);
+        html += '</tr></thead><tbody>';
+        data.rows.forEach(r => {
+          html += '<tr class="border-b border-slate-900/60 hover:bg-slate-900/40 text-slate-200">';
+          r.forEach(val => html += `<td class="py-1.5 px-3">${val}</td>`);
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        html += `<div class="mt-2 text-slate-500 text-[10px]">Returned ${data.row_count} rows</div>`;
+        resultDiv.innerHTML = html;
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="text-rose-400">Network Error: ${err.message}</span>`;
+      }
+    }
+
+    // Initialize with default solution
+    loadSolution('ecommerce');
   </script>
 </body>
 </html>"""

@@ -34,3 +34,4 @@ terms:
     definition: An in-memory AST transformation targeting a symbol by CSI without textual diffs or line offsets.
     domain: codemesh
     synonyms: ["AST Mutation", "Zero-Diff Edit", "Symbol Patch"]
+
