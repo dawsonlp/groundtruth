@@ -1,0 +1,54 @@
+domain: groundtruth_meta
+name: ConceptualConcept
+conceptual_term_ref: data://conceptual/conceptual-concept
+description: Stores formal conceptual business entity definitions with domain scope and semantic attributes.
+attributes:
+  - name: concept_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for conceptual business concept.
+  - name: solution_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Parent solution package foreign key.
+  - name: slug
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    is_unique: true
+    description: Unique concept identifier slug (e.g. order, customer, code-symbol).
+  - name: name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Formal business concept title.
+  - name: definition
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Authoritative business definition.
+  - name: classification
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'CORE_ENTITY'"
+    description: Concept classification category (CORE_ENTITY, VALUE_OBJECT, AGGREGATE_ROOT, LOOKUP).
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Timestamp of concept definition.
+relations:
+  - name: concept_solution_fk
+    target_entity_uri: data://logical/groundtruth_meta/Solution
+    source_attribute: solution_id
+    target_attribute: solution_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

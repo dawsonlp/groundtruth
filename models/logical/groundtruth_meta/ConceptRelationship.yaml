@@ -1,0 +1,53 @@
+domain: groundtruth_meta
+name: ConceptRelationship
+conceptual_term_ref: data://conceptual/concept-relationship
+description: Stores semantic ontological relationships connecting business concepts.
+attributes:
+  - name: relation_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for concept relationship.
+  - name: source_concept_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Source business concept foreign key.
+  - name: target_concept_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Target business concept foreign key.
+  - name: predicate
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Semantic predicate verb (PLACES, CONTAINS, SETTLED_BY, CALLS, HAS_SPECIFICATION).
+  - name: multiplicity
+    data_type:
+      primitive: STRING
+      max_length: 20
+    is_nullable: false
+    default_value: "'1:N'"
+    description: Ontological multiplicity (1:1, 1:N, M:N).
+  - name: description
+    data_type:
+      primitive: STRING
+    is_nullable: true
+    description: Narrative explanation of business association.
+relations:
+  - name: rel_source_concept_fk
+    target_entity_uri: data://logical/groundtruth_meta/ConceptualConcept
+    source_attribute: source_concept_id
+    target_attribute: concept_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+  - name: rel_target_concept_fk
+    target_entity_uri: data://logical/groundtruth_meta/ConceptualConcept
+    source_attribute: target_concept_id
+    target_attribute: concept_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

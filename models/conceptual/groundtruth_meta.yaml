@@ -1,25 +1,54 @@
 terms:
+  - slug: tenant
+    name: Enterprise Tenant
+    definition: Top-level organizational isolation boundary containing multiple solutions and data catalogs.
+    domain: groundtruth_meta
+    synonyms: ["Organization", "Workspace", "Enterprise Realm"]
+
+  - slug: solution-model
+    name: Solution Model Package
+    definition: Bounded solution context encapsulating conceptual ontologies, logical entities, and physical projections.
+    domain: groundtruth_meta
+    synonyms: ["Domain Model", "Solution Space", "Subject Area"]
+
+  - slug: conceptual-concept
+    name: Conceptual Business Concept
+    definition: Formal ontological business entity definition with semantic properties and domain classification.
+    domain: groundtruth_meta
+    synonyms: ["Business Entity", "Ontology Class", "Domain Concept"]
+
+  - slug: concept-relationship
+    name: Semantic Concept Relationship
+    definition: Typed ontological association connecting two business concepts in the domain graph.
+    domain: groundtruth_meta
+    synonyms: ["Ontology Edge", "Semantic Link", "Business Association"]
+
   - slug: data-entity
     name: Logical Data Entity
-    definition: An authoritative conceptual entity definition within a bounded data domain.
+    definition: An authoritative normalized logical entity definition within a bounded data domain.
     domain: groundtruth_meta
-    synonyms: ["Entity Schema", "Table Model"]
+    synonyms: ["Entity Schema", "Table Model", "Logical Model"]
 
   - slug: data-attribute
     name: Logical Data Attribute
-    definition: A typed data property or column belonging to a logical entity.
+    definition: A typed data property or column belonging to a logical entity with constraints and privacy tags.
     domain: groundtruth_meta
-    synonyms: ["Column Specification", "Field"]
+    synonyms: ["Column Specification", "Field", "Data Element"]
+
+  - slug: junction-entity
+    name: Associative Junction Entity
+    definition: An explicit associative entity modeling many-to-many (M:N) relationships with relational attributes.
+    domain: groundtruth_meta
+    synonyms: ["Relationship Table", "Bridge Table", "Associative Entity"]
+
+  - slug: reference-code
+    name: Reference Lookup Code
+    definition: Formally cataloged controlled vocabulary, code set, or enumerated domain value.
+    domain: groundtruth_meta
+    synonyms: ["Code Table", "Lookup Value", "Controlled Vocabulary", "Enumeration"]
 
   - slug: state-machine
     name: Lifecycle Finite State Machine
-    definition: A deterministic finite state machine defining legal status transitions.
+    definition: A deterministic finite state machine defining legal status transitions for an entity attribute.
     domain: groundtruth_meta
-    synonyms: ["Lifecycle Matrix", "Transition Graph"]
-
-  - slug: data-relation
-    name: Relational Association
-    definition: A foreign key relationship or association between two logical entities.
-    domain: groundtruth_meta
-    synonyms: ["Foreign Key", "Association"]
-
+    synonyms: ["Lifecycle Matrix", "Transition Graph", "FSM"]
