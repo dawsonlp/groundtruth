@@ -19,7 +19,7 @@ from groundtruth.physical.postgres import PostgresProjectionEngine
 def generate_solution_erd(entities: List[LogicalEntity]) -> str:
     """Generate Mermaid ER diagram markup for a specific collection of entities."""
     if not entities:
-        return "erDiagram\n    EMPTY_DOMAIN {\n        string notice \"No entities declared\"\n    }"
+        return "erDiagram\n    EMPTY_DOMAIN {\n        string notice\n    }"
 
     lines = ["erDiagram"]
     entity_names = {e.name.lower(): e.name for e in entities}
@@ -31,8 +31,8 @@ def generate_solution_erd(entities: List[LogicalEntity]) -> str:
             target_raw = rel.target_entity_uri.split("/")[-1].lower()
             if target_raw in entity_names:
                 target_name = entity_names[target_raw].upper()
-                verb = rel.name.replace("_", " ")
-                lines.append(f"    {target_name} ||--o{{ {source_name} : \"{verb}\"")
+                verb = rel.name.replace("-", "_").replace(" ", "_")
+                lines.append(f"    {target_name} ||--o{{ {source_name} : {verb}")
 
     # Add entity definitions
     for entity in entities:
@@ -42,8 +42,7 @@ def generate_solution_erd(entities: List[LogicalEntity]) -> str:
             pk_str = " PK" if attr.is_primary_key else ""
             fk_str = " FK" if any(r.source_attribute == attr.name for r in entity.relations) else ""
             key_marker = pk_str or fk_str
-            tag_comment = f' "{", ".join(attr.tags)}"' if attr.tags else ""
-            lines.append(f"        {type_str} {attr.name}{key_marker}{tag_comment}")
+            lines.append(f"        {type_str} {attr.name}{key_marker}")
         lines.append("    }")
 
     return "\n".join(lines)
@@ -222,13 +221,9 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GroundTruth | Hierarchical Model Explorer</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-    window.mermaid = mermaid;
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
   <style>
-    .tree-node-active { background-color: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 600; border-left: 3px solid #10b981; }
+    .tree-node-active { background-color: rgba(16, 185, 129, 0.18); color: #34d399; font-weight: 600; border-left: 3px solid #10b981; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -280,18 +275,18 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
     <aside class="w-72 border-r border-slate-800 bg-slate-900/50 flex flex-col overflow-y-auto p-4 space-y-4">
       <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-400 px-2">
         <span id="treeSolutionHeader">Solution Tree</span>
-        <span id="treeStatsBadge" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">...</span>
+        <span id="treeStatsBadge" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">Loading...</span>
       </div>
 
       <!-- Tree Nodes Container -->
       <nav id="treeContainer" class="space-y-1 text-xs font-medium">
-        <!-- Dynamically rendered tree -->
+        <div class="p-3 text-slate-500 italic">Loading models...</div>
       </nav>
     </aside>
 
     <!-- RIGHT MAIN VIEWPORT: Solution-Scoped Focus Content -->
     <main id="mainViewport" class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-950">
-      <!-- Dynamically rendered detail view -->
+      <div class="p-8 text-center text-slate-400">Loading model explorer...</div>
     </main>
   </div>
 
@@ -299,6 +294,15 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
     let currentSolution = 'ecommerce';
     let currentBundle = null;
     let activeNodeId = 'erd';
+    let renderCounter = 0;
+
+    if (window.mermaid) {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        securityLevel: 'loose'
+      });
+    }
 
     async function loadSolution(solutionName) {
       currentSolution = solutionName;
@@ -311,6 +315,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         selectView(activeNodeId);
       } catch (err) {
         console.error('Failed to load solution:', err);
+        document.getElementById('mainViewport').innerHTML = `<div class="text-rose-400 p-4">Error loading solution: ${err.message}</div>`;
       }
     }
 
@@ -373,7 +378,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         html += `
           <div class="pt-2">
             <div onclick="selectView('fsm_overview')" class="cursor-pointer flex items-center justify-between px-3 py-1.5 text-slate-400 hover:text-slate-200 font-semibold">
-              <span class="flex items-center gap-2"><span>🔄</span> <span>Lifecycle State Machines</span></span>
+              <span class="flex items-center gap-2"><span>🔄</span> <span>State Machines</span></span>
               <span class="text-[10px] bg-slate-800 px-1.5 py-0.2 rounded">${currentBundle.state_machines.length}</span>
             </div>
             <div class="pl-6 space-y-0.5 mt-1 border-l border-slate-800/80 ml-4">
@@ -456,6 +461,32 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
       renderFSMDetailView(fsm);
     }
 
+    // --- SAFE ASYNC MERMAID RENDERER ---
+    async function renderChartSafely(targetElementId, chartDefinition) {
+      const el = document.getElementById(targetElementId);
+      if (!el) return;
+
+      renderCounter++;
+      const uniqueId = 'mermaid_svg_' + renderCounter;
+
+      try {
+        if (window.mermaid) {
+          const { svg } = await window.mermaid.render(uniqueId, chartDefinition);
+          el.innerHTML = svg;
+        } else {
+          el.innerHTML = `<pre class="text-xs font-mono text-emerald-400">${chartDefinition}</pre>`;
+        }
+      } catch (err) {
+        console.warn('Mermaid render error:', err);
+        el.innerHTML = `
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded text-xs font-mono text-slate-300">
+            <div class="text-[10px] text-slate-500 mb-2 uppercase font-bold tracking-wider">Model Graph Specification</div>
+            <pre class="overflow-x-auto text-emerald-400">${chartDefinition}</pre>
+          </div>
+        `;
+      }
+    }
+
     // --- VIEW RENDERERS ---
 
     function renderERDView(container) {
@@ -475,15 +506,15 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
 
           <!-- Mermaid ER Diagram Card -->
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-            <div id="mermaidDiagram" class="flex justify-center overflow-x-auto min-h-[300px]">
-              <pre class="mermaid text-xs">${currentBundle.erd_mermaid}</pre>
+            <div id="erdChartContainer" class="flex justify-center overflow-x-auto min-h-[250px] items-center">
+              <span class="text-slate-400 text-xs animate-pulse">Rendering diagram...</span>
             </div>
           </div>
 
           <!-- Entity Summary Cards -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             ${currentBundle.entities.map(e => `
-              <div onclick="selectEntity('${e.name}')" class="cursor-pointer bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 rounded-xl p-4 transition hover:bg-slate-900">
+              <div onclick="selectEntity('${e.name}')" class="cursor-pointer bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 rounded-xl p-4 transition hover:bg-slate-900 shadow">
                 <div class="flex items-center justify-between">
                   <h3 class="font-bold text-white text-sm">${e.name}</h3>
                   <span class="text-[10px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded">${e.attributes.length} attrs</span>
@@ -499,9 +530,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         </div>
       `;
 
-      if (window.mermaid) {
-        window.mermaid.run();
-      }
+      renderChartSafely('erdChartContainer', currentBundle.erd_mermaid);
     }
 
     function renderEntityDetailView(entity) {
@@ -569,12 +598,8 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
                 <h3 class="text-xs font-bold uppercase tracking-wider text-white">🔄 Attached Lifecycle State Machine (${attachedFSM.attribute_name})</h3>
                 <span class="text-xs text-emerald-400 font-mono">${attachedFSM.states.length} States</span>
               </div>
-              <div class="bg-slate-950 p-4 rounded-lg flex justify-center">
-                <pre class="mermaid text-xs">
-stateDiagram-v2
-    [*] --> ${attachedFSM.initial_state}
-    ${attachedFSM.transitions.map(t => `${t.from_state} --> ${t.to_state}: ${t.trigger_action || ''}`).join('\n    ')}
-                </pre>
+              <div id="fsmChartContainer" class="bg-slate-950 p-4 rounded-lg flex justify-center">
+                <span class="text-slate-400 text-xs animate-pulse">Rendering flowchart...</span>
               </div>
             </div>
           ` : ''}
@@ -594,8 +619,10 @@ stateDiagram-v2
         </div>
       `;
 
-      if (attachedFSM && window.mermaid) {
-        window.mermaid.run();
+      if (attachedFSM) {
+        const fsmMermaid = `stateDiagram-v2\n    [*] --> ${attachedFSM.initial_state}\n` + 
+          attachedFSM.transitions.map(t => `    ${t.from_state} --> ${t.to_state}: ${t.trigger_action || ''}`).join('\n');
+        renderChartSafely('fsmChartContainer', fsmMermaid);
       }
     }
 
@@ -616,7 +643,7 @@ stateDiagram-v2
           return;
         }
 
-        if (!data.columns || data.columns.length === 0 || data.rows.length === 0) {
+        if (!data.columns || data.columns.length === 0 || !data.rows || data.rows.length === 0) {
           resultDiv.innerHTML = `<span class="text-slate-500 italic">Table ${schema}.${tableName.toLowerCase()} is currently empty (0 rows).</span>`;
           return;
         }
@@ -648,7 +675,7 @@ stateDiagram-v2
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             ${currentBundle.terms.map(t => `
-              <div onclick="selectTerm('${t.slug}')" class="cursor-pointer bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-emerald-500/40 transition">
+              <div onclick="selectTerm('${t.slug}')" class="cursor-pointer bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-emerald-500/40 transition shadow">
                 <div class="flex items-center justify-between">
                   <h3 class="font-bold text-white text-base">${t.name}</h3>
                   <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${t.slug}</span>
@@ -710,7 +737,7 @@ stateDiagram-v2
 
     function renderFSMOverview(container) {
       if (!currentBundle.state_machines || currentBundle.state_machines.length === 0) {
-        container.innerHTML = `<div class="text-slate-400">No state machines declared for this solution.</div>`;
+        container.innerHTML = `<div class="text-slate-400 p-8 text-center bg-slate-900 rounded-xl border border-slate-800">No state machines declared for this solution.</div>`;
         return;
       }
       selectFSM(currentBundle.state_machines[0].target_entity_uri, currentBundle.state_machines[0].attribute_name);
@@ -735,12 +762,8 @@ stateDiagram-v2
           <!-- Mermaid State Diagram -->
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl space-y-3">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">State Transition Flowchart</h3>
-            <div class="bg-slate-950 p-6 rounded-lg flex justify-center">
-              <pre class="mermaid text-xs">
-stateDiagram-v2
-    [*] --> ${fsm.initial_state}
-    ${fsm.transitions.map(t => `${t.from_state} --> ${t.to_state}: ${t.trigger_action || ''}`).join('\n    ')}
-              </pre>
+            <div id="fsmMainChartContainer" class="bg-slate-950 p-6 rounded-lg flex justify-center">
+              <span class="text-slate-400 text-xs animate-pulse">Rendering flowchart...</span>
             </div>
           </div>
 
@@ -773,9 +796,9 @@ stateDiagram-v2
         </div>
       `;
 
-      if (window.mermaid) {
-        window.mermaid.run();
-      }
+      const fsmMermaid = `stateDiagram-v2\n    [*] --> ${fsm.initial_state}\n` + 
+        fsm.transitions.map(t => `    ${t.from_state} --> ${t.to_state}: ${t.trigger_action || ''}`).join('\n');
+      renderChartSafely('fsmMainChartContainer', fsmMermaid);
     }
 
     function renderDDLView(container) {
@@ -863,7 +886,11 @@ stateDiagram-v2
       }
     }
 
-    // Initialize with default solution
+    // Initialize with default solution on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSolution('ecommerce');
+    });
+    // Fallback immediate trigger
     loadSolution('ecommerce');
   </script>
 </body>
