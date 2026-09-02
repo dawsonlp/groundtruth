@@ -18,7 +18,7 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
     root_path = Path(workspace_root or os.getenv("GROUNDTRUTH_WORKSPACE_ROOT", "."))
     catalog = GroundTruthCatalog.load(root_path) if (root_path / "models").exists() else GroundTruthCatalog()
 
-    # Pre-register default FSMs if missing
+    # Pre-register default FSMs
     order_fsm = FiniteStateMachine(
         target_entity_uri="data://logical/ecommerce/Order",
         attribute_name="status",
@@ -48,6 +48,20 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         ],
     )
     catalog.register_state_machine(payment_fsm)
+
+    mutation_fsm = FiniteStateMachine(
+        target_entity_uri="data://logical/codemesh/SymbolMutation",
+        attribute_name="status",
+        states=["PROPOSED", "VALIDATED", "MATERIALIZED", "REJECTED"],
+        initial_state="PROPOSED",
+        transitions=[
+            StateTransition("PROPOSED", "VALIDATED", trigger_action="Pass Invariant Gate"),
+            StateTransition("PROPOSED", "REJECTED", trigger_action="Reject Invariant Violation"),
+            StateTransition("VALIDATED", "MATERIALIZED", trigger_action="Write to Disk with Synthesized Imports"),
+            StateTransition("VALIDATED", "REJECTED", trigger_action="Abort by Developer"),
+        ],
+    )
+    catalog.register_state_machine(mutation_fsm)
 
     app = FastAPI(
         title="GroundTruth Data & Information Authority",
@@ -136,9 +150,11 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         entities = catalog.logical.list_entities()
         meta_entities = [e for e in entities if e.domain == "groundtruth_meta"]
         ecom_entities = [e for e in entities if e.domain == "ecommerce"]
+        cm_entities = [e for e in entities if e.domain == "codemesh"]
 
         m2_ddl = catalog.generate_postgres_ddl("groundtruth_meta", schema="groundtruth_meta")
-        m1_ddl = catalog.generate_postgres_ddl("ecommerce", schema="ecommerce")
+        m1_ecom_ddl = catalog.generate_postgres_ddl("ecommerce", schema="ecommerce")
+        m1_cm_ddl = catalog.generate_postgres_ddl("codemesh", schema="codemesh")
 
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -186,12 +202,12 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
         <div class="text-2xl font-bold text-white mt-1">{len(terms)} <span class="text-xs font-normal text-slate-400">Glossary Terms</span></div>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 2: M2 Metamodel Entities</div>
-        <div class="text-2xl font-bold text-indigo-400 mt-1">{len(meta_entities)} <span class="text-xs font-normal text-slate-400">Catalog Tables</span></div>
+        <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 2: M2 Metamodel</div>
+        <div class="text-2xl font-bold text-indigo-400 mt-1">{len(meta_entities)} <span class="text-xs font-normal text-slate-400">Catalog Entities</span></div>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
         <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 2: M1 Domain Entities</div>
-        <div class="text-2xl font-bold text-emerald-400 mt-1">{len(ecom_entities)} <span class="text-xs font-normal text-slate-400">E-Commerce Tables</span></div>
+        <div class="text-2xl font-bold text-emerald-400 mt-1">{len(ecom_entities) + len(cm_entities)} <span class="text-xs font-normal text-slate-400">ECom ({len(ecom_entities)}) + CodeMesh ({len(cm_entities)})</span></div>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
         <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">Level 3: M0 Instance Data</div>
@@ -199,16 +215,87 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
       </div>
     </div>
 
-    <!-- Section: Entity Relationship Diagram (M1 E-Commerce Domain) -->
+    <!-- Section: CodeMesh Program Graph Entity-Relationship Diagram (M1) -->
     <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-base font-bold text-white flex items-center gap-2">
-            📊 E-Commerce Domain Entity-Relationship Diagram (M1)
+            🕸️ CodeMesh Semantic Program Graph Data Model (M1)
           </h2>
-          <p class="text-xs text-slate-400">Interactive relational topology showing Primary Keys, Foreign Keys, and Cardinalities</p>
+          <p class="text-xs text-slate-400">GroundTruth logical modeling of CodeMesh symbols, contracts, call edges, slices, and AST mutations</p>
         </div>
-        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">DAMA Normalized</span>
+        <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-1 rounded">CodeMesh Domain</span>
+      </div>
+
+      <div class="bg-slate-950 rounded-lg p-4 border border-slate-800/80 flex justify-center">
+        <pre class="mermaid text-xs">
+erDiagram
+    CODESYMBOL ||--|| SYMBOLCONTRACT : specifies
+    CODESYMBOL ||--o{{ CODEDEPENDENCYEDGE : calls_or_called_by
+    CODESYMBOL ||--o{{ CONTEXTSLICESESSION : targets
+    CODESYMBOL ||--o{{ SYMBOLMUTATION : undergoes
+
+    CODESYMBOL {{
+        uuid symbol_id PK
+        string csi_uri UK "csi://"
+        string name
+        string symbol_kind
+        string package_name
+        string file_path
+        int start_line
+        int end_line
+        bool is_exported
+    }}
+
+    SYMBOLCONTRACT {{
+        uuid contract_id PK
+        uuid symbol_id FK
+        string signature
+        string return_type
+        bool is_pure
+        bool is_idempotent
+        bool is_async
+    }}
+
+    CODEDEPENDENCYEDGE {{
+        uuid edge_id PK
+        uuid source_symbol_id FK
+        uuid target_symbol_id FK
+        string verb "CALLS | INHERITS"
+        int call_count
+        bool is_dynamic
+    }}
+
+    CONTEXTSLICESESSION {{
+        uuid session_id PK
+        uuid target_symbol_id FK
+        int hop_distance
+        int token_count
+        string prompt_stub_text
+    }}
+
+    SYMBOLMUTATION {{
+        uuid mutation_id PK
+        uuid symbol_id FK
+        string mutation_type
+        string status "FSM"
+        int blast_radius_count
+        string new_ast_hash
+    }}
+        </pre>
+      </div>
+    </section>
+
+    <!-- Section: E-Commerce Domain ER Diagram (M1) -->
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            🛒 E-Commerce Domain Entity-Relationship Diagram (M1)
+          </h2>
+          <p class="text-xs text-slate-400">Customer profiles, catalog items, orders, order items, and payment settlements</p>
+        </div>
+        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">E-Commerce Domain</span>
       </div>
 
       <div class="bg-slate-950 rounded-lg p-4 border border-slate-800/80 flex justify-center">
@@ -264,11 +351,11 @@ erDiagram
     </section>
 
     <!-- Section: Lifecycle Finite State Machines -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
         <div class="border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-white">🔄 Order Lifecycle State Machine</h3>
-          <p class="text-xs text-slate-400">Governed by <code>constraint://groundtruth/state-machine-validity</code></p>
+          <h3 class="text-sm font-bold text-white">🔄 Order Lifecycle (M1)</h3>
+          <p class="text-xs text-slate-400">Order status transitions</p>
         </div>
         <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 flex justify-center">
           <pre class="mermaid text-xs">
@@ -278,8 +365,8 @@ stateDiagram-v2
     PENDING --> PAID: Payment Captured
     PENDING --> CANCELLED: Customer Cancel
     PAID --> SHIPPED: Fulfill
-    SHIPPED --> DELIVERED: Carrier Delivery
-    PAID --> CANCELLED: Refund & Cancel
+    SHIPPED --> DELIVERED: Delivery
+    PAID --> CANCELLED: Refund
     CANCELLED --> [*]
     DELIVERED --> [*]
           </pre>
@@ -288,8 +375,8 @@ stateDiagram-v2
 
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
         <div class="border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-white">💳 Payment Transaction State Machine</h3>
-          <p class="text-xs text-slate-400">Deterministic idempotent state transitions</p>
+          <h3 class="text-sm font-bold text-white">💳 Payment Lifecycle (M1)</h3>
+          <p class="text-xs text-slate-400">Idempotent charge flow</p>
         </div>
         <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 flex justify-center">
           <pre class="mermaid text-xs">
@@ -297,10 +384,29 @@ stateDiagram-v2
     [*] --> INITIATED
     INITIATED --> AUTHORIZED: Auth Hold
     AUTHORIZED --> CAPTURED: Settle
-    INITIATED --> FAILED: Card Decline
-    CAPTURED --> REFUNDED: Issue Refund
+    INITIATED --> FAILED: Decline
+    CAPTURED --> REFUNDED: Refund
     FAILED --> [*]
     REFUNDED --> [*]
+          </pre>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+        <div class="border-b border-slate-800 pb-3">
+          <h3 class="text-sm font-bold text-white">🧬 CodeMesh AST Mutation (M1)</h3>
+          <p class="text-xs text-slate-400">Zero-diff validation flow</p>
+        </div>
+        <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 flex justify-center">
+          <pre class="mermaid text-xs">
+stateDiagram-v2
+    [*] --> PROPOSED
+    PROPOSED --> VALIDATED: Invariant Pass
+    PROPOSED --> REJECTED: Violation
+    VALIDATED --> MATERIALIZED: Write to Disk
+    VALIDATED --> REJECTED: Abort
+    MATERIALIZED --> [*]
+    REJECTED --> [*]
           </pre>
         </div>
       </div>
@@ -313,24 +419,26 @@ stateDiagram-v2
           <h2 class="text-base font-bold text-white flex items-center gap-2">
             ⚡ Live PostgreSQL SQL Query Sandbox (Port 9432)
           </h2>
-          <p class="text-xs text-slate-400">Execute queries live against the running PostgreSQL container</p>
+          <p class="text-xs text-slate-400">Execute queries live against the running PostgreSQL container across all three domains</p>
         </div>
       </div>
 
       <div class="space-y-3">
         <div class="flex gap-2">
-          <input id="sqlInput" type="text" value="SELECT customer_id, email, full_name, status FROM ecommerce.customer LIMIT 10;" 
+          <input id="sqlInput" type="text" value="SELECT csi_uri, name, symbol_kind, file_path FROM codemesh.codesymbol LIMIT 10;" 
                  class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500">
           <button onclick="runQuery()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow">Run Query</button>
         </div>
 
-        <div class="flex gap-2 text-xs text-slate-400">
+        <div class="flex gap-2 text-xs text-slate-400 flex-wrap">
           <span>Quick queries:</span>
-          <button onclick="setQuery('SELECT * FROM ecommerce.order;')" class="underline hover:text-white">Orders</button>
+          <button onclick="setQuery('SELECT csi_uri, symbol_kind, file_path FROM codemesh.codesymbol;')" class="underline hover:text-white">CodeMesh Symbols</button>
           <span>•</span>
-          <button onclick="setQuery('SELECT * FROM ecommerce.payment;')" class="underline hover:text-white">Payments</button>
+          <button onclick="setQuery('SELECT e.verb, s1.name as caller, s2.name as callee FROM codemesh.codedependencyedge e JOIN codemesh.codesymbol s1 ON e.source_symbol_id = s1.symbol_id JOIN codemesh.codesymbol s2 ON e.target_symbol_id = s2.symbol_id;')" class="underline hover:text-white">CodeMesh Call Graph</button>
           <span>•</span>
-          <button onclick="setQuery('SELECT * FROM groundtruth_meta.entity;')" class="underline hover:text-white">M2 Entities</button>
+          <button onclick="setQuery('SELECT customer_id, email, full_name, status FROM ecommerce.customer;')" class="underline hover:text-white">ECom Customers</button>
+          <span>•</span>
+          <button onclick="setQuery('SELECT domain, name, uri FROM groundtruth_meta.entity ORDER BY domain, name;')" class="underline hover:text-white">M2 Catalog Entities</button>
         </div>
 
         <div id="queryResult" class="bg-slate-950 border border-slate-800 rounded-lg p-3 overflow-x-auto min-h-[100px] text-xs font-mono">
@@ -342,11 +450,11 @@ stateDiagram-v2
     <!-- Section: Physical DDL Projections -->
     <section class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
       <div class="border-b border-slate-800 pb-3">
-        <h2 class="text-base font-bold text-white">📜 Generated PostgreSQL DDL Projections (M3 ➔ M1)</h2>
+        <h2 class="text-base font-bold text-white">📜 Generated PostgreSQL DDL Projections for CodeMesh (M1)</h2>
         <p class="text-xs text-slate-400">Idempotent, sorted DDL generated purely from GroundTruth logical schemas</p>
       </div>
       <div class="bg-slate-950 rounded-lg p-4 border border-slate-800 overflow-x-auto max-h-96">
-        <pre class="text-xs font-mono text-emerald-300">{m1_ddl}</pre>
+        <pre class="text-xs font-mono text-indigo-300">{m1_cm_ddl}</pre>
       </div>
     </section>
 

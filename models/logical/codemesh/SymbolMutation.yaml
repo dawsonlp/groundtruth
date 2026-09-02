@@ -1,0 +1,60 @@
+domain: codemesh
+name: SymbolMutation
+conceptual_term_ref: data://conceptual/symbol-mutation
+description: In-memory AST modification with pre-commit invariant validation and automated projection.
+attributes:
+  - name: mutation_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for mutation operation.
+  - name: symbol_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Target symbol being modified.
+  - name: mutation_type
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Mutation operation category (ADD, UPDATE, DELETE, REFACTOR).
+  - name: status
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'PROPOSED'"
+    description: Lifecycle state (PROPOSED, VALIDATED, MATERIALIZED, REJECTED).
+  - name: blast_radius_count
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    default_value: "0"
+    description: Number of downstream callers impacted by modification.
+  - name: old_ast_hash
+    data_type:
+      primitive: STRING
+      max_length: 64
+    is_nullable: true
+    description: SHA-256 fingerprint of pre-mutation AST.
+  - name: new_ast_hash
+    data_type:
+      primitive: STRING
+      max_length: 64
+    is_nullable: false
+    description: SHA-256 fingerprint of post-mutation AST.
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Timestamp of mutation proposal.
+relations:
+  - name: mutation_symbol_fk
+    target_entity_uri: data://logical/codemesh/CodeSymbol
+    source_attribute: symbol_id
+    target_attribute: symbol_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

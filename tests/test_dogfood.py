@@ -41,3 +41,4 @@ def test_dogfood_catalog_loading():
     assert "CREATE TABLE IF NOT EXISTS ecommerce.customer" in m1_ddl
     assert "CREATE TABLE IF NOT EXISTS ecommerce.order" in m1_ddl
     assert "CREATE TABLE IF NOT EXISTS ecommerce.payment" in m1_ddl
+

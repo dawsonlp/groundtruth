@@ -40,3 +40,4 @@ attributes:
     description: Timestamp of registration.
 relations: []
 lifecycle: ACTIVE
+

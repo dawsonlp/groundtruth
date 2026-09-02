@@ -1,0 +1,36 @@
+terms:
+  - slug: canonical-symbol-identifier
+    name: Canonical Symbol Identifier (CSI)
+    definition: A globally unique, URI-addressable hierarchical path identifying functions, methods, classes, fields, and modules (csi://...).
+    domain: codemesh
+    synonyms: ["CSI URI", "Symbol Path", "Symbol Address"]
+
+  - slug: semantic-code-node
+    name: Semantic Code Node
+    definition: An atomic syntactic and semantic code element in the program dependency graph representing a class, function, method, field, or interface.
+    domain: codemesh
+    synonyms: ["Code Symbol", "AST Node", "Symbol Unit"]
+
+  - slug: type-contract
+    name: Symbol Type & Behavior Contract
+    definition: Formal specification of a code symbol including signature, type bounds, preconditions, postconditions, and purity invariants.
+    domain: codemesh
+    synonyms: ["Interface Contract", "Signature Spec", "Type Stub"]
+
+  - slug: code-dependency-edge
+    name: Code Dependency Relation
+    definition: A directed typed relational edge between two code symbols (CALLS, INHERITS, IMPORTS, INSTANTIATES, REFERENCES, MUTATES).
+    domain: codemesh
+    synonyms: ["Call Graph Edge", "Symbol Dependency", "Relation Edge"]
+
+  - slug: context-slice
+    name: Surgical Context Slice
+    definition: A minimal, token-optimized topological subgraph surrounding a target symbol for LLM prompt generation.
+    domain: codemesh
+    synonyms: ["Prompt Slice", "Dependency Slice", "Symbol Context"]
+
+  - slug: symbol-mutation
+    name: Zero-Diff Symbol Mutation
+    definition: An in-memory AST transformation targeting a symbol by CSI without textual diffs or line offsets.
+    domain: codemesh
+    synonyms: ["AST Mutation", "Zero-Diff Edit", "Symbol Patch"]

@@ -1,0 +1,71 @@
+domain: codemesh
+name: CodeSymbol
+conceptual_term_ref: data://conceptual/semantic-code-node
+description: An atomic symbol node in the CodeMesh semantic program graph.
+attributes:
+  - name: symbol_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary unique identifier for code symbol.
+  - name: csi_uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    is_unique: true
+    description: "Canonical Symbol Identifier URI (csi://package/module/Class.method)."
+
+  - name: name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Local identifier name.
+  - name: symbol_kind
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Symbol category (FUNCTION, CLASS, METHOD, FIELD, MODULE, INTERFACE).
+  - name: package_name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Root Python/TypeScript package name.
+  - name: file_path
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Source file location relative to repository root.
+  - name: start_line
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: AST definition start line in source file.
+  - name: end_line
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: AST definition end line in source file.
+  - name: is_exported
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "TRUE"
+    description: Whether symbol is part of public package interface.
+  - name: docstring
+    data_type:
+      primitive: STRING
+    is_nullable: true
+    description: Extracted symbol docstring or documentation.
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Timestamp when symbol was indexed into CodeMesh graph.
+relations: []
+lifecycle: ACTIVE

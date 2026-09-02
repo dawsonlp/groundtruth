@@ -1,0 +1,53 @@
+domain: codemesh
+name: CodeDependencyEdge
+conceptual_term_ref: data://conceptual/code-dependency-edge
+description: Directed typed dependency association between two code symbols.
+attributes:
+  - name: edge_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for dependency edge.
+  - name: source_symbol_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Caller / dependent symbol identifier.
+  - name: target_symbol_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Callee / dependency symbol identifier.
+  - name: verb
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Dependency relationship verb (CALLS, INHERITS, IMPORTS, INSTANTIATES, REFERENCES, MUTATES).
+  - name: call_count
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    default_value: "1"
+    description: Static occurrence frequency within source definition.
+  - name: is_dynamic
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "FALSE"
+    description: True if resolved via runtime reflection or dynamic dispatch.
+relations:
+  - name: edge_source_symbol_fk
+    target_entity_uri: data://logical/codemesh/CodeSymbol
+    source_attribute: source_symbol_id
+    target_attribute: symbol_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+  - name: edge_target_symbol_fk
+    target_entity_uri: data://logical/codemesh/CodeSymbol
+    source_attribute: target_symbol_id
+    target_attribute: symbol_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

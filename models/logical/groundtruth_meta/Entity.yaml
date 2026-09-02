@@ -41,3 +41,4 @@ attributes:
     description: Business description of the entity.
 relations: []
 lifecycle: ACTIVE
+

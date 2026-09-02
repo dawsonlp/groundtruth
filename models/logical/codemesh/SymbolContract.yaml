@@ -1,0 +1,55 @@
+domain: codemesh
+name: SymbolContract
+conceptual_term_ref: data://conceptual/type-contract
+description: Formal type signature, purity invariants, and behavioral contracts of a code symbol.
+attributes:
+  - name: contract_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary unique identifier for symbol contract.
+  - name: symbol_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Parent code symbol foreign key.
+  - name: signature
+    data_type:
+      primitive: STRING
+      max_length: 500
+    is_nullable: false
+    description: "Python/TypeScript type signature string (e.g. def foo(x: int) -> str)."
+
+  - name: return_type
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Declared return type annotation.
+  - name: is_pure
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "FALSE"
+    description: True if function has no observable side-effects.
+  - name: is_idempotent
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "FALSE"
+    description: True if repeated calls with same arguments produce identical state.
+  - name: is_async
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "FALSE"
+    description: True if coroutine / async definition.
+relations:
+  - name: contract_symbol_fk
+    target_entity_uri: data://logical/codemesh/CodeSymbol
+    source_attribute: symbol_id
+    target_attribute: symbol_id
+    relationship_type: ONE_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

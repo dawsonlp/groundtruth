@@ -22,3 +22,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 9481
 
 CMD ["uv", "run", "uvicorn", "groundtruth.service.app:app", "--host", "0.0.0.0", "--port", "9481"]
+

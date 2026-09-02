@@ -22,3 +22,4 @@ terms:
     definition: A monetary exchange settlement for an order via payment gateway.
     domain: ecommerce
     synonyms: ["Charge", "Settlement", "Transaction"]
+

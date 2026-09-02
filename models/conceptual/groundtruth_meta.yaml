@@ -22,3 +22,4 @@ terms:
     definition: A foreign key relationship or association between two logical entities.
     domain: groundtruth_meta
     synonyms: ["Foreign Key", "Association"]
+

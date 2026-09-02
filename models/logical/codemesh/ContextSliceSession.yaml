@@ -1,0 +1,45 @@
+domain: codemesh
+name: ContextSliceSession
+conceptual_term_ref: data://conceptual/context-slice
+description: Sliced subgraph session delivering surgical token contexts to AI coding agents.
+attributes:
+  - name: session_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary session identifier.
+  - name: target_symbol_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Focused symbol requested by AI agent.
+  - name: hop_distance
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    default_value: "1"
+    description: Graph traversal radius depth.
+  - name: token_count
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: Total token size of generated prompt context.
+  - name: prompt_stub_text
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Rendered Python/TypeScript signature and contract prompt context.
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Session creation timestamp.
+relations:
+  - name: slice_target_symbol_fk
+    target_entity_uri: data://logical/codemesh/CodeSymbol
+    source_attribute: target_symbol_id
+    target_attribute: symbol_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE
