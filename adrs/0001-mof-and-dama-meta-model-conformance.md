@@ -56,3 +56,4 @@ We establish that **GroundTruth strictly conforms to the OMG Meta-Object Facilit
 
 ### Negative / Trade-offs
 * Requires defining conceptual terms before generating quick exploratory SQL prototypes.
+

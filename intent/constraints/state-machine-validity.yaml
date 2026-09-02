@@ -7,3 +7,4 @@ executable_expression: "(from_state, to_state) in entity.legal_transitions"
 remediation_hint: Verify that transition is declared in entity state machine matrix before calling state update.
 governing_adr: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
 status: ACTIVE
+
