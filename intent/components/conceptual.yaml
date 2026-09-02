@@ -1,9 +1,10 @@
 uri: component://groundtruth/conceptual
 name: GroundTruth Conceptual Catalog
 domain: groundtruth
-description: Enterprise business glossary, conceptual ontology, business definitions, and synonym taxonomy.
+description: Enterprise business glossary, conceptual ontology, ObjectClasses, PropertyConcepts, and DataElementConcept semantics.
 exported_capabilities:
   - req://conceptual/register-business-term
+  - req://conceptual/define-property-concept
   - req://conceptual/map-term-to-logical-entity
 required_dependencies: []
 internal_capabilities: []
@@ -19,4 +20,4 @@ lifecycle: ACTIVE
 tags:
   - glossary
   - conceptual
-
+  - mof

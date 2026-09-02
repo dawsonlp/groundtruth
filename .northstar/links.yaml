@@ -1,7 +1,15 @@
 links:
   - source: component://groundtruth/conceptual
     verb: GOVERNED_BY
-    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    target: decision://groundtruth/adr-0001-require-mof-conformance-for-the-governing-model-definition
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: component://groundtruth/conceptual
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0002-dama-aligned-4-tier-data-modeling-architecture
     provenance:
       tier: DECLARED
       confidence: 1.0
@@ -9,7 +17,15 @@ links:
     metadata: {}
   - source: component://groundtruth/logical
     verb: GOVERNED_BY
-    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    target: decision://groundtruth/adr-0001-require-mof-conformance-for-the-governing-model-definition
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
+  - source: component://groundtruth/logical
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0002-dama-aligned-4-tier-data-modeling-architecture
     provenance:
       tier: DECLARED
       confidence: 1.0
@@ -17,7 +33,7 @@ links:
     metadata: {}
   - source: component://groundtruth/physical
     verb: GOVERNED_BY
-    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    target: decision://groundtruth/adr-0002-dama-aligned-4-tier-data-modeling-architecture
     provenance:
       tier: DECLARED
       confidence: 1.0
@@ -25,10 +41,17 @@ links:
     metadata: {}
   - source: component://groundtruth/governance
     verb: GOVERNED_BY
-    target: decision://groundtruth/adr-0001-mof-and-dama-meta-model-conformance
+    target: decision://groundtruth/adr-0002-dama-aligned-4-tier-data-modeling-architecture
     provenance:
       tier: DECLARED
       confidence: 1.0
       author: lead_architect
     metadata: {}
-
+  - source: component://groundtruth/lineage
+    verb: GOVERNED_BY
+    target: decision://groundtruth/adr-0002-dama-aligned-4-tier-data-modeling-architecture
+    provenance:
+      tier: DECLARED
+      confidence: 1.0
+      author: lead_architect
+    metadata: {}
