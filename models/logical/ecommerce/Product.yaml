@@ -1,0 +1,37 @@
+domain: ecommerce
+name: Product
+conceptual_term_ref: data://conceptual/product
+description: Catalog merchandise with pricing and inventory.
+attributes:
+  - name: product_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique product identifier.
+  - name: sku
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    is_unique: true
+    description: Stock keeping unit code.
+  - name: title
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Product display title.
+  - name: price_cents
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: Unit retail price in integer cents.
+  - name: is_active
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "TRUE"
+    description: Whether product is available for purchase.
+relations: []
+lifecycle: ACTIVE

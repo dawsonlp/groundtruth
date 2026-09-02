@@ -59,3 +59,4 @@ class DataProvenance:
             governing_definition=data.get("governing_definition", "decision://arch/adr-0001-require-mof-conformance-for-the-governing-model-definition"),
             author=data.get("author"),
         )
+

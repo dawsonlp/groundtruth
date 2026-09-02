@@ -101,3 +101,4 @@ def test_finite_state_machine_verification():
     with pytest.raises(IllegalStateTransitionError) as exc_info:
         engine.verify_state_transition("data://logical/sales/Order", "status", "CANCELLED", "PAID")
     assert exc_info.value.domain_error_code == "LOGICAL_003"
+

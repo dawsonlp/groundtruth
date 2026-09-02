@@ -1,0 +1,43 @@
+domain: groundtruth_meta
+name: Entity
+conceptual_term_ref: data://conceptual/data-entity
+description: Stores DAMA-compliant logical entity schema definitions.
+attributes:
+  - name: entity_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for logical entity.
+  - name: uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    is_unique: true
+    description: Canonical data://logical/ URI.
+  - name: domain
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Bounded data domain name.
+  - name: name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Entity PascalCase name.
+  - name: conceptual_term_ref
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: true
+    description: Reference to governing conceptual term URI.
+  - name: description
+    data_type:
+      primitive: STRING
+    is_nullable: true
+    description: Business description of the entity.
+relations: []
+lifecycle: ACTIVE

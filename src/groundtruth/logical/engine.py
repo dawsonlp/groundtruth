@@ -78,3 +78,4 @@ class LogicalSchemaEngine:
         if domain:
             return [e for e in self._entities.values() if e.domain == domain]
         return list(self._entities.values())
+

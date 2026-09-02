@@ -102,3 +102,4 @@ class FiniteStateMachine:
             initial_state=data.get("initial_state", ""),
             transitions=[StateTransition.from_dict(t) for t in data.get("transitions", [])],
         )
+

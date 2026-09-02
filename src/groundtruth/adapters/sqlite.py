@@ -80,3 +80,4 @@ class SQLiteDataAdapter(DataRepository):
             else:
                 cursor = conn.execute("SELECT data_json FROM entities")
             return [LogicalEntity.from_dict(json.loads(row["data_json"])) for row in cursor.fetchall()]
+

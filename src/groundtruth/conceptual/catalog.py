@@ -113,3 +113,4 @@ class ConceptualCatalog:
 
     def list_properties(self) -> List[PropertyConcept]:
         return list(self._properties.values())
+

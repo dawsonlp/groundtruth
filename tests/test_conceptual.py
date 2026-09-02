@@ -73,3 +73,4 @@ def test_bind_data_element_concept():
     dec = catalog.bind_data_element_concept("payment", "Occurrence Time")
     assert dec.uri == "data://conceptual/payment.occurrence-time"
     assert dec.property_concept_name == "Occurrence Time"
+

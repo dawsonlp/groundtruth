@@ -1,0 +1,24 @@
+terms:
+  - slug: customer
+    name: Retail Customer
+    definition: An individual or organization purchasing goods or services.
+    domain: ecommerce
+    synonyms: ["Buyer", "Client", "Shopper"]
+
+  - slug: product
+    name: Catalog Product
+    definition: An item or service available for retail purchase with stock keeping unit.
+    domain: ecommerce
+    synonyms: ["Item", "Merchandise", "SKU"]
+
+  - slug: order
+    name: Sales Order
+    definition: A binding commercial agreement for the purchase and delivery of items.
+    domain: ecommerce
+    synonyms: ["Purchase Order", "Checkout Cart"]
+
+  - slug: payment
+    name: Payment Transaction
+    definition: A monetary exchange settlement for an order via payment gateway.
+    domain: ecommerce
+    synonyms: ["Charge", "Settlement", "Transaction"]

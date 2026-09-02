@@ -81,8 +81,32 @@ class PostgresProjectionEngine:
 
     @classmethod
     def generate_schema_ddl(cls, entities: List[LogicalEntity], schema: str = "public") -> str:
-        """Generate full schema DDL for a collection of logical entities sorted by name."""
+        """Generate full schema DDL for a collection of logical entities sorted topologically by FK dependencies."""
         schema_header = f"CREATE SCHEMA IF NOT EXISTS {schema};\n\n"
-        sorted_entities = sorted(entities, key=lambda e: e.name)
+
+        # Topological sort based on relations
+        entity_map = {e.name.lower(): e for e in entities}
+        visited = set()
+        sorted_entities: List[LogicalEntity] = []
+
+        def visit(entity: LogicalEntity):
+            name = entity.name.lower()
+            if name in visited:
+                return
+            visited.add(name)
+            # Visit dependencies first
+            for rel in entity.relations:
+                target_name = rel.target_entity_uri.split("/")[-1].lower()
+                if target_name in entity_map and target_name != name:
+                    visit(entity_map[target_name])
+            sorted_entities.append(entity)
+
+        # Sort remaining entities deterministically
+        for e in sorted(entities, key=lambda x: x.name):
+            if e.name.lower() not in visited:
+                visit(e)
+
         tables_ddl = "\n\n".join([cls.to_create_table_ddl(e, schema) for e in sorted_entities])
         return schema_header + tables_ddl
+
+

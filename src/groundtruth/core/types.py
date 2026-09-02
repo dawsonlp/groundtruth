@@ -111,3 +111,4 @@ class DataType:
     @classmethod
     def json(cls) -> "DataType":
         return cls(primitive=PrimitiveType.JSON)
+

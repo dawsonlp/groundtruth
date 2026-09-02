@@ -29,3 +29,4 @@ __all__ = [
     "MissingPrimaryKeyError",
     "UnmappedConceptualTermError",
 ]
+

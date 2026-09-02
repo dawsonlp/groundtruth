@@ -1,0 +1,24 @@
+terms:
+  - slug: data-entity
+    name: Logical Data Entity
+    definition: An authoritative conceptual entity definition within a bounded data domain.
+    domain: groundtruth_meta
+    synonyms: ["Entity Schema", "Table Model"]
+
+  - slug: data-attribute
+    name: Logical Data Attribute
+    definition: A typed data property or column belonging to a logical entity.
+    domain: groundtruth_meta
+    synonyms: ["Column Specification", "Field"]
+
+  - slug: state-machine
+    name: Lifecycle Finite State Machine
+    definition: A deterministic finite state machine defining legal status transitions.
+    domain: groundtruth_meta
+    synonyms: ["Lifecycle Matrix", "Transition Graph"]
+
+  - slug: data-relation
+    name: Relational Association
+    definition: A foreign key relationship or association between two logical entities.
+    domain: groundtruth_meta
+    synonyms: ["Foreign Key", "Association"]

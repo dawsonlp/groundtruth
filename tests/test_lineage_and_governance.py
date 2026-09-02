@@ -66,3 +66,4 @@ def test_unclassified_sensitive_attribute_rejection():
     with pytest.raises(UnclassifiedSensitiveDataError) as exc_info:
         PrivacyClassifier.enforce_privacy_tagging(entity)
     assert exc_info.value.domain_error_code == "GOVERNANCE_001"
+

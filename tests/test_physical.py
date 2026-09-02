@@ -37,3 +37,4 @@ def test_postgres_create_table_ddl():
     assert "CONSTRAINT fk_order_customer_id FOREIGN KEY (customer_id) REFERENCES sales.customer (customer_id)" in ddl
     assert "CREATE UNIQUE INDEX IF NOT EXISTS uq_order_order_code ON sales.order (order_code);" in ddl
     assert "COMMENT ON TABLE sales.order IS 'A customer sales order record.';" in ddl
+

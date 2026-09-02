@@ -136,3 +136,4 @@ class DataElementConcept:
             definition=data.get("definition", ""),
             domain=data.get("domain", "conceptual"),
         )
+

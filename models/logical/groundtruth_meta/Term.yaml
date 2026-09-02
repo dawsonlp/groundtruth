@@ -1,0 +1,42 @@
+domain: groundtruth_meta
+name: Term
+conceptual_term_ref: data://conceptual/data-entity
+description: Stores authoritative conceptual business glossary terms.
+attributes:
+  - name: term_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for conceptual term.
+  - name: slug
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    is_unique: true
+    description: Canonical URL-safe slug.
+  - name: name
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Human-readable business designation.
+  - name: domain
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Business domain name.
+  - name: definition
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Formal plain-language business definition.
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Timestamp of registration.
+relations: []
+lifecycle: ACTIVE

@@ -1,0 +1,48 @@
+domain: ecommerce
+name: Payment
+conceptual_term_ref: data://conceptual/payment
+description: Payment transaction with idempotency and state machine lifecycle.
+attributes:
+  - name: payment_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique payment transaction identifier.
+  - name: order_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Order foreign key.
+  - name: idempotency_key
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    is_unique: true
+    description: Unique idempotency key preventing duplicate charges.
+  - name: amount_cents
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: Settled monetary amount in integer cents.
+  - name: status
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'INITIATED'"
+    description: Payment state (INITIATED, AUTHORIZED, CAPTURED, REFUNDED, FAILED).
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Payment initiation timestamp.
+relations:
+  - name: payment_order_fk
+    target_entity_uri: data://logical/ecommerce/Order
+    source_attribute: order_id
+    target_attribute: order_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

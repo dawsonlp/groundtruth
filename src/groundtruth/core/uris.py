@@ -82,3 +82,4 @@ class DataURI:
 def parse_data_uri(uri: str) -> DataURI:
     """Convenience helper to parse a data:// URI."""
     return DataURI.parse(uri)
+

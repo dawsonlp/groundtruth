@@ -1,0 +1,46 @@
+domain: ecommerce
+name: OrderItem
+conceptual_term_ref: data://conceptual/order
+description: Line item within a sales order referencing catalog product.
+attributes:
+  - name: item_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Line item identifier.
+  - name: order_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Parent order foreign key.
+  - name: product_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Product foreign key.
+  - name: quantity
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    default_value: "1"
+    description: Number of units purchased.
+  - name: unit_price_cents
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: Snapshot unit price in cents at time of order.
+relations:
+  - name: item_order_fk
+    target_entity_uri: data://logical/ecommerce/Order
+    source_attribute: order_id
+    target_attribute: order_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+  - name: item_product_fk
+    target_entity_uri: data://logical/ecommerce/Product
+    source_attribute: product_id
+    target_attribute: product_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

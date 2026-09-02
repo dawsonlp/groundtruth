@@ -1,0 +1,42 @@
+domain: ecommerce
+name: Order
+conceptual_term_ref: data://conceptual/order
+description: Customer sales order with finite state machine lifecycle.
+attributes:
+  - name: order_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique sales order identifier.
+  - name: customer_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Customer foreign key.
+  - name: status
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'DRAFT'"
+    description: Lifecycle state (DRAFT, PENDING, PAID, SHIPPED, DELIVERED, CANCELLED).
+  - name: total_cents
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    default_value: "0"
+    description: Total order amount in integer cents.
+  - name: created_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Order creation timestamp.
+relations:
+  - name: order_customer_fk
+    target_entity_uri: data://logical/ecommerce/Customer
+    source_attribute: customer_id
+    target_attribute: customer_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

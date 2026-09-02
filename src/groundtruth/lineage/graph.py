@@ -87,3 +87,4 @@ class LineageGraph:
                     queue.append(next_node)
 
         return visited
+

@@ -1,0 +1,54 @@
+domain: groundtruth_meta
+name: Attribute
+conceptual_term_ref: data://conceptual/data-attribute
+description: Stores typed logical attribute specifications for entities.
+attributes:
+  - name: attribute_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Primary identifier for logical attribute.
+  - name: entity_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Parent entity ID foreign key.
+  - name: name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Attribute snake_case name.
+  - name: data_type
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Canonical primitive data type string.
+  - name: is_primary_key
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "FALSE"
+    description: True if part of primary key.
+  - name: is_nullable
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "TRUE"
+    description: True if attribute allows nulls.
+  - name: is_sensitive
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "FALSE"
+    description: True if attribute contains sensitive or PII data.
+relations:
+  - name: attr_entity_fk
+    target_entity_uri: data://logical/groundtruth_meta/Entity
+    source_attribute: entity_id
+    target_attribute: entity_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

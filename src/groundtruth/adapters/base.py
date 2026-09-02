@@ -34,3 +34,4 @@ class DataRepository(ABC):
     def list_entities(self, domain: Optional[str] = None) -> List[LogicalEntity]:
         """List logical entities."""
         pass
+

@@ -143,3 +143,4 @@ class LogicalEntity:
             lifecycle=LifecycleState(data.get("lifecycle", "ACTIVE")),
             provenance=DataProvenance.from_dict(data.get("provenance", {})),
         )
+

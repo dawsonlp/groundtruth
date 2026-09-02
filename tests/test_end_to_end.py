@@ -106,3 +106,4 @@ def test_rest_service_endpoints():
         res = client.post("/api/v1/terms", json=term_payload)
         assert res.status_code == 200
         assert res.json()["slug"] == "invoice"
+

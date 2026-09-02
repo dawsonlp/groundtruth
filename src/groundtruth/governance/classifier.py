@@ -79,3 +79,4 @@ class PrivacyClassifier:
             pii_attributes=pii_attrs,
             masking_rules=masking_rules,
         )
+

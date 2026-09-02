@@ -109,3 +109,4 @@ class GroundTruthCatalog:
         if not entity:
             raise ValueError(f"Entity '{entity_uri}' not found in logical catalog")
         return self.privacy.enforce_privacy_tagging(entity)
+

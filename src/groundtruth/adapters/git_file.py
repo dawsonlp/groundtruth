@@ -73,7 +73,17 @@ class GitFileDataAdapter(DataRepository):
             for path in self.conceptual_dir.glob("*.yaml"):
                 with open(path, "r") as f:
                     data = yaml.safe_load(f)
-                    if data:
+                    if not data:
+                        continue
+                    if isinstance(data, dict) and "terms" in data:
+                        for item in data["terms"]:
+                            term = BusinessTerm.from_dict(item)
+                            conceptual_catalog._terms[term.slug] = term
+                    elif isinstance(data, list):
+                        for item in data:
+                            term = BusinessTerm.from_dict(item)
+                            conceptual_catalog._terms[term.slug] = term
+                    elif isinstance(data, dict) and "slug" in data:
                         term = BusinessTerm.from_dict(data)
                         conceptual_catalog._terms[term.slug] = term
 
@@ -81,6 +91,18 @@ class GitFileDataAdapter(DataRepository):
             for path in self.logical_dir.rglob("*.yaml"):
                 with open(path, "r") as f:
                     data = yaml.safe_load(f)
-                    if data:
+                    if not data:
+                        continue
+                    if isinstance(data, dict) and "entities" in data:
+                        for item in data["entities"]:
+                            entity = LogicalEntity.from_dict(item)
+                            logical_engine._entities[entity.uri] = entity
+                    elif isinstance(data, list):
+                        for item in data:
+                            entity = LogicalEntity.from_dict(item)
+                            logical_engine._entities[entity.uri] = entity
+                    elif isinstance(data, dict) and "name" in data:
                         entity = LogicalEntity.from_dict(data)
                         logical_engine._entities[entity.uri] = entity
+
+
