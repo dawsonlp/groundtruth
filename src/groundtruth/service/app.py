@@ -552,13 +552,14 @@ def create_app(workspace_root: Optional[str | Path] = None) -> FastAPI:
 
       try {{
         if (window.mermaid && window.mermaid.render) {{
-          const cleanDef = chartDefinition.replace(/\\n/g, '\n').trim();
+          const cleanDef = chartDefinition.trim();
           const {{ svg }} = await window.mermaid.render(uniqueId, cleanDef);
           el.innerHTML = svg;
         }} else {{
           el.innerHTML = `<pre class="text-xs font-mono text-slate-800">${{chartDefinition}}</pre>`;
         }}
       }} catch (err) {{
+
         console.warn('Mermaid render fallback:', err);
         document.querySelectorAll('[id^="dmermaid"]').forEach(e => e.remove());
         document.querySelectorAll('.error-icon').forEach(e => e.closest('div')?.remove());
