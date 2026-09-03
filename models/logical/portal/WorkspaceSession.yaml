@@ -1,0 +1,45 @@
+domain: portal
+name: WorkspaceSession
+conceptual_term_ref: data://conceptual/workspace_session
+description: State tracking for the active tenant and solution scope in the web UI.
+attributes:
+  - name: session_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique workspace session identifier.
+  - name: tenant_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Active tenant identifier (e.g. tripartite).
+  - name: solution_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Active solution domain identifier (e.g. ecommerce, groundtruth, northstar).
+  - name: version_tag
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'@latest'"
+    description: Active evolution milestone version qualifier (e.g. @latest, @v1).
+  - name: active_tab
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'overview'"
+    description: Current navigation tab (overview, northstar, groundtruth, codemesh).
+
+  - name: updated_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Last session mutation timestamp.
+relations: []
+lifecycle: ACTIVE

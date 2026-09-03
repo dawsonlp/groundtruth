@@ -4,8 +4,11 @@
 > **Status**: APPROVED ARCHITECTURE SPECIFICATION  
 > **Date**: 2026-09-02  
 > **Governing ADRs**:
-> - [ADR 0001: Require MOF Conformance for the Governing Model Definition](../../adrs/0001-require-mof-conformance-for-the-governing-model-definition.md)
-> - [ADR 0002: DAMA-Aligned 4-Tier Data Modeling Architecture](../../adrs/0002-dama-aligned-4-tier-data-modeling-architecture.md)
+> - [ADR 0001: First-Principles Information Dependencies for Ontology Design](../../../adrs/0001-first-principles-information-dependencies-for-ontology-design.md)
+> - [ADR 0002: Three-Tier Decomposition (Data-Domain-First, Capability API, Zero-Logic Presentation)](../../../adrs/0002-three-tier-decomposition-data-domain-first-capability-api-and-zero-logic-presentation.md)
+> - [ADR 0004: Canonical URI Grammar and Versioning Topology (Option B)](../../../adrs/0004-canonical-uri-grammar-and-versioning-topology.md)
+> - [ADR 0005: Hierarchical Multi-Tenant API Segmentation](../../../adrs/0005-hierarchical-multi-tenant-api-segmentation-and-global-inheritance.md)
+
 
 ---
 
@@ -136,13 +139,14 @@ src/groundtruth/
 
 | Northstar Capability URI | GroundTruth Implementation Symbol | Preconditions | Guarantees |
 | :--- | :--- | :--- | :--- |
-| `req://conceptual/register-business-term` | `ConceptualCatalog.register_term()` | Term slug is valid; definition > 10 chars | Registered under `data://conceptual/<slug>` |
-| `req://conceptual/define-property-concept` | `ConceptualCatalog.define_property()` | Property concept category recognized | Registered under `data://conceptual/properties/<slug>` |
-| `req://logical/define-entity-schema` | `LogicalSchemaEngine.define_entity()` | Conceptual term exists; PK declared | Registered under `data://logical/<domain>/<name>` |
-| `req://logical/verify-state-transition` | `FiniteStateMachine.verify_transition()`| State machine exists; state $\in$ states | Returns boolean transition validity |
-| `req://physical/generate-ddl-projection` | `PostgresProjectionEngine.to_ddl()` | Entity lifecycle is ACTIVE | Deterministic, idempotent DDL string |
-| `req://lineage/trace-column-provenance` | `LineageGraph.trace_column()` | Attribute URI exists in catalog | Returns directed acyclic provenance graph |
-| `req://governance/enforce-privacy-tagging`| `PrivacyClassifier.enforce_tags()` | Sensitive attributes classified | Generates compliance audit certificate |
+| `req://tripartite:groundtruth/register-business-term@v1` | `ConceptualCatalog.register_term()` | Term slug is valid; definition > 10 chars | Registered under `data://tripartite:groundtruth/conceptual/<slug>@v1` |
+| `req://tripartite:groundtruth/define-property-concept@v1` | `ConceptualCatalog.define_property()` | Property concept category recognized | Registered under `data://tripartite:groundtruth/conceptual/properties/<slug>@v1` |
+| `req://tripartite:groundtruth/define-entity-schema@v1` | `LogicalSchemaEngine.define_entity()` | Conceptual term exists; PK declared | Registered under `data://tripartite:groundtruth/logical/<domain>/<name>@v1` |
+| `req://tripartite:groundtruth/verify-state-transition@v1` | `FiniteStateMachine.verify_transition()`| State machine exists; state $\in$ states | Returns boolean transition validity |
+| `req://tripartite:groundtruth/generate-ddl-projection@v1` | `PostgresProjectionEngine.to_ddl()` | Entity lifecycle is ACTIVE | Deterministic, idempotent DDL string |
+| `req://tripartite:groundtruth/trace-column-provenance@v1` | `LineageGraph.trace_column()` | Attribute URI exists in catalog | Returns directed acyclic provenance graph |
+| `req://tripartite:groundtruth/enforce-privacy-tagging@v1`| `PrivacyClassifier.enforce_tags()` | Sensitive attributes classified | Generates compliance audit certificate |
+
 
 ---
 

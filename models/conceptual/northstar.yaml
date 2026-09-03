@@ -1,0 +1,54 @@
+terms:
+  - slug: canonical_coordinate
+    name: Canonical Resource Coordinate
+    definition: The 5-tuple information coordinate (Scheme, Tenant, Solution, Version, LocalPath) uniquely identifying any intent, data, or computational element across the federation.
+    domain: northstar
+    synonyms: ["Resource Coordinate", "Option B URI", "Canonical Identifier"]
+
+  - slug: tenant_partition
+    name: Tenant Partition
+    definition: The organizational or enterprise boundary owning an intent coordinate (e.g. global for federation standards, or tripartite for enterprise solutions).
+    domain: northstar
+    synonyms: ["Tenant Scope", "Enterprise Partition", "Organization Namespace"]
+
+  - slug: version_milestone
+    name: Version Milestone
+    definition: The temporal evolution tag (@v1, @v2, @1.2.0, @latest) qualifying an immutable contract state, schema generation, or code release.
+    domain: northstar
+    synonyms: ["Version Tag", "Release Milestone", "Schema Generation"]
+
+  - slug: component
+    name: Architectural Component
+    definition: A modular structural unit in the system architecture that groups cohesive capabilities, owns code namespaces, and defines boundary invariants.
+    domain: northstar
+    synonyms: ["Module", "Subsystem", "Bounded Context"]
+
+  - slug: capability
+    name: Intent Capability
+    definition: The fundamental unit of functional intent and operational contract, defining pre/postconditions, authorized actors, and failure recovery modes.
+    domain: northstar
+    synonyms: ["Functional Requirement", "Operation Contract", "Feature"]
+
+  - slug: decision
+    name: Architectural Decision Record
+    definition: An authoritative record capturing a significant architectural decision, including its context, alternatives considered, decision outcome, and consequences.
+    domain: northstar
+    synonyms: ["ADR", "Design Decision", "Architecture Record"]
+
+  - slug: invariant
+    name: Architectural Invariant
+    definition: An executable guardrail or boundary constraint that enforces domain rules, type contracts, purity bounds, or state transitions across the system.
+    domain: northstar
+    synonyms: ["Constraint", "Guardrail", "Rule", "Integrity Check"]
+
+  - slug: workflow
+    name: Saga Workflow
+    definition: A multi-step asynchronous saga or distributed transaction sequence orchestrating capabilities with timeout budgets and compensating actions.
+    domain: northstar
+    synonyms: ["Saga", "Choreography", "Business Process"]
+
+  - slug: intent_edge
+    name: Intent Graph Relationship Edge
+    definition: A typed, provenance-tracked semantic edge connecting intent nodes (such as GOVERNED_BY, CONSTRAINS, REQUIRES, or SUPERSEDES).
+    domain: northstar
+    synonyms: ["Traceability Link", "Dependency Edge", "Lineage Link"]

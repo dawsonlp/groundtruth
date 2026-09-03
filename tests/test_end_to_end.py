@@ -107,3 +107,13 @@ def test_rest_service_endpoints():
         assert res.status_code == 200
         assert res.json()["slug"] == "invoice"
 
+        # Resolve Option B Canonical URI
+        res_uri = client.post("/api/v1/uris/resolve", json={"uri": "data://tripartite:ecommerce/logical/Order.total_amount@v1"})
+        assert res_uri.status_code == 200
+        uri_data = res_uri.json()
+        assert uri_data["is_valid"] is True
+        assert uri_data["coordinates"]["solution"] == "ecommerce"
+        assert uri_data["coordinates"]["version"] == "v1"
+        assert uri_data["attribute"] == "total_amount"
+
+

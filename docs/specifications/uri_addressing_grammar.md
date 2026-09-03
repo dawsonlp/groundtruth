@@ -1,65 +1,44 @@
-# GroundTruth URI Addressing Grammar
+# GroundTruth Option B Data URI Addressing Grammar (ADR 0004)
 
-This document defines the formal grammar, validation rules, and hierarchy structure for all **GroundTruth Canonical URIs** (`data://`).
+This document defines the formal grammar, validation rules, and hierarchy structure for all **GroundTruth Canonical Data URIs** (`data://`).
 
 ---
 
-## 1. The DAMA Three-Tier Addressing Scheme
+## 1. The DAMA 4-Tier Semantic Addressing Scheme (Option B)
 
-GroundTruth maps directly to the DAMA DMBOK Information Architecture hierarchy:
+GroundTruth maps directly to ISO/IEC 11179 and DAMA DMBOK Information Architecture with universal Option B coordinates:
 
-| Tier | Format | Purpose | Example |
+| Tier | Option B Canonical Format | Purpose | Example |
 | :--- | :--- | :--- | :--- |
-| **Conceptual** | `data://conceptual/<domain>/<Concept>` | High-level business concepts & glossary terms | `data://conceptual/sales/Customer` |
-| **Logical** | `data://logical/<domain>/<Entity>[.<Attr>]` | Normalized domain entities, types, and relations | `data://logical/sales/Order.total_amount` |
-| **Physical** | `data://physical/<sys>/<db>/<schema>/<obj>[.<field>]` | Concrete storage tables, columns, topics, and payloads | `data://physical/postgres/public/orders.total_cents` |
+| **Conceptual** | `data://[tenant:]<solution>/conceptual/<term>@v1` | ISO/IEC 11179 Business Terms & Concepts | `data://tripartite:ecommerce/conceptual/customer_account@v1` |
+| **Logical** | `data://[tenant:]<solution>/logical/<Entity>[.<Attr>]@v1` | Normalized Entities, Attributes, & FSMs | `data://tripartite:ecommerce/logical/Order.total_amount@v1` |
+| **Physical** | `data://[tenant:]<solution>/physical/<engine>/<schema>/<table>@v1` | Projected Tables, Columns, & DDL | `data://tripartite:ecommerce/physical/postgres/ecommerce/orders@v1` |
+| **Code Lookup** | `data://[tenant:]<solution>/codes/<domain_code>@v1` | Standardized Reference Lookup Tables | `data://tripartite:ecommerce/codes/order_status@v1` |
 
 ---
 
-## 2. Formal EBNF Grammar
+## 2. Formal Option B Data URI Grammar
 
 ```ebnf
-DataURI          ::= "data://" Tier "/" DomainPath "/" EntityPath ( "#" Fragment )?
+DataURI          ::= "data://" Authority "/" Tier "/" EntityPath ( "@" Version )? ( "#" Fragment )?
 
-Tier             ::= "conceptual" | "logical" | "physical"
-DomainPath       ::= [a-z0-9_]+ ( "/" [a-z0-9_]+ )*
-EntityPath       ::= Identifier ( "." Property )*
-Identifier       ::= [a-zA-Z0-9_-]+
-Property         ::= [a-zA-Z0-9_-]+
-Fragment         ::= [a-zA-Z0-9_-]+
+Authority        ::= ( Tenant ":" )? Solution
+Tenant           ::= [a-z0-9_-]+
+Solution         ::= [a-z0-9_-]+
+Tier             ::= "conceptual" | "logical" | "physical" | "codes"
+EntityPath       ::= Identifier ( "/" Identifier )* ( "." Property )*
+Version          ::= "latest" | "v" [0-9]+ ( "." [0-9]+ )? | [a-zA-Z0-9_.-]+
+Fragment         ::= [a-zA-Z0-9_.-]+
 ```
 
 ---
 
-## 3. Tier-Specific Addressing Rules
+## 3. Canonical 5-Tuple Resolution
 
-### A. Conceptual URIs (`data://conceptual/`)
-* **Format**: `data://conceptual/<domain>/<BusinessTerm>`
-* **Rules**:
-  * Represents technology-agnostic business vocabulary.
-  * PascalCase for concepts.
-* **Examples**:
-  * `data://conceptual/billing/Invoice`
-  * `data://conceptual/supply_chain/Warehouse`
+Every Data URI resolves to a discrete 5-tuple:
 
-### B. Logical URIs (`data://logical/`)
-* **Format**: `data://logical/<domain>/<Entity>[.<Attribute>]`
-* **Rules**:
-  * PascalCase for Entity names, snake_case for attributes.
-  * Dot notation refers to entity attributes, relationship edges, or value properties.
-* **Examples**:
-  * `data://logical/sales/Order`
-  * `data://logical/sales/Order.customer_id`
-  * `data://logical/sales/Order.line_items`
+$$\langle\text{data}, \text{Tenant}, \text{Solution}, \text{Version}, \text{Tier/Path}\rangle$$
 
-### C. Physical URIs (`data://physical/`)
-* **Format**: `data://physical/<system-type>/<db-or-cluster>/<schema-or-topic>/<object>[.<field>]`
-* **Rules**:
-  * System types include `postgres`, `mysql`, `snowflake`, `bigquery`, `kafka`, `s3`, `redis`.
-* **Examples**:
-  * `data://physical/postgres/prod_db/public/orders.total_cents`
-  * `data://physical/kafka/event_broker/orders.v1/order_placed.proto#OrderPlacedPayload`
-  * `data://physical/s3/lakehouse/parquet/sales/orders/data.parquet#order_id`
 
 ---
 

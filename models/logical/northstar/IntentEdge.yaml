@@ -1,0 +1,45 @@
+domain: northstar
+name: IntentEdge
+conceptual_term_ref: data://conceptual/intent_edge
+description: Provenance-tracked semantic relationship edge in the intent graph with Option B scoping.
+attributes:
+  - name: edge_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique relationship edge identifier.
+  - name: tenant_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'tripartite'"
+    description: Owning tenant identifier.
+  - name: source_uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Source node Option B URI.
+  - name: verb
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Relational verb (GOVERNED_BY, CONSTRAINS, REQUIRES, OPERATES_ON).
+  - name: target_uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Target node Option B URI.
+  - name: version_tag
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'@latest'"
+    description: Evolution milestone qualifier for this link.
+relations: []
+lifecycle: ACTIVE

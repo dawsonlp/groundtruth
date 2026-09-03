@@ -1,0 +1,63 @@
+domain: northstar
+name: Decision
+conceptual_term_ref: data://conceptual/decision
+description: Architecture Decision Record (ADR) capturing design choices and consequences with global or tenant scoping.
+attributes:
+  - name: decision_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique decision identifier.
+  - name: uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Canonical Option B decision URI (decision://[tenant:][scope]/[adr-name][@version]).
+  - name: tenant_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'global'"
+    description: Owning tenant identifier (default global for architecture standards).
+  - name: scope
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'arch'"
+    description: Architectural domain scope.
+  - name: version_tag
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'@v1'"
+    description: Evolution milestone qualifier.
+  - name: title
+    data_type:
+      primitive: STRING
+      max_length: 200
+    is_nullable: false
+    description: Full title of the decision record.
+  - name: context_and_problem
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Context and problem statement motivating the decision.
+  - name: decision_outcome
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: The selected decision outcome and architectural pattern.
+  - name: status
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'ACCEPTED'"
+    description: Decision status (PROPOSED, ACCEPTED, REJECTED, SUPERSEDED).
+relations: []
+lifecycle: ACTIVE

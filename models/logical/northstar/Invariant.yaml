@@ -1,0 +1,84 @@
+domain: northstar
+name: Invariant
+conceptual_term_ref: data://conceptual/invariant
+description: Executable architectural guardrail enforcing domain rules and boundaries across tenant scopes.
+attributes:
+  - name: invariant_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique invariant identifier.
+  - name: uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Canonical Option B constraint URI (constraint://[tenant:][scope]/[rule-name][@version]).
+  - name: tenant_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'global'"
+    description: Owning tenant identifier.
+  - name: scope
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'arch'"
+    description: Architectural domain scope.
+  - name: version_tag
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'@v1'"
+    description: Evolution milestone qualifier.
+  - name: title
+    data_type:
+      primitive: STRING
+      max_length: 200
+    is_nullable: false
+    description: Invariant title.
+  - name: rule_type
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    description: Category (ARCHITECTURAL_BOUNDARY, DATA_INTEGRITY, TYPE_CONTRACT).
+  - name: target_scope
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Target AST or URI scope.
+  - name: description
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Natural language rule specification.
+  - name: executable_expression
+    data_type:
+      primitive: STRING
+    is_nullable: true
+    description: Executable validation code.
+  - name: remediation_hint
+    data_type:
+      primitive: STRING
+    is_nullable: true
+    description: Guidance for fixing a violation.
+  - name: governing_decision_id
+    data_type:
+      primitive: UUID
+    is_nullable: true
+    description: Governing ADR decision foreign key.
+relations:
+  - name: invariant_decision_fk
+    target_entity_uri: data://logical/northstar/Decision
+    source_attribute: governing_decision_id
+    target_attribute: decision_id
+    relationship_type: MANY_TO_ONE
+    is_required: false
+lifecycle: ACTIVE

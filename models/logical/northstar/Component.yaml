@@ -1,0 +1,64 @@
+domain: northstar
+name: Component
+conceptual_term_ref: data://conceptual/component
+description: Architectural component grouping exported capabilities, owning code namespaces, and scoped by Option B coordinates.
+attributes:
+  - name: component_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique component surrogate identifier.
+  - name: uri
+    data_type:
+      primitive: STRING
+      max_length: 255
+    is_nullable: false
+    description: Canonical Option B URI (component://[tenant:][solution]/[name][@version]).
+  - name: tenant_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'tripartite'"
+    description: Owning tenant identifier (tripartite, global).
+  - name: solution_slug
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'northstar'"
+    description: Solution package slug.
+  - name: version_tag
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'@v1'"
+    description: Evolution milestone qualifier.
+  - name: name
+    data_type:
+      primitive: STRING
+      max_length: 150
+    is_nullable: false
+    description: Human-readable component name.
+  - name: domain
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Solution domain package.
+  - name: lifecycle
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'ACTIVE'"
+    description: Lifecycle state (DRAFT, ACTIVE, DEPRECATED, RETIRED).
+  - name: description
+    data_type:
+      primitive: STRING
+    is_nullable: true
+    description: Detailed architectural description.
+relations: []
+lifecycle: ACTIVE

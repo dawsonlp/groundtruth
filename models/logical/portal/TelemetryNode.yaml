@@ -1,0 +1,35 @@
+domain: portal
+name: TelemetryNode
+conceptual_term_ref: data://conceptual/telemetry_node
+description: Federation service liveness and health telemetry status.
+attributes:
+  - name: node_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique telemetry node identifier.
+  - name: service_name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Name of the authority service (northstar, groundtruth, codemesh).
+  - name: port
+    data_type:
+      primitive: INTEGER
+    is_nullable: false
+    description: Bound HTTP listening port.
+  - name: is_healthy
+    data_type:
+      primitive: BOOLEAN
+    is_nullable: false
+    default_value: "true"
+    description: Current health check status.
+  - name: last_ping_at
+    data_type:
+      primitive: TIMESTAMP
+    is_nullable: false
+    description: Timestamp of last successful health ping.
+relations: []
+lifecycle: ACTIVE

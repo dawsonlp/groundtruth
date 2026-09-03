@@ -1,0 +1,47 @@
+domain: northstar
+name: FailureMode
+conceptual_term_ref: data://conceptual/capability
+description: Declared error modes, trigger conditions, and compensating recovery actions.
+attributes:
+  - name: failure_id
+    data_type:
+      primitive: UUID
+    is_primary_key: true
+    is_nullable: false
+    description: Unique failure mode identifier.
+  - name: capability_id
+    data_type:
+      primitive: UUID
+    is_nullable: false
+    description: Associated capability foreign key.
+  - name: version_tag
+    data_type:
+      primitive: STRING
+      max_length: 50
+    is_nullable: false
+    default_value: "'@v1'"
+    description: Pinned version qualifier for this failure mode.
+  - name: error_name
+    data_type:
+      primitive: STRING
+      max_length: 100
+    is_nullable: false
+    description: Formal error exception name.
+  - name: trigger_condition
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Precise condition triggering the failure mode.
+  - name: recovery_action
+    data_type:
+      primitive: STRING
+    is_nullable: false
+    description: Recommended automated or manual remediation action.
+relations:
+  - name: failure_capability_fk
+    target_entity_uri: data://logical/northstar/Capability
+    source_attribute: capability_id
+    target_attribute: capability_id
+    relationship_type: MANY_TO_ONE
+    is_required: true
+lifecycle: ACTIVE

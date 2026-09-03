@@ -40,24 +40,29 @@
 
 ---
 
-## 2. Canonical Addressing & Identifier Specification
+## 2. Option B Canonical Addressing Specification (ADR 0004)
 
-GroundTruth exposes deterministic, immutable URIs using the `data://` scheme:
+GroundTruth exposes deterministic, immutable Option B URIs using the `data://` scheme:
 
 ### A. Conceptual URIs
-* **Format**: `data://conceptual/<domain>/<BusinessConcept>`
+* **Format**: `data://[tenant:]<solution>/conceptual/<term>[@version]`
 * **Examples**:
-  * `data://conceptual/billing/Invoice`
-  * `data://conceptual/logistics/Consignment`
+  * `data://tripartite:ecommerce/conceptual/customer_account@v1`
+  * `data://tripartite:ecommerce/conceptual/customer_order@v1`
 
 ### B. Logical URIs
-* **Format**: `data://logical/<domain>/<Entity>[.<Attribute>]`
+* **Format**: `data://[tenant:]<solution>/logical/<Entity>[.<Attribute>][@version]`
 * **Examples**:
-  * `data://logical/sales/Order`
-  * `data://logical/sales/Order.total_amount`
-  * `data://logical/sales/Order.items` (Relationship attribute)
+  * `data://tripartite:ecommerce/logical/Order@v1`
+  * `data://tripartite:ecommerce/logical/Order.total_amount@v1`
+  * `data://tripartite:ecommerce/logical/Order.items@v1` (Relationship attribute)
 
 ### C. Physical URIs
+* **Format**: `data://[tenant:]<solution>/physical/<engine>/<schema>/<table>[@version]`
+* **Examples**:
+  * `data://tripartite:ecommerce/physical/postgres/ecommerce/orders@v1`
+  * `data://tripartite:groundtruth_meta/physical/postgres/groundtruth_meta/terms@v1`
+
 * **Format**: `data://physical/<system-type>/<cluster-or-db>/<schema-or-topic>/<object>[.<field>]`
 * **Examples**:
   * `data://physical/postgres/primary_db/public/orders.total_cents`

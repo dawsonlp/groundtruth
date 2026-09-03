@@ -1,0 +1,12 @@
+terms:
+  - slug: workspace_session
+    name: Portal Workspace Session
+    definition: The active user interface session tracking selected tenant, active solution domain, and navigation state.
+    domain: portal
+    synonyms: ["Session Context", "Workspace State", "UI Scope"]
+
+  - slug: telemetry_node
+    name: Backend Telemetry Node
+    definition: A monitored service endpoint in the Tripartite Federation reporting real-time liveness, port bindings, and health metrics.
+    domain: portal
+    synonyms: ["Service Health", "Liveness Probe", "Health Status"]
